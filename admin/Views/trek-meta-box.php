@@ -27,67 +27,49 @@ if ( ! defined( 'ABSPATH' ) ) {
 		
 		<!-- TAB 1: GENERAL INFO -->
 		<div id="at-tab-general" class="at-meta-tab-panel active">
-			<table class="form-table">
-				<tr>
-					<th><label for="at_difficulty"><?php esc_html_e( 'Difficulty Level', 'adventure-treks' ); ?></label></th>
-					<td>
-						<select name="at_difficulty" id="at_difficulty">
-							<option value="Easy" <?php selected( $trek['difficulty'], 'Easy' ); ?>><?php esc_html_e( 'Easy', 'adventure-treks' ); ?></option>
-							<option value="Moderate" <?php selected( $trek['difficulty'], 'Moderate' ); ?>><?php esc_html_e( 'Moderate', 'adventure-treks' ); ?></option>
-							<option value="Difficult" <?php selected( $trek['difficulty'], 'Difficult' ); ?>><?php esc_html_e( 'Difficult', 'adventure-treks' ); ?></option>
-							<option value="Strenuous" <?php selected( $trek['difficulty'], 'Strenuous' ); ?>><?php esc_html_e( 'Strenuous', 'adventure-treks' ); ?></option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_duration"><?php esc_html_e( 'Duration (e.g. 5 Days / 4 Nights)', 'adventure-treks' ); ?></label></th>
-					<td>
-						<input type="text" name="at_duration" id="at_duration" value="<?php echo esc_attr( $trek['duration'] ); ?>" class="regular-text" placeholder="e.g. 5 Days / 4 Nights" />
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_altitude"><?php esc_html_e( 'Max Altitude (e.g. 12,500 ft)', 'adventure-treks' ); ?></label></th>
-					<td>
-						<input type="text" name="at_altitude" id="at_altitude" value="<?php echo esc_attr( $trek['altitude'] ); ?>" class="regular-text" placeholder="e.g. 12,500 ft" />
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_region"><?php esc_html_e( 'Region / State', 'adventure-treks' ); ?></label></th>
-					<td>
-						<input type="text" name="at_region" id="at_region" value="<?php echo esc_attr( $trek['region'] ); ?>" class="regular-text" placeholder="e.g. Himachal Pradesh" />
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_season"><?php esc_html_e( 'Best Season', 'adventure-treks' ); ?></label></th>
-					<td>
-						<input type="text" name="at_season" id="at_season" value="<?php echo esc_attr( $trek['season'] ); ?>" class="regular-text" placeholder="e.g. May to October" />
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_distance"><?php esc_html_e( 'Trekking Distance (e.g. 26 km)', 'adventure-treks' ); ?></label></th>
-					<td>
-						<input type="text" name="at_distance" id="at_distance" value="<?php echo esc_attr( $trek['distance'] ); ?>" class="regular-text" placeholder="e.g. 26 km" />
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_fitness_level"><?php esc_html_e( 'Fitness Level Required', 'adventure-treks' ); ?></label></th>
-					<td>
-						<input type="text" name="at_fitness_level" id="at_fitness_level" value="<?php echo esc_attr( $trek['fitness_level'] ); ?>" class="regular-text" placeholder="e.g. Average / Good physical health" />
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_age_limit"><?php esc_html_e( 'Age Limit (e.g. 10 - 55 Years)', 'adventure-treks' ); ?></label></th>
-					<td>
-						<input type="text" name="at_age_limit" id="at_age_limit" value="<?php echo esc_attr( $trek['age_limit'] ); ?>" class="regular-text" placeholder="e.g. 10 to 60 Years" />
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_group_size"><?php esc_html_e( 'Ideal Group Size', 'adventure-treks' ); ?></label></th>
-					<td>
-						<input type="text" name="at_group_size" id="at_group_size" value="<?php echo esc_attr( $trek['group_size'] ); ?>" class="regular-text" placeholder="e.g. 12 to 20 Trekkers" />
-					</td>
-				</tr>
-			</table>
+			<div class="at-form-grid-2" style="margin-top: 15px;">
+				<div class="at-form-row">
+					<label for="at_difficulty"><?php esc_html_e( 'Difficulty Level', 'adventure-treks' ); ?></label>
+					<select name="at_difficulty" id="at_difficulty" style="width:100%;">
+						<option value="Easy" <?php selected( $trek['difficulty'], 'Easy' ); ?>><?php esc_html_e( 'Easy', 'adventure-treks' ); ?></option>
+						<option value="Moderate" <?php selected( $trek['difficulty'], 'Moderate' ); ?>><?php esc_html_e( 'Moderate', 'adventure-treks' ); ?></option>
+						<option value="Difficult" <?php selected( $trek['difficulty'], 'Difficult' ); ?>><?php esc_html_e( 'Difficult', 'adventure-treks' ); ?></option>
+						<option value="Strenuous" <?php selected( $trek['difficulty'], 'Strenuous' ); ?>><?php esc_html_e( 'Strenuous', 'adventure-treks' ); ?></option>
+					</select>
+				</div>
+				<div class="at-form-row">
+					<label for="at_duration"><?php esc_html_e( 'Duration (e.g. 5 Days / 4 Nights)', 'adventure-treks' ); ?></label>
+					<input type="text" name="at_duration" id="at_duration" value="<?php echo esc_attr( $trek['duration'] ); ?>" style="width:100%;" placeholder="e.g. 5 Days / 4 Nights" />
+				</div>
+				<div class="at-form-row">
+					<label for="at_altitude"><?php esc_html_e( 'Max Altitude (e.g. 12,500 ft)', 'adventure-treks' ); ?></label>
+					<input type="text" name="at_altitude" id="at_altitude" value="<?php echo esc_attr( $trek['altitude'] ); ?>" style="width:100%;" placeholder="e.g. 12,500 ft" />
+				</div>
+				<div class="at-form-row">
+					<label for="at_region"><?php esc_html_e( 'Region / State', 'adventure-treks' ); ?></label>
+					<input type="text" name="at_region" id="at_region" value="<?php echo esc_attr( $trek['region'] ); ?>" style="width:100%;" placeholder="e.g. Himachal Pradesh" />
+				</div>
+				<div class="at-form-row">
+					<label for="at_season"><?php esc_html_e( 'Best Season', 'adventure-treks' ); ?></label>
+					<input type="text" name="at_season" id="at_season" value="<?php echo esc_attr( $trek['season'] ); ?>" style="width:100%;" placeholder="e.g. May to October" />
+				</div>
+				<div class="at-form-row">
+					<label for="at_distance"><?php esc_html_e( 'Trekking Distance (e.g. 26 km)', 'adventure-treks' ); ?></label>
+					<input type="text" name="at_distance" id="at_distance" value="<?php echo esc_attr( $trek['distance'] ); ?>" style="width:100%;" placeholder="e.g. 26 km" />
+				</div>
+				<div class="at-form-row">
+					<label for="at_fitness_level"><?php esc_html_e( 'Fitness Level Required', 'adventure-treks' ); ?></label>
+					<input type="text" name="at_fitness_level" id="at_fitness_level" value="<?php echo esc_attr( $trek['fitness_level'] ); ?>" style="width:100%;" placeholder="e.g. Average / Good physical health" />
+				</div>
+				<div class="at-form-row">
+					<label for="at_age_limit"><?php esc_html_e( 'Age Limit (e.g. 10 - 55 Years)', 'adventure-treks' ); ?></label>
+					<input type="text" name="at_age_limit" id="at_age_limit" value="<?php echo esc_attr( $trek['age_limit'] ); ?>" style="width:100%;" placeholder="e.g. 10 to 60 Years" />
+				</div>
+				<div class="at-form-row">
+					<label for="at_group_size"><?php esc_html_e( 'Ideal Group Size', 'adventure-treks' ); ?></label>
+					<input type="text" name="at_group_size" id="at_group_size" value="<?php echo esc_attr( $trek['group_size'] ); ?>" style="width:100%;" placeholder="e.g. 12 to 20 Trekkers" />
+				</div>
+			</div>
 		</div>
 
 		<!-- TAB 2: GALLERY -->

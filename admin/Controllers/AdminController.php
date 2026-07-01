@@ -50,7 +50,7 @@ class AdminController {
 	public function register_settings_fields() {
 		register_setting( 'adventure_treks_settings_group', 'at_currency_symbol', array(
 			'type'              => 'string',
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => array( $this, 'sanitize_currency_symbol' ),
 			'default'           => '₹',
 		) );
 
@@ -84,5 +84,47 @@ class AdminController {
 		if ( file_exists( $view_path ) ) {
 			include $view_path;
 		}
+	}
+
+	/**
+	 * Get predefined currencies.
+	 *
+	 * @return array
+	 */
+	public static function get_currencies() {
+		return array(
+			'₹'   => '₹ (Indian Rupee)',
+			'$'   => '$ (US Dollar)',
+			'€'   => '€ (Euro)',
+			'£'   => '£ (British Pound)',
+			'¥'   => '¥ (Japanese Yen / Chinese Yuan)',
+			'A$'  => 'A$ (Australian Dollar)',
+			'C$'  => 'C$ (Canadian Dollar)',
+			'Fr'  => 'Fr (Swiss Franc)',
+			'NZ$' => 'NZ$ (New Zealand Dollar)',
+			'kr'  => 'kr (Swedish/Norwegian/Danish Krone)',
+			'R$'  => 'R$ (Brazilian Real)',
+			'R'   => 'R (South African Rand)',
+			'AED' => 'AED (UAE Dirham)',
+			'฿'   => '฿ (Thai Baht)',
+			'Rp'  => 'Rp (Indonesian Rupiah)',
+		);
+	}
+
+	/**
+	 * Sanitize currency symbol.
+	 *
+	 * @param string $input Input currency symbol.
+	 * @return string
+	 */
+	public function sanitize_currency_symbol( $input ) {
+		$input = sanitize_text_field( $input );
+		
+		$currencies = self::get_currencies();
+		if ( array_key_exists( $input, $currencies ) ) {
+			return $input;
+		}
+		
+		return get_option( 'at_currency_symbol', '₹' );
 	}
 }

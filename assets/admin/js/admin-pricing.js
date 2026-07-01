@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					renderExtraCharges(p.extra_charges || []);
 					renderOptionalAddons(p.optional_addons || []);
 				} else {
-					alert('Failed to load pricing data: ' + data.data.message);
+					at_admin_toast('Failed to load pricing data: ' + data.data.message);
 				}
 			});
 	}
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		// Validation
 		const adultPrice = document.getElementById('at_pricing_adult_price');
 		if (!adultPrice.value.trim()) {
-			alert('Adult Price is required.');
+			at_admin_toast('Adult Price is required.');
 			adultPrice.focus();
 			return;
 		}
@@ -268,12 +268,12 @@ document.addEventListener('DOMContentLoaded', function() {
 						location.reload();
 					}
 				} else {
-					alert('Saving rules failed: ' + data.data.message);
+					at_admin_toast('Saving rules failed: ' + data.data.message);
 					pricingModal.style.display = 'flex';
 				}
 			})
 			.catch(err => {
-				alert('Network error while saving pricing.');
+				at_admin_toast('Network error while saving pricing.');
 				pricingModal.style.display = 'flex';
 			});
 	});

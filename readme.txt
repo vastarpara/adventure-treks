@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-🏔️ The complete trekking & adventure trip management plugin for WordPress — itineraries, departure cities, live seat availability, and bookings in one place.
+🏔️ The complete trekking management plugin for WordPress — itineraries, departure cities, live seat availability, and frontend bookings in one place.
 
 == Description ==
 

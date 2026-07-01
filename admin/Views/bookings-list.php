@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<input type="hidden" name="post_type" value="adventure_trek" />
 						<input type="hidden" name="page" value="at-bookings" />
 						<?php
+						$table->search_box( __( 'Search', 'adventure-treks' ), 'search_id' );
 						$table->display();
 						?>
 					</form>

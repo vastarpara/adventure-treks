@@ -110,9 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			// Price overrides rendering
 			let priceOverridesText = 'None (City default)';
 			if (parseFloat(date.adult_price) > 0 || parseFloat(date.offer_price) > 0) {
-				priceOverridesText = `Adult: ${parseFloat(date.adult_price).toFixed(2)}`;
+				priceOverridesText = `Adult: ${parseInt(date.adult_price || 0)}`;
 				if (parseFloat(date.offer_price) > 0) {
-					priceOverridesText += ` (Offer: ${parseFloat(date.offer_price).toFixed(2)})`;
+					priceOverridesText += ` (Offer: ${parseInt(date.offer_price || 0)})`;
 				}
 			}
 
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		// Manual Validation
 		const dateFld = document.getElementById('at_form_departure_date');
 		if (!dateFld.value.trim()) {
-			alert('Departure Date is required');
+			at_admin_toast('Departure Date is required');
 			dateFld.focus();
 			return;
 		}
@@ -229,13 +229,13 @@ document.addEventListener('DOMContentLoaded', function() {
 				if (data.success) {
 					fetchDates();
 				} else {
-					alert('Error: ' + data.data.message);
+					at_admin_toast('Error: ' + data.data.message);
 					datesLoading.style.display = 'none';
 					dateFormModal.style.display = 'flex';
 				}
 			})
 			.catch(err => {
-				alert('Network error while saving date.');
+				at_admin_toast('Network error while saving date.');
 				datesLoading.style.display = 'none';
 				dateFormModal.style.display = 'flex';
 			});
@@ -262,13 +262,13 @@ document.addEventListener('DOMContentLoaded', function() {
 			document.getElementById('at_form_date_notes').value = dateObj.notes;
 
 			// Pricing
-			document.getElementById('at_form_date_adult_price').value = parseFloat(dateObj.adult_price).toFixed(2);
-			document.getElementById('at_form_date_child_price').value = parseFloat(dateObj.child_price).toFixed(2);
-			document.getElementById('at_form_date_offer_price').value = parseFloat(dateObj.offer_price).toFixed(2);
+			document.getElementById('at_form_date_adult_price').value = parseInt(dateObj.adult_price || 0);
+			document.getElementById('at_form_date_child_price').value = parseInt(dateObj.child_price || 0);
+			document.getElementById('at_form_date_offer_price').value = parseInt(dateObj.offer_price || 0);
 
 			dateFormModal.style.display = 'flex';
 		} else if (e.target.classList.contains('delete-date')) {
-			if (confirm('Are you sure you want to delete this scheduled date? This action cannot be undone.')) {
+			at_admin_confirm('Are you sure you want to delete this scheduled date? This action cannot be undone.', function() {
 				datesLoading.style.display = 'block';
 
 				const fd = new FormData();
@@ -282,11 +282,11 @@ document.addEventListener('DOMContentLoaded', function() {
 						if (data.success) {
 							fetchDates();
 						} else {
-							alert('Deletion failed: ' + data.data.message);
+							at_admin_toast('Deletion failed: ' + data.data.message);
 							datesLoading.style.display = 'none';
 						}
 					});
-			}
+			});
 		}
 	});
 

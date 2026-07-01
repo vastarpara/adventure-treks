@@ -68,9 +68,12 @@ class TrekItineraryController {
 	 */
 	private function get_day_trek_id( $day_id ) {
 		global $wpdb;
-		return (int) $wpdb->get_var(
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery
+		$trek_id = $wpdb->get_var(
 			$wpdb->prepare( "SELECT trek_id FROM {$wpdb->prefix}at_itineraries WHERE id = %d", $day_id )
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery
+		return (int) $trek_id;
 	}
 
 	/**
@@ -81,9 +84,11 @@ class TrekItineraryController {
 	 */
 	private function get_item_trek_id( $item_id ) {
 		global $wpdb;
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery
 		$itinerary_id = (int) $wpdb->get_var(
 			$wpdb->prepare( "SELECT itinerary_id FROM {$wpdb->prefix}at_itinerary_items WHERE id = %d", $item_id )
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery
 		return $itinerary_id ? $this->get_day_trek_id( $itinerary_id ) : 0;
 	}
 

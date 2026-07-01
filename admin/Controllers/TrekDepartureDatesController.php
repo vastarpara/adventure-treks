@@ -63,9 +63,12 @@ class TrekDepartureDatesController {
 	 */
 	private function get_date_trek_id( $date_id ) {
 		global $wpdb;
-		return (int) $wpdb->get_var(
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery
+		$trek_id = $wpdb->get_var(
 			$wpdb->prepare( "SELECT trek_id FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $date_id )
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery
+		return (int) $trek_id;
 	}
 
 	/**

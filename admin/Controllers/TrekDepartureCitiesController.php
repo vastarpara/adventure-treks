@@ -67,10 +67,21 @@ class TrekDepartureCitiesController {
 			ADVENTURE_TREKS_VERSION
 		);
 
+		wp_enqueue_style( 'flatpickr-css', 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css', array(), '4.6.13' );
+		wp_enqueue_script( 'flatpickr-js', 'https://cdn.jsdelivr.net/npm/flatpickr', array(), '4.6.13', true );
+
 		wp_enqueue_script(
 			'at-admin-departures-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-departures.js',
 			array(),
+			ADVENTURE_TREKS_VERSION,
+			true
+		);
+
+		wp_enqueue_script(
+			'at-admin-pickups-js',
+			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-pickups.js',
+			array( 'at-admin-departures-js' ),
 			ADVENTURE_TREKS_VERSION,
 			true
 		);
@@ -100,9 +111,12 @@ class TrekDepartureCitiesController {
 	 */
 	private function get_city_trek_id( $city_id ) {
 		global $wpdb;
-		return (int) $wpdb->get_var(
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery
+		$trek_id = $wpdb->get_var(
 			$wpdb->prepare( "SELECT trek_id FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $city_id )
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery
+		return (int) $trek_id;
 	}
 
 	/**

@@ -62,8 +62,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			tr.setAttribute('data-index', index);
 			tr.innerHTML = '<td class="at-row-drag-handle" style="vertical-align:middle;">&#9776;</td>'
 				+ '<td style="font-weight:600;vertical-align:middle;">' + city.city_name + '</td>'
-				+ '<td style="vertical-align:middle;">' + parseFloat(city.base_price).toFixed(2) + '</td>'
-				+ '<td style="vertical-align:middle;">' + (city.offer_price ? parseFloat(city.offer_price).toFixed(2) : '0.00') + '</td>'
+				+ '<td style="vertical-align:middle;">' + parseInt(city.base_price || 0) + '</td>'
+				+ '<td style="vertical-align:middle;">' + (city.offer_price ? parseInt(city.offer_price) : '0') + '</td>'
 				+ '<td style="vertical-align:middle;">' + (city.transport_type || '-') + '</td>'
 				+ '<td style="vertical-align:middle;">' + city.booking_deadline + ' Days</td>'
 				+ '<td style="vertical-align:middle;"><span class="at-status-badge ' + (city.status === 'active' ? 'active' : 'inactive') + '">' + city.status + '</span></td>'
@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				+ '<a href="#" class="at-action-link dates button button-small" data-id="' + city.id + '" data-name="' + city.city_name + '" style="color:#2271b1;border-color:#2271b1;">Dates</a>'
 				+ '<a href="#" class="at-action-link itinerary button button-small" data-id="' + city.id + '" data-name="' + city.city_name + '" style="color:#137a7f;border-color:#137a7f;">Itinerary</a>'
 				+ '<a href="#" class="at-action-link pricing button button-small" data-id="' + city.id + '" data-name="' + city.city_name + '" style="color:#c65911;border-color:#c65911;">Pricing</a>'
+				+ '<a href="#" class="at-action-link pickups button button-small" data-id="' + city.id + '" data-name="' + city.city_name + '" style="color:#8f22b1;border-color:#8f22b1;">Pickups</a>'
 				+ '</div>'
 				+ '<div style="display:flex;justify-content:flex-end;gap:8px;font-size:12px;">'
 				+ '<a href="#" class="at-action-link edit" data-id="' + city.id + '" style="color:#2271b1;">Edit</a>'
@@ -101,8 +102,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (!f) return;
 		var inputs = f.querySelectorAll('input, select');
 		inputs.forEach(function(i) {
-			if (i.type === 'number') i.value = (i.name === 'booking_deadline' ? '3' : '0.00');
+			if (i.type === 'number') i.value = (i.name === 'booking_deadline' ? '3' : '0');
 			else if (i.tagName === 'SELECT') i.value = 'active';
+			else if (i._flatpickr) i._flatpickr.clear();
 			else i.value = '';
 		});
 	}
@@ -131,9 +133,25 @@ document.addEventListener('DOMContentLoaded', function() {
 			// Manual validation for required fields
 			var nameFld = g('at_form_city_name');
 			var basePriceFld = g('at_form_base_price');
-			if (!nameFld.value.trim()) { alert('City Name is required'); nameFld.focus(); return; }
-			if (!basePriceFld.value.trim()) { alert('Base Price is required'); basePriceFld.focus(); return; }
+			var offerPriceFld = g('at_form_offer_price');
+			var deadlineFld = g('at_form_booking_deadline');
 
+			if (!nameFld.value.trim()) { at_admin_toast('City Name is required'); nameFld.focus(); return; }
+			
+			var bp = parseFloat(basePriceFld.value) || 0;
+			var op = offerPriceFld.value.trim() !== '' ? parseFloat(offerPriceFld.value) : 0;
+
+			if (bp <= 0) {
+				at_admin_toast('Base Price must be greater than 0'); basePriceFld.focus(); return;
+			}
+			if (op > 0 && op >= bp) {
+				at_admin_toast('Offer Price must be less than Base Price'); offerPriceFld.focus(); return;
+			}
+
+			var ddl = parseInt(deadlineFld.value) || 0;
+			if (ddl < 0) {
+				at_admin_toast('Booking Deadline cannot be negative'); deadlineFld.focus(); return;
+			}
 			var fd = new FormData();
 			fd.append('action', 'at_save_departure_city');
 			fd.append('trek_id', trekId);
@@ -158,9 +176,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				.then(function(r){ return r.json(); })
 				.then(function(data){
 					if (data.success) { fetchCities(); }
-					else { alert('Error: ' + data.data.message); loading.style.display='none'; openCityModal(); }
+					else { at_admin_toast('Error: ' + data.data.message); loading.style.display='none'; openCityModal(); }
 				})
-				.catch(function(){ alert('Network error.'); loading.style.display='none'; openCityModal(); });
+				.catch(function(){ at_admin_toast('Network error.'); loading.style.display='none'; openCityModal(); });
 		});
 	}
 
@@ -181,14 +199,17 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (fld('at_form_base_price'))        fld('at_form_base_price').value = city.base_price;
 			if (fld('at_form_offer_price'))       fld('at_form_offer_price').value = city.offer_price;
 			if (fld('at_form_transport_type'))    fld('at_form_transport_type').value = city.transport_type;
-			if (fld('at_form_reporting_time'))    fld('at_form_reporting_time').value = city.reporting_time;
+			if (fld('at_form_reporting_time')) {
+				if (fld('at_form_reporting_time')._flatpickr) fld('at_form_reporting_time')._flatpickr.setDate(city.reporting_time || '');
+				else fld('at_form_reporting_time').value = city.reporting_time || '';
+			}
 			if (fld('at_form_google_map_link'))   fld('at_form_google_map_link').value = city.google_map_link;
 			if (fld('at_form_booking_deadline'))  fld('at_form_booking_deadline').value = city.booking_deadline;
 			if (fld('at_form_status'))            fld('at_form_status').value = city.status;
 			openCityModal();
 
 		} else if (e.target.classList.contains('duplicate')) {
-			if (confirm('Duplicate this city with all its prices, dates & itineraries?')) {
+			at_admin_confirm('Duplicate this city with all its prices, dates & itineraries?', function() {
 				loading.style.display = 'block';
 				var fd2 = new FormData();
 				fd2.append('action','at_duplicate_departure_city');
@@ -196,11 +217,11 @@ document.addEventListener('DOMContentLoaded', function() {
 				fd2.append('nonce', nonce);
 				fetch(ajaxUrl, {method:'POST',body:fd2}).then(function(r){return r.json();}).then(function(data){
 					if (data.success) fetchCities();
-					else { alert('Duplication failed: '+data.data.message); loading.style.display='none'; }
+					else { at_admin_toast('Duplication failed: '+data.data.message); loading.style.display='none'; }
 				});
-			}
+			});
 		} else if (e.target.classList.contains('delete')) {
-			if (confirm('WARNING: This will delete the city and all associated dates, itineraries, pickups and pricing. Proceed?')) {
+			at_admin_confirm('WARNING: This will delete the city and all associated dates, itineraries, pickups and pricing. Proceed?', function() {
 				loading.style.display = 'block';
 				var fd3 = new FormData();
 				fd3.append('action','at_delete_departure_city');
@@ -208,9 +229,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				fd3.append('nonce', nonce);
 				fetch(ajaxUrl, {method:'POST',body:fd3}).then(function(r){return r.json();}).then(function(data){
 					if (data.success) fetchCities();
-					else { alert('Deletion failed: '+data.data.message); loading.style.display='none'; }
+					else { at_admin_toast('Deletion failed: '+data.data.message); loading.style.display='none'; }
 				});
-			}
+			});
 		}
 	});
 
@@ -233,10 +254,20 @@ document.addEventListener('DOMContentLoaded', function() {
 	function saveRowOrder() {
 		var order=[]; tbody.querySelectorAll('.at-city-row').forEach(function(r){order.push(r.getAttribute('data-id'));});
 		var fd=new FormData(); fd.append('action','at_reorder_departure_cities'); order.forEach(function(id){fd.append('order[]',id);}); fd.append('nonce',nonce);
-		fetch(ajaxUrl,{method:'POST',body:fd}).then(function(r){return r.json();}).then(function(data){if(!data.success)alert('Sorting failed: '+data.data.message);});
+		fetch(ajaxUrl,{method:'POST',body:fd}).then(function(r){return r.json();}).then(function(data){if(!data.success)at_admin_toast('Sorting failed: '+data.data.message);});
 	}
 
 	/* ---- Kick off ---- */
 	fetchCities();
+
+	/* ---- Initialize Timepickers ---- */
+	if (typeof flatpickr !== 'undefined') {
+		flatpickr('.at-timepicker', {
+			enableTime: true,
+			noCalendar: true,
+			dateFormat: "h:i K",
+			minuteIncrement: 5,
+		});
+	}
 
 });

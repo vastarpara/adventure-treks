@@ -28,7 +28,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<label for="at_currency_symbol"><?php esc_html_e( 'Currency Symbol', 'adventure-treks' ); ?></label>
 					</th>
 					<td>
-						<input name="at_currency_symbol" type="text" id="at_currency_symbol" value="<?php echo esc_attr( get_option( 'at_currency_symbol', '₹' ) ); ?>" class="small-text" />
+						<?php
+						$at_current_currency = get_option( 'at_currency_symbol', '₹' );
+						$at_currencies       = \AdventureTreks\Admin\Controllers\AdminController::get_currencies();
+						?>
+						<select name="at_currency_symbol" id="at_currency_symbol">
+							<?php foreach ( $at_currencies as $at_symbol => $at_label ) : ?>
+								<option value="<?php echo esc_attr( $at_symbol ); ?>" <?php selected( $at_current_currency, $at_symbol ); ?>>
+									<?php echo esc_html( $at_label ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
 						<p class="description"><?php esc_html_e( 'The currency symbol shown alongside trek prices.', 'adventure-treks' ); ?></p>
 					</td>
 				</tr>

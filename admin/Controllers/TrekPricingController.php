@@ -121,9 +121,11 @@ class TrekPricingController {
 		}
 
 		global $wpdb;
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery
 		$trek_id = (int) $wpdb->get_var(
 			$wpdb->prepare( "SELECT trek_id FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $city_id )
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery
 		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}

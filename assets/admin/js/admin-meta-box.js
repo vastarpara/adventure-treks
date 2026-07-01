@@ -5,6 +5,61 @@
 document.addEventListener('DOMContentLoaded', function() {
 
 	// ==========================================
+	// 0. Global Toast & Confirm Notifications
+	// ==========================================
+	window.at_admin_toast = function(message, type = 'error') {
+		let toast = document.getElementById('at_admin_toast');
+		if (!toast) {
+			toast = document.createElement('div');
+			toast.id = 'at_admin_toast';
+			document.body.appendChild(toast);
+		}
+		toast.className = 'at-toast show ' + type;
+		toast.innerHTML = '<span class="dashicons dashicons-warning"></span> ' + message;
+		
+		setTimeout(() => {
+			toast.className = toast.className.replace('show', '');
+		}, 3500);
+	};
+
+	window.at_admin_confirm = function(message, callback) {
+		let overlay = document.getElementById('at_admin_confirm_overlay');
+		if (!overlay) {
+			overlay = document.createElement('div');
+			overlay.id = 'at_admin_confirm_overlay';
+			overlay.innerHTML = `
+				<div class="at-admin-confirm-box">
+					<div class="at-admin-confirm-icon"><span class="dashicons dashicons-warning"></span></div>
+					<div class="at-admin-confirm-msg"></div>
+					<div class="at-admin-confirm-actions">
+						<button type="button" class="button at-admin-confirm-cancel">Cancel</button>
+						<button type="button" class="button button-primary at-admin-confirm-ok">OK</button>
+					</div>
+				</div>
+			`;
+			document.body.appendChild(overlay);
+
+			overlay.querySelector('.at-admin-confirm-cancel').addEventListener('click', function() {
+				overlay.classList.remove('show');
+			});
+		}
+
+		overlay.querySelector('.at-admin-confirm-msg').innerText = message;
+		
+		// Remove old event listener from OK button by cloning it
+		let oldOk = overlay.querySelector('.at-admin-confirm-ok');
+		let newOk = oldOk.cloneNode(true);
+		oldOk.parentNode.replaceChild(newOk, oldOk);
+
+		newOk.addEventListener('click', function() {
+			overlay.classList.remove('show');
+			callback();
+		});
+
+		overlay.classList.add('show');
+	};
+
+	// ==========================================
 	// 1. Tab switching logic
 	// ==========================================
 	const tabLinks = document.querySelectorAll('.at-meta-tabs-nav a');

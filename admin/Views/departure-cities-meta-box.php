@@ -64,18 +64,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<input type="hidden" name="city_id" id="at_form_city_id" value="" />
 					
 					<div class="at-form-row">
-						<label for="at_form_city_name"><?php esc_html_e( 'City Name *', 'adventure-treks' ); ?></label>
+						<label for="at_form_city_name"><?php esc_html_e( 'City Name', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
 						<input type="text" id="at_form_city_name" name="city_name" placeholder="e.g. Surat" />
 					</div>
 
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
-							<label for="at_form_base_price"><?php esc_html_e( 'Base Price *', 'adventure-treks' ); ?></label>
-							<input type="number" step="0.01" id="at_form_base_price" name="base_price" value="0.00" />
+							<label for="at_form_base_price"><?php esc_html_e( 'Base Price', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
+							<input type="number" step="1" id="at_form_base_price" name="base_price" value="0" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_offer_price"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="0.01" id="at_form_offer_price" name="offer_price" value="0.00" />
+							<input type="number" step="1" id="at_form_offer_price" name="offer_price" value="0" />
 						</div>
 					</div>
 
@@ -86,7 +86,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_reporting_time"><?php esc_html_e( 'Reporting Time', 'adventure-treks' ); ?></label>
-							<input type="text" id="at_form_reporting_time" name="reporting_time" placeholder="e.g. 09:30 PM" />
+							<input type="text" id="at_form_reporting_time" name="reporting_time" class="at-timepicker" placeholder="e.g. 09:30 AM" />
 						</div>
 					</div>
 
@@ -98,7 +98,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
 							<label for="at_form_booking_deadline"><?php esc_html_e( 'Booking Deadline (Days Before)', 'adventure-treks' ); ?></label>
-							<input type="number" id="at_form_booking_deadline" name="booking_deadline" value="3" />
+							<input type="number" id="at_form_booking_deadline" name="booking_deadline" value="3" min="0" />
 							<span class="description"><?php esc_html_e( 'Close booking X days prior to departure.', 'adventure-treks' ); ?></span>
 						</div>
 						<div class="at-form-row">
@@ -168,13 +168,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<input type="hidden" name="date_city_id" id="at_form_date_city_id" value="" />
 
 					<div class="at-form-row">
-						<label for="at_form_departure_date"><?php esc_html_e( 'Departure Date *', 'adventure-treks' ); ?></label>
+						<label for="at_form_departure_date"><?php esc_html_e( 'Departure Date', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
 						<input type="date" id="at_form_departure_date" name="departure_date" />
 					</div>
 
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
-							<label for="at_form_date_total_seats"><?php esc_html_e( 'Total Seats *', 'adventure-treks' ); ?></label>
+							<label for="at_form_date_total_seats"><?php esc_html_e( 'Total Seats', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
 							<input type="number" id="at_form_date_total_seats" name="total_seats" value="30" min="1" />
 						</div>
 						<div class="at-form-row">
@@ -206,15 +206,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-3" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
 						<div class="at-form-row">
 							<label for="at_form_date_adult_price"><?php esc_html_e( 'Adult Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="0.01" id="at_form_date_adult_price" name="adult_price" value="0.00" />
+							<input type="number" step="1" id="at_form_date_adult_price" name="adult_price" value="0" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_date_child_price"><?php esc_html_e( 'Child Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="0.01" id="at_form_date_child_price" name="child_price" value="0.00" />
+							<input type="number" step="1" id="at_form_date_child_price" name="child_price" value="0" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_date_offer_price"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="0.01" id="at_form_date_offer_price" name="offer_price" value="0.00" />
+							<input type="number" step="1" id="at_form_date_offer_price" name="offer_price" value="0" />
 						</div>
 					</div>
 					<span class="description" style="display:block; margin-top:-5px; font-size:11px; color:#666;">
@@ -294,13 +294,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<input type="hidden" name="day_id" id="at_form_day_id" value="" />
 					
 					<div class="at-form-row">
-						<label for="at_form_day_number"><?php esc_html_e( 'Day Number *', 'adventure-treks' ); ?></label>
+						<label for="at_form_day_number"><?php esc_html_e( 'Day Number', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
 						<input type="number" id="at_form_day_number" name="day_number" value="1" min="0" />
 						<span class="description"><?php esc_html_e( 'Use 0 for departure day assembly info, 1 for start, etc.', 'adventure-treks' ); ?></span>
 					</div>
 
 					<div class="at-form-row">
-						<label for="at_form_day_title"><?php esc_html_e( 'Day Title *', 'adventure-treks' ); ?></label>
+						<label for="at_form_day_title"><?php esc_html_e( 'Day Title', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
 						<input type="text" id="at_form_day_title" name="title" placeholder="e.g. Arrival at Basecamp & Briefing" />
 					</div>
 
@@ -330,8 +330,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
-							<label for="at_form_activity_time"><?php esc_html_e( 'Time (e.g. 08:30 AM)', 'adventure-treks' ); ?></label>
-							<input type="text" id="at_form_activity_time" name="item_time" placeholder="e.g. 08:00 AM / Evening" />
+							<label for="at_form_activity_time"><?php esc_html_e( 'Time', 'adventure-treks' ); ?></label>
+							<input type="text" id="at_form_activity_time" name="item_time" class="at-timepicker" placeholder="e.g. 08:30 AM" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_activity_icon"><?php esc_html_e( 'Event Icon', 'adventure-treks' ); ?></label>
@@ -349,7 +349,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 
 					<div class="at-form-row">
-						<label for="at_form_activity_title"><?php esc_html_e( 'Activity Title *', 'adventure-treks' ); ?></label>
+						<label for="at_form_activity_title"><?php esc_html_e( 'Activity Title', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
 						<input type="text" id="at_form_activity_title" name="title" placeholder="e.g. Hot Breakfast served at Camp" />
 					</div>
 
@@ -391,16 +391,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 					<div class="at-form-grid-3" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
 						<div class="at-form-row" style="margin-bottom:0;">
-							<label for="at_pricing_adult_price"><?php esc_html_e( 'Adult Price *', 'adventure-treks' ); ?></label>
-							<input type="number" step="0.01" id="at_pricing_adult_price" name="adult_price" value="0.00" min="0" />
+							<label for="at_pricing_adult_price"><?php esc_html_e( 'Adult Price', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
+							<input type="number" step="1" id="at_pricing_adult_price" name="adult_price" value="0" min="0" />
 						</div>
 						<div class="at-form-row" style="margin-bottom:0;">
 							<label for="at_pricing_child_price"><?php esc_html_e( 'Child Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="0.01" id="at_pricing_child_price" name="child_price" value="0.00" min="0" />
+							<input type="number" step="1" id="at_pricing_child_price" name="child_price" value="0" min="0" />
 						</div>
 						<div class="at-form-row" style="margin-bottom:0;">
 							<label for="at_pricing_offer_price"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="0.01" id="at_pricing_offer_price" name="offer_price" value="0.00" min="0" />
+							<input type="number" step="1" id="at_pricing_offer_price" name="offer_price" value="0" min="0" />
 						</div>
 					</div>
 
@@ -436,6 +436,75 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="at-modal-overlay-footer" style="display: flex; justify-content: flex-end; gap: 10px; padding: 15px 20px; background: #f0f0f1; border-top: 1px solid #ccd0d4;">
 				<button type="button" class="button" id="at_pricing_modal_cancel_btn"><?php esc_html_e( 'Cancel', 'adventure-treks' ); ?></button>
 				<button type="button" class="button button-primary" id="at_pricing_modal_save_btn"><?php esc_html_e( 'Save Pricing Setup', 'adventure-treks' ); ?></button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Pickup Points Manager Modal -->
+	<div class="at-modal-overlay" id="at_pickups_modal" style="display: none;">
+		<div class="at-modal-box" style="max-width: 800px; width: 90%; height: 85vh;">
+			<div class="at-modal-header">
+				<h3><?php esc_html_e( 'Manage Pickup Points', 'adventure-treks' ); ?> - <span id="at_pickups_modal_city_title"></span></h3>
+				<span class="at-modal-close" id="at_pickups_modal_close_btn">&times;</span>
+			</div>
+			<div class="at-modal-body" style="overflow-y: auto;">
+				
+				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+					<p class="description" style="margin:0;"><?php esc_html_e( 'Configure pickup points for this city. You can drag and drop to reorder them.', 'adventure-treks' ); ?></p>
+					<button type="button" class="button button-primary" id="at_add_pickup_btn">+ <?php esc_html_e( 'Add Pickup Point', 'adventure-treks' ); ?></button>
+				</div>
+				
+				<div class="at-loading-spinner" id="at_pickups_loading" style="display:none;">
+					<span class="spinner is-active"></span> <?php esc_html_e( 'Loading pickup points...', 'adventure-treks' ); ?>
+				</div>
+
+				<table class="wp-list-table widefat fixed striped posts" id="at_pickups_table" style="margin-top:10px;">
+					<thead>
+						<tr>
+							<th style="width: 40px;"></th>
+							<th style="width: 200px;"><?php esc_html_e( 'Location Name', 'adventure-treks' ); ?></th>
+							<th style="width: 120px;"><?php esc_html_e( 'Time', 'adventure-treks' ); ?></th>
+							<th><?php esc_html_e( 'Map URL', 'adventure-treks' ); ?></th>
+							<th style="width: 120px; text-align: right;"><?php esc_html_e( 'Actions', 'adventure-treks' ); ?></th>
+						</tr>
+					</thead>
+					<tbody id="at_pickups_tbody">
+						<!-- Loaded via AJAX -->
+					</tbody>
+				</table>
+
+				<!-- Pickup Point Form (Hidden by default) -->
+				<div id="at_pickup_form_container" style="display: none; margin-top: 20px; padding: 15px; border: 1px solid #ccd0d4; background: #fff;">
+					<h4 style="margin-top: 0;" id="at_pickup_form_title"><?php esc_html_e( 'Add Pickup Point', 'adventure-treks' ); ?></h4>
+					<input type="hidden" id="at_pickup_id" name="pickup_id" value="" />
+					
+					<div class="at-form-grid-2">
+						<div class="at-form-row">
+							<label for="at_pickup_location_name"><?php esc_html_e( 'Location Name', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
+							<input type="text" id="at_pickup_location_name" name="location_name" placeholder="e.g. Dehradun Railway Station" />
+						</div>
+						<div class="at-form-row">
+							<label for="at_pickup_time"><?php esc_html_e( 'Pickup Time', 'adventure-treks' ); ?></label>
+							<input type="text" id="at_pickup_time" name="pickup_time" class="at-timepicker" placeholder="e.g. 06:30 AM" />
+						</div>
+					</div>
+					
+					<div class="at-form-row">
+						<label for="at_pickup_map_url"><?php esc_html_e( 'Google Maps URL', 'adventure-treks' ); ?></label>
+						<input type="url" id="at_pickup_map_url" name="google_maps_url" placeholder="https://maps.google.com/..." class="regular-text" style="width: 100%;" />
+					</div>
+					
+					<div class="at-form-row">
+						<label for="at_pickup_instructions"><?php esc_html_e( 'Special Instructions', 'adventure-treks' ); ?></label>
+						<textarea id="at_pickup_instructions" name="instructions" rows="2" placeholder="e.g. Wait near Gate 1..."></textarea>
+					</div>
+					
+					<div style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px;">
+						<button type="button" class="button" id="at_pickup_form_cancel_btn"><?php esc_html_e( 'Cancel', 'adventure-treks' ); ?></button>
+						<button type="button" class="button button-primary" id="at_pickup_form_save_btn"><?php esc_html_e( 'Save Pickup Point', 'adventure-treks' ); ?></button>
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</div>

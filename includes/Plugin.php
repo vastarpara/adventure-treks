@@ -105,6 +105,7 @@ class Plugin {
 			new \AdventureTreks\Admin\Controllers\TrekDepartureCitiesController();
 			new \AdventureTreks\Admin\Controllers\TrekDepartureDatesController();
 			new \AdventureTreks\Admin\Controllers\TrekItineraryController();
+			new \AdventureTreks\Admin\Controllers\TrekPickupPointsController();
 			new \AdventureTreks\Admin\Controllers\TrekPricingController();
 			new \AdventureTreks\Admin\Controllers\TrekBookingsController();
 		}

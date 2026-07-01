@@ -171,9 +171,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			div.querySelector('.at-day-delete-action').addEventListener('click', function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-				if (confirm('Are you sure you want to delete this Day and ALL timeline activities configured inside it? This cannot be undone.')) {
+				at_admin_confirm('Are you sure you want to delete this Day and ALL timeline activities configured inside it? This cannot be undone.', function() {
 					deleteDay(parseInt(day.id));
-				}
+				});
 			});
 
 			daysList.appendChild(div);
@@ -254,9 +254,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			// Delete event listener
 			card.querySelector('.at-activity-delete').addEventListener('click', function(e) {
 				e.preventDefault();
-				if (confirm('Are you sure you want to delete this timeline activity?')) {
+				at_admin_confirm('Are you sure you want to delete this timeline activity?', function() {
 					deleteActivity(parseInt(item.id));
-				}
+				});
 			});
 
 			// Edit event listener
@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		// Manual Validation
 		const titleFld = document.getElementById('at_form_day_title');
 		if (!titleFld.value.trim()) {
-			alert('Day Title is required');
+			at_admin_toast('Day Title is required');
 			titleFld.focus();
 			return;
 		}
@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				if (data.success) {
 					fetchItinerary(data.data.id);
 				} else {
-					alert('Error: ' + data.data.message);
+					at_admin_toast('Error: ' + data.data.message);
 					dayFormModal.style.display = 'flex';
 				}
 			});
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					}
 					fetchItinerary();
 				} else {
-					alert('Error: ' + data.data.message);
+					at_admin_toast('Error: ' + data.data.message);
 				}
 			});
 	}
@@ -390,6 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		const inputs = f.querySelectorAll('input, select, textarea');
 		inputs.forEach(i => {
 			if (i.tagName === 'SELECT') i.value = 'dashicons-palmtree';
+			else if (i._flatpickr) i._flatpickr.clear();
 			else i.value = '';
 		});
 	}
@@ -406,7 +407,14 @@ document.addEventListener('DOMContentLoaded', function() {
 	function openEditActivityModal(item) {
 		activityFormTitle.textContent = 'Edit Timeline Activity';
 		document.getElementById('at_form_activity_id').value = item.id;
-		document.getElementById('at_form_activity_time').value = item.item_time;
+		
+		const timeFld = document.getElementById('at_form_activity_time');
+		if (timeFld._flatpickr) {
+			timeFld._flatpickr.setDate(item.item_time || '');
+		} else {
+			timeFld.value = item.item_time || '';
+		}
+		
 		document.getElementById('at_form_activity_icon').value = item.icon;
 		document.getElementById('at_form_activity_title').value = item.title;
 		document.getElementById('at_form_activity_image').value = item.image_url;
@@ -438,7 +446,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		// Manual Validation
 		const titleFld = document.getElementById('at_form_activity_title');
 		if (!titleFld.value.trim()) {
-			alert('Activity Title is required');
+			at_admin_toast('Activity Title is required');
 			titleFld.focus();
 			return;
 		}
@@ -468,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				if (data.success) {
 					fetchItinerary();
 				} else {
-					alert('Error: ' + data.data.message);
+					at_admin_toast('Error: ' + data.data.message);
 					activityFormModal.style.display = 'flex';
 				}
 			});
@@ -486,7 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				if (data.success) {
 					fetchItinerary();
 				} else {
-					alert('Error: ' + data.data.message);
+					at_admin_toast('Error: ' + data.data.message);
 				}
 			});
 	}
@@ -576,7 +584,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			.then(res => res.json())
 			.then(data => {
 				if (!data.success) {
-					alert('Day reordering failed: ' + data.data.message);
+					at_admin_toast('Day reordering failed: ' + data.data.message);
 				}
 			});
 	}
@@ -640,7 +648,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			.then(res => res.json())
 			.then(data => {
 				if (!data.success) {
-					alert('Activity sorting failed: ' + data.data.message);
+					at_admin_toast('Activity sorting failed: ' + data.data.message);
 				}
 			});
 	}
