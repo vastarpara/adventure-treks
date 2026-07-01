@@ -73,6 +73,7 @@ class Plugin {
 	 * @return void
 	 */
 	public function load_textdomain() {
+		// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound
 		load_plugin_textdomain(
 			$this->plugin_name,
 			false,

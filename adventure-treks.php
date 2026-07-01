@@ -3,7 +3,9 @@
  * Plugin Name:       Adventure Treks
  * Plugin URI:        https://github.com/nileshvastarpara/adventure-treks
  * Description:       A premium trekking and adventure trip management plugin for WordPress.
- * Version:           1.0.3
+ * Version:           1.0.0
+ * Requires at least: 6.0
+ * Requires PHP:      7.4
  * Author:            Nilesh Vastarpara
  * Author URI:        https://github.com/nileshvastarpara
  * License:           GPL-2.0+
@@ -21,7 +23,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Currently active version of the plugin.
  */
-define( 'ADVENTURE_TREKS_VERSION', '1.1.0' );
+define( 'ADVENTURE_TREKS_VERSION', '1.0.0' );
 
 /**
  * Base directory path for the plugin.
@@ -40,27 +42,27 @@ AdventureTreks\Includes\Autoloader::register();
 /**
  * Activation code runner.
  */
-function activate_adventure_treks() {
+function adventure_treks_activate() {
 	AdventureTreks\Includes\Activator::activate();
 }
 
 /**
  * Deactivation code runner.
  */
-function deactivate_adventure_treks() {
+function adventure_treks_deactivate() {
 	AdventureTreks\Includes\Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_adventure_treks' );
-register_deactivation_hook( __FILE__, 'deactivate_adventure_treks' );
+register_activation_hook( __FILE__, 'adventure_treks_activate' );
+register_deactivation_hook( __FILE__, 'adventure_treks_deactivate' );
 
 /**
  * Begins execution of the plugin.
  *
  * @return void
  */
-function run_adventure_treks() {
+function adventure_treks_run() {
 	$plugin = AdventureTreks\Includes\Plugin::get_instance();
 	$plugin->run();
 }
-run_adventure_treks();
+adventure_treks_run();

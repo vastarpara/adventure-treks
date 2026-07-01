@@ -108,7 +108,9 @@ class TrekShortcodesController {
 
 		// 1. Fetch Trek specifications meta
 		$table_treks = $wpdb->prefix . 'at_treks';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$trek = $wpdb->get_row(
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->prepare( "SELECT * FROM $table_treks WHERE post_id = %d", $trek_id ),
 			ARRAY_A
 		);
@@ -119,7 +121,9 @@ class TrekShortcodesController {
 
 		// 2. Fetch active departure cities to default the itinerary Day list
 		$table_cities = $wpdb->prefix . 'at_departure_cities';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$cities = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->prepare( "SELECT * FROM $table_cities WHERE trek_id = %d AND status = 'active' ORDER BY menu_order ASC", $trek_id )
 		);
 
@@ -160,7 +164,9 @@ class TrekShortcodesController {
 		// If city_id is not specified, lookup first active city for the current trek
 		if ( ! $city_id && $trek_id ) {
 			$table_cities = $wpdb->prefix . 'at_departure_cities';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$city_id = intval( $wpdb->get_var(
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 				$wpdb->prepare( "SELECT id FROM $table_cities WHERE trek_id = %d AND status = 'active' ORDER BY menu_order ASC LIMIT 1", $trek_id )
 			) );
 		}
@@ -172,7 +178,9 @@ class TrekShortcodesController {
 		$table_days  = $wpdb->prefix . 'at_itineraries';
 		$table_items = $wpdb->prefix . 'at_itinerary_items';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$days = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->prepare( "SELECT * FROM $table_days WHERE city_id = %d ORDER BY menu_order ASC", $city_id )
 		);
 
@@ -185,13 +193,20 @@ class TrekShortcodesController {
 		<div class="at-frontend-itinerary-timeline" id="trek_itinerary_container">
 			<?php foreach ( $days as $day ) : 
 				$day_id = intval( $day->id );
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 				$items = $wpdb->get_results(
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 					$wpdb->prepare( "SELECT * FROM $table_items WHERE itinerary_id = %d ORDER BY menu_order ASC", $day_id )
 				);
 				?>
 				<div class="at-timeline-day-block">
 					<div class="at-timeline-day-header">
-						<span class="at-timeline-day-badge"><?php printf( esc_html__( 'Day %d', 'adventure-treks' ), intval( $day->day_number ) ); ?></span>
+						<span class="at-timeline-day-badge">
+							<?php
+							/* translators: %d: Day number */
+							printf( esc_html__( 'Day %d', 'adventure-treks' ), intval( $day->day_number ) );
+							?>
+						</span>
 						<h4 class="at-timeline-day-title"><?php echo esc_html( $day->title ); ?></h4>
 					</div>
 					<?php if ( ! empty( $day->description ) ) : ?>

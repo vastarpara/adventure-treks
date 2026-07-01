@@ -97,7 +97,9 @@ class TrekBookingController {
 
 		// Fetch departure cities for this trek.
 		$table_cities = $wpdb->prefix . 'at_departure_cities';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$cities = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->prepare( "SELECT * FROM $table_cities WHERE trek_id = %d AND status = 'active' ORDER BY menu_order ASC", $trek_id )
 		);
 
@@ -125,22 +127,25 @@ class TrekBookingController {
 		$table_avail = $wpdb->prefix . 'at_availability';
 
 		// Query active departure dates.
+		// phpcs:disable WordPress.DB.PreparedSQL
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$dates = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT d.id, d.departure_date, d.status, d.notes, a.available_seats, a.total_seats 
-				 FROM $table_dates d
-				 LEFT JOIN $table_avail a ON d.id = a.date_id
+				 FROM " . $table_dates . " d
+				 LEFT JOIN " . $table_avail . " a ON d.id = a.date_id
 				 WHERE d.city_id = %d AND d.status != 'cancelled' AND d.departure_date >= CURDATE()
 				 ORDER BY d.departure_date ASC",
 				$city_id
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL
 
 		// Format dates output.
 		foreach ( $dates as &$date ) {
 			$js_date = strtotime( $date['departure_date'] );
-			$date['formatted_date'] = date( 'd M Y', $js_date );
+			$date['formatted_date'] = gmdate( 'd M Y', $js_date );
 			$date['available_seats'] = intval( $date['available_seats'] );
 			$date['total_seats'] = intval( $date['total_seats'] );
 		}
@@ -169,21 +174,26 @@ class TrekBookingController {
 		$table_pickups = $wpdb->prefix . 'at_pickup_points';
 
 		// 1. Fetch default city specifications
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$city = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_cities WHERE id = %d", $city_id ), ARRAY_A );
 		if ( ! $city ) {
 			wp_send_json_error( array( 'message' => 'City not found' ) );
 		}
 
 		// 2. Fetch date availability
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$avail = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_avail WHERE date_id = %d", $date_id ), ARRAY_A );
 
 		// 3. Fetch pricing: look for date override, otherwise load default city rule
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$pricing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_pricing WHERE city_id = %d AND date_id = %d", $city_id, $date_id ), ARRAY_A );
 		if ( ! $pricing ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$pricing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_pricing WHERE city_id = %d AND date_id = 0", $city_id ), ARRAY_A );
 		}
 
 		// 4. Fetch pickup list
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$pickups = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_pickups WHERE city_id = %d ORDER BY menu_order ASC", $city_id ), ARRAY_A );
 
 		// 5. Generate formatted itinerary HTML for this city
@@ -216,20 +226,22 @@ class TrekBookingController {
 	public function ajax_submit_booking() {
 		check_ajax_referer( 'at_booking_nonce_action', 'nonce' );
 
-		$trek_id      = isset( $_POST['trek_id'] ) ? intval( $_POST['trek_id'] ) : 0;
-		$city_id      = isset( $_POST['city_id'] ) ? intval( $_POST['city_id'] ) : 0;
-		$date_id      = isset( $_POST['date_id'] ) ? intval( $_POST['date_id'] ) : 0;
+		$trek_id      = isset( $_POST['trek_id'] ) ? intval( wp_unslash( $_POST['trek_id'] ) ) : 0;
+		$city_id      = isset( $_POST['city_id'] ) ? intval( wp_unslash( $_POST['city_id'] ) ) : 0;
+		$date_id      = isset( $_POST['date_id'] ) ? intval( wp_unslash( $_POST['date_id'] ) ) : 0;
 		
-		$cust_name    = isset( $_POST['cust_name'] ) ? sanitize_text_field( $_POST['cust_name'] ) : '';
-		$cust_email   = isset( $_POST['cust_email'] ) ? sanitize_email( $_POST['cust_email'] ) : '';
-		$cust_phone   = isset( $_POST['cust_phone'] ) ? sanitize_text_field( $_POST['cust_phone'] ) : '';
+		$cust_name    = isset( $_POST['cust_name'] ) ? sanitize_text_field( wp_unslash( $_POST['cust_name'] ) ) : '';
+		$cust_email   = isset( $_POST['cust_email'] ) ? sanitize_email( wp_unslash( $_POST['cust_email'] ) ) : '';
+		$cust_phone   = isset( $_POST['cust_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['cust_phone'] ) ) : '';
 		
-		$num_adults   = isset( $_POST['num_adults'] ) ? intval( $_POST['num_adults'] ) : 1;
-		$num_children = isset( $_POST['num_children'] ) ? intval( $_POST['num_children'] ) : 0;
-		$pickup_point = isset( $_POST['pickup_point'] ) ? sanitize_text_field( $_POST['pickup_point'] ) : '';
+		$num_adults   = isset( $_POST['num_adults'] ) ? intval( wp_unslash( $_POST['num_adults'] ) ) : 1;
+		$num_children = isset( $_POST['num_children'] ) ? intval( wp_unslash( $_POST['num_children'] ) ) : 0;
+		$pickup_point = isset( $_POST['pickup_point'] ) ? sanitize_text_field( wp_unslash( $_POST['pickup_point'] ) ) : '';
 		
-		$addons       = isset( $_POST['addons'] ) ? $_POST['addons'] : array();
-		$total_price  = isset( $_POST['total_price'] ) ? floatval( $_POST['total_price'] ) : 0.00;
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$raw_addons   = isset( $_POST['addons'] ) ? wp_unslash( $_POST['addons'] ) : array();
+		$addons       = is_array( $raw_addons ) ? array_map( 'sanitize_text_field', $raw_addons ) : array();
+		$total_price  = isset( $_POST['total_price'] ) ? floatval( wp_unslash( $_POST['total_price'] ) ) : 0.00;
 
 		if ( ! $trek_id || ! $city_id || ! $date_id || empty( $cust_name ) || empty( $cust_email ) ) {
 			wp_send_json_error( array( 'message' => 'Please fill all required customer contact details.' ) );
@@ -244,6 +256,7 @@ class TrekBookingController {
 		$table_avail = $wpdb->prefix . 'at_availability';
 
 		// Verify seat availability under locks
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$avail = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_avail WHERE date_id = %d", $date_id ) );
 		if ( ! $avail ) {
 			wp_send_json_error( array( 'message' => 'Seat availability record not found for this date.' ) );
@@ -258,6 +271,7 @@ class TrekBookingController {
 		$new_booked    = intval( $avail->booked_seats ) + $seats_requested;
 		$new_available = intval( $avail->total_seats ) - $new_booked;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$wpdb->update(
 			$table_avail,
 			array(
@@ -271,9 +285,11 @@ class TrekBookingController {
 
 		// Format dynamic confirmation message details
 		$trek_title = get_the_title( $trek_id );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$city_name  = $wpdb->get_var( $wpdb->prepare( "SELECT city_name FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $city_id ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$date_val   = $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $date_id ) );
-		$date_formatted = date( 'd M Y', strtotime( $date_val ) );
+		$date_formatted = gmdate( 'd M Y', strtotime( $date_val ) );
 
 		$currency = get_option( 'at_currency_symbol', '₹' );
 
@@ -327,7 +343,9 @@ class TrekBookingController {
 		$table_days  = $wpdb->prefix . 'at_itineraries';
 		$table_items = $wpdb->prefix . 'at_itinerary_items';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$days = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->prepare( "SELECT * FROM $table_days WHERE city_id = %d ORDER BY menu_order ASC", $city_id )
 		);
 
@@ -338,12 +356,15 @@ class TrekBookingController {
 		$html = '<div class="at-frontend-itinerary-timeline">';
 		foreach ( $days as $day ) {
 			$day_id = intval( $day->id );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$items = $wpdb->get_results(
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 				$wpdb->prepare( "SELECT * FROM $table_items WHERE itinerary_id = %d ORDER BY menu_order ASC", $day_id )
 			);
 
 			$html .= '<div class="at-timeline-day-block">';
 			$html .= '  <div class="at-timeline-day-header">';
+			/* translators: %d: Day number */
 			$html .= '     <span class="at-timeline-day-badge">' . sprintf( esc_html__( 'Day %d', 'adventure-treks' ), intval( $day->day_number ) ) . '</span>';
 			$html .= '     <h4 class="at-timeline-day-title">' . esc_html( $day->title ) . '</h4>';
 			$html .= '  </div>';

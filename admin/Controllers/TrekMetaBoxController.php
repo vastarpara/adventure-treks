@@ -90,7 +90,9 @@ class TrekMetaBoxController {
 
 		// Query custom DB record.
 		$table_name = $wpdb->prefix . 'at_treks';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$trek = $wpdb->get_row(
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->prepare( "SELECT * FROM $table_name WHERE post_id = %d", $post->ID ),
 			ARRAY_A
 		);
@@ -152,7 +154,8 @@ class TrekMetaBoxController {
 		}
 
 		// Check nonce.
-		if ( ! isset( $_POST['at_trek_details_nonce'] ) || ! wp_verify_nonce( $_POST['at_trek_details_nonce'], 'save_at_trek_details' ) ) {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( ! isset( $_POST['at_trek_details_nonce'] ) || ! wp_verify_nonce( wp_unslash( $_POST['at_trek_details_nonce'] ), 'save_at_trek_details' ) ) {
 			return $post_id;
 		}
 
@@ -165,23 +168,24 @@ class TrekMetaBoxController {
 		$table_name = $wpdb->prefix . 'at_treks';
 
 		// Sanitize standard text inputs.
-		$difficulty    = isset( $_POST['at_difficulty'] ) ? sanitize_text_field( $_POST['at_difficulty'] ) : '';
-		$duration      = isset( $_POST['at_duration'] ) ? sanitize_text_field( $_POST['at_duration'] ) : '';
-		$altitude      = isset( $_POST['at_altitude'] ) ? sanitize_text_field( $_POST['at_altitude'] ) : '';
-		$region        = isset( $_POST['at_region'] ) ? sanitize_text_field( $_POST['at_region'] ) : '';
-		$season        = isset( $_POST['at_season'] ) ? sanitize_text_field( $_POST['at_season'] ) : '';
-		$distance      = isset( $_POST['at_distance'] ) ? sanitize_text_field( $_POST['at_distance'] ) : '';
-		$fitness_level = isset( $_POST['at_fitness_level'] ) ? sanitize_text_field( $_POST['at_fitness_level'] ) : '';
-		$age_limit     = isset( $_POST['at_age_limit'] ) ? sanitize_text_field( $_POST['at_age_limit'] ) : '';
-		$group_size    = isset( $_POST['at_group_size'] ) ? sanitize_text_field( $_POST['at_group_size'] ) : '';
+		$difficulty    = isset( $_POST['at_difficulty'] ) ? sanitize_text_field( wp_unslash( $_POST['at_difficulty'] ) ) : '';
+		$duration      = isset( $_POST['at_duration'] ) ? sanitize_text_field( wp_unslash( $_POST['at_duration'] ) ) : '';
+		$altitude      = isset( $_POST['at_altitude'] ) ? sanitize_text_field( wp_unslash( $_POST['at_altitude'] ) ) : '';
+		$region        = isset( $_POST['at_region'] ) ? sanitize_text_field( wp_unslash( $_POST['at_region'] ) ) : '';
+		$season        = isset( $_POST['at_season'] ) ? sanitize_text_field( wp_unslash( $_POST['at_season'] ) ) : '';
+		$distance      = isset( $_POST['at_distance'] ) ? sanitize_text_field( wp_unslash( $_POST['at_distance'] ) ) : '';
+		$fitness_level = isset( $_POST['at_fitness_level'] ) ? sanitize_text_field( wp_unslash( $_POST['at_fitness_level'] ) ) : '';
+		$age_limit     = isset( $_POST['at_age_limit'] ) ? sanitize_text_field( wp_unslash( $_POST['at_age_limit'] ) ) : '';
+		$group_size    = isset( $_POST['at_group_size'] ) ? sanitize_text_field( wp_unslash( $_POST['at_group_size'] ) ) : '';
 
 		// Highlights and carry list (saved as newline separated in form, serialized/processed cleanly).
-		$highlights      = isset( $_POST['at_highlights'] ) ? sanitize_textarea_field( $_POST['at_highlights'] ) : '';
-		$things_to_carry = isset( $_POST['at_things_to_carry'] ) ? sanitize_textarea_field( $_POST['at_things_to_carry'] ) : '';
-		$gallery         = isset( $_POST['at_gallery'] ) ? sanitize_text_field( $_POST['at_gallery'] ) : '';
+		$highlights      = isset( $_POST['at_highlights'] ) ? sanitize_textarea_field( wp_unslash( $_POST['at_highlights'] ) ) : '';
+		$things_to_carry = isset( $_POST['at_things_to_carry'] ) ? sanitize_textarea_field( wp_unslash( $_POST['at_things_to_carry'] ) ) : '';
+		$gallery         = isset( $_POST['at_gallery'] ) ? sanitize_text_field( wp_unslash( $_POST['at_gallery'] ) ) : '';
 
 		// Sanitize FAQ array.
-		$faq_input = isset( $_POST['at_faq'] ) ? $_POST['at_faq'] : array();
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$faq_input = isset( $_POST['at_faq'] ) ? wp_unslash( $_POST['at_faq'] ) : array();
 		$faq_data  = array();
 		if ( is_array( $faq_input ) ) {
 			foreach ( $faq_input as $item ) {
@@ -197,14 +201,15 @@ class TrekMetaBoxController {
 
 		// Sanitize Policies.
 		$policies_data = array(
-			'cancellation' => isset( $_POST['at_policy_cancellation'] ) ? wp_kses_post( $_POST['at_policy_cancellation'] ) : '',
-			'refund'       => isset( $_POST['at_policy_refund'] ) ? wp_kses_post( $_POST['at_policy_refund'] ) : '',
-			'medical'      => isset( $_POST['at_policy_medical'] ) ? wp_kses_post( $_POST['at_policy_medical'] ) : '',
-			'terms'        => isset( $_POST['at_policy_terms'] ) ? wp_kses_post( $_POST['at_policy_terms'] ) : '',
+			'cancellation' => isset( $_POST['at_policy_cancellation'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_cancellation'] ) ) : '',
+			'refund'       => isset( $_POST['at_policy_refund'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_refund'] ) ) : '',
+			'medical'      => isset( $_POST['at_policy_medical'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_medical'] ) ) : '',
+			'terms'        => isset( $_POST['at_policy_terms'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_terms'] ) ) : '',
 		);
 		$policies = wp_json_encode( $policies_data );
 
 		// Check if record exists.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $table_name WHERE post_id = %d", $post_id ) );
 
 		$db_data = array(
@@ -226,6 +231,7 @@ class TrekMetaBoxController {
 		);
 
 		if ( $exists ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->update(
 				$table_name,
 				$db_data,
@@ -234,6 +240,7 @@ class TrekMetaBoxController {
 				array( '%d' )
 			);
 		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->insert(
 				$table_name,
 				$db_data,

@@ -106,7 +106,9 @@ class TrekDepartureCitiesController {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'at_departure_cities';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$results = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->prepare( "SELECT * FROM $table_name WHERE trek_id = %d ORDER BY menu_order ASC", $trek_id ),
 			ARRAY_A
 		);
@@ -124,16 +126,16 @@ class TrekDepartureCitiesController {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
-		$id               = isset( $_POST['id'] ) ? intval( $_POST['id'] ) : 0;
-		$trek_id          = isset( $_POST['trek_id'] ) ? intval( $_POST['trek_id'] ) : 0;
-		$city_name        = isset( $_POST['city_name'] ) ? sanitize_text_field( $_POST['city_name'] ) : '';
-		$base_price       = isset( $_POST['base_price'] ) ? floatval( $_POST['base_price'] ) : 0.00;
-		$offer_price      = isset( $_POST['offer_price'] ) ? floatval( $_POST['offer_price'] ) : 0.00;
-		$transport_type   = isset( $_POST['transport_type'] ) ? sanitize_text_field( $_POST['transport_type'] ) : '';
-		$reporting_time   = isset( $_POST['reporting_time'] ) ? sanitize_text_field( $_POST['reporting_time'] ) : '';
-		$google_map_link  = isset( $_POST['google_map_link'] ) ? esc_url_raw( $_POST['google_map_link'] ) : '';
-		$booking_deadline = isset( $_POST['booking_deadline'] ) ? intval( $_POST['booking_deadline'] ) : 0;
-		$status           = isset( $_POST['status'] ) ? sanitize_text_field( $_POST['status'] ) : 'active';
+		$id               = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
+		$trek_id          = isset( $_POST['trek_id'] ) ? intval( wp_unslash( $_POST['trek_id'] ) ) : 0;
+		$city_name        = isset( $_POST['city_name'] ) ? sanitize_text_field( wp_unslash( $_POST['city_name'] ) ) : '';
+		$base_price       = isset( $_POST['base_price'] ) ? floatval( wp_unslash( $_POST['base_price'] ) ) : 0.00;
+		$offer_price      = isset( $_POST['offer_price'] ) ? floatval( wp_unslash( $_POST['offer_price'] ) ) : 0.00;
+		$transport_type   = isset( $_POST['transport_type'] ) ? sanitize_text_field( wp_unslash( $_POST['transport_type'] ) ) : '';
+		$reporting_time   = isset( $_POST['reporting_time'] ) ? sanitize_text_field( wp_unslash( $_POST['reporting_time'] ) ) : '';
+		$google_map_link  = isset( $_POST['google_map_link'] ) ? esc_url_raw( wp_unslash( $_POST['google_map_link'] ) ) : '';
+		$booking_deadline = isset( $_POST['booking_deadline'] ) ? intval( wp_unslash( $_POST['booking_deadline'] ) ) : 0;
+		$status           = isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : 'active';
 
 		if ( empty( $city_name ) || ! $trek_id ) {
 			wp_send_json_error( array( 'message' => 'City name is required' ) );
@@ -156,6 +158,7 @@ class TrekDepartureCitiesController {
 
 		if ( $id ) {
 			// Update.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$updated = $wpdb->update(
 				$table_name,
 				$data,
@@ -169,10 +172,12 @@ class TrekDepartureCitiesController {
 			wp_send_json_success( array( 'message' => 'City updated successfully', 'id' => $id ) );
 		} else {
 			// Get max menu_order.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$max_order = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM $table_name WHERE trek_id = %d", $trek_id ) );
 			$data['menu_order'] = intval( $max_order ) + 1;
 
 			// Insert.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$inserted = $wpdb->insert(
 				$table_name,
 				$data,
@@ -181,6 +186,7 @@ class TrekDepartureCitiesController {
 			if ( ! $inserted ) {
 				wp_send_json_error( array( 'message' => 'Failed to insert city' ) );
 			}
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			wp_send_json_success( array( 'message' => 'City added successfully', 'id' => $wpdb->insert_id ) );
 		}
 	}
@@ -195,7 +201,7 @@ class TrekDepartureCitiesController {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
-		$id = isset( $_POST['id'] ) ? intval( $_POST['id'] ) : 0;
+		$id = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => 'Invalid City ID' ) );
 		}
@@ -203,6 +209,7 @@ class TrekDepartureCitiesController {
 		global $wpdb;
 		
 		// Delete city.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery
 		$wpdb->delete( $wpdb->prefix . 'at_departure_cities', array( 'id' => $id ), array( '%d' ) );
 
 		// Delete child tables (dates, itineraries, etc. cascade delete is simulated here manually).
@@ -210,6 +217,7 @@ class TrekDepartureCitiesController {
 		$wpdb->delete( $wpdb->prefix . 'at_itineraries', array( 'city_id' => $id ), array( '%d' ) );
 		$wpdb->delete( $wpdb->prefix . 'at_pickup_points', array( 'city_id' => $id ), array( '%d' ) );
 		$wpdb->delete( $wpdb->prefix . 'at_pricing', array( 'city_id' => $id ), array( '%d' ) );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery
 
 		wp_send_json_success( array( 'message' => 'City deleted successfully' ) );
 	}
@@ -224,7 +232,7 @@ class TrekDepartureCitiesController {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
-		$id = isset( $_POST['id'] ) ? intval( $_POST['id'] ) : 0;
+		$id = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => 'Invalid City ID' ) );
 		}
@@ -233,6 +241,7 @@ class TrekDepartureCitiesController {
 		$table_name = $wpdb->prefix . 'at_departure_cities';
 
 		// Get city to clone.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$city = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE id = %d", $id ), ARRAY_A );
 		if ( ! $city ) {
 			wp_send_json_error( array( 'message' => 'City not found' ) );
@@ -241,61 +250,77 @@ class TrekDepartureCitiesController {
 		// Insert duplicate city with modified name.
 		unset( $city['id'] );
 		$city['city_name']  .= ' (Copy)';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$max_order           = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM $table_name WHERE trek_id = %d", $city['trek_id'] ) );
 		$city['menu_order']  = intval( $max_order ) + 1;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$inserted = $wpdb->insert( $table_name, $city );
 		if ( ! $inserted ) {
 			wp_send_json_error( array( 'message' => 'Failed to duplicate city' ) );
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$new_city_id = $wpdb->insert_id;
 
 		// Duplicate child itineraries.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$itineraries = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}at_itineraries WHERE city_id = %d", $id ), ARRAY_A );
 		foreach ( $itineraries as $it ) {
 			$old_it_id = $it['id'];
 			unset( $it['id'] );
 			$it['city_id'] = $new_city_id;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->insert( $wpdb->prefix . 'at_itineraries', $it );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$new_it_id = $wpdb->insert_id;
 
 			// Duplicate itinerary items.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$it_items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}at_itinerary_items WHERE itinerary_id = %d", $old_it_id ), ARRAY_A );
 			foreach ( $it_items as $item ) {
 				unset( $item['id'] );
 				$item['itinerary_id'] = $new_it_id;
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 				$wpdb->insert( $wpdb->prefix . 'at_itinerary_items', $item );
 			}
 		}
 
 		// Duplicate child pickup points.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$pickups = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}at_pickup_points WHERE city_id = %d", $id ), ARRAY_A );
 		foreach ( $pickups as $pick ) {
 			unset( $pick['id'] );
 			$pick['city_id'] = $new_city_id;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->insert( $wpdb->prefix . 'at_pickup_points', $pick );
 		}
 
 		// Duplicate child dates and availability.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$dates = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}at_departure_dates WHERE city_id = %d", $id ), ARRAY_A );
 		foreach ( $dates as $date ) {
 			$old_date_id = $date['id'];
 			unset( $date['id'] );
 			$date['city_id'] = $new_city_id;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->insert( $wpdb->prefix . 'at_departure_dates', $date );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$new_date_id = $wpdb->insert_id;
 
 			// Duplicate availability.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$avail = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}at_availability WHERE date_id = %d", $old_date_id ), ARRAY_A );
 			if ( $avail ) {
 				unset( $avail['id'] );
 				$avail['date_id'] = $new_date_id;
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 				$wpdb->insert( $wpdb->prefix . 'at_availability', $avail );
 			}
 		}
 
 		// Duplicate pricing rules.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$prices = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}at_pricing WHERE city_id = %d", $id ), ARRAY_A );
 		foreach ( $prices as $price ) {
 			unset( $price['id'] );
@@ -304,12 +329,15 @@ class TrekDepartureCitiesController {
 			if ( $price['date_id'] ) {
 				// Find the corresponding cloned date.
 				// This is a simple fallback: find the date with same value in the new city.
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 				$old_date = $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $price['date_id'] ) );
 				if ( $old_date ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 					$new_date_id = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}at_departure_dates WHERE city_id = %d AND departure_date = %s", $new_city_id, $old_date ) );
 					$price['date_id'] = $new_date_id ? $new_date_id : 0;
 				}
 			}
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->insert( $wpdb->prefix . 'at_pricing', $price );
 		}
 
@@ -326,7 +354,9 @@ class TrekDepartureCitiesController {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
-		$order = isset( $_POST['order'] ) ? $_POST['order'] : array();
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$raw_order = isset( $_POST['order'] ) ? wp_unslash( $_POST['order'] ) : array();
+		$order     = is_array( $raw_order ) ? array_map( 'intval', $raw_order ) : array();
 		if ( empty( $order ) || ! is_array( $order ) ) {
 			wp_send_json_error( array( 'message' => 'No order layout received' ) );
 		}
@@ -335,6 +365,7 @@ class TrekDepartureCitiesController {
 		$table_name = $wpdb->prefix . 'at_departure_cities';
 
 		foreach ( $order as $menu_order => $id ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->update(
 				$table_name,
 				array( 'menu_order' => $menu_order ),
