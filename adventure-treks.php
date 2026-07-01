@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Adventure Treks
- * Plugin URI:        https://github.com/nileshvastarpara/adventure-treks
+ * Plugin URI:        https://wordpress.org/plugins/adventure-treks/
  * Description:       A premium trekking and adventure trip management plugin for WordPress.
  * Version:           1.0.0
  * Requires at least: 6.0
