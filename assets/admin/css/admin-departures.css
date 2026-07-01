@@ -1,0 +1,198 @@
+/**
+ * Stylesheet for Departure Cities, Dates, and Itinerary editors
+ */
+
+.at-departures-container {
+	position: relative;
+	margin: 10px 0;
+}
+
+.at-departures-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 15px;
+	background: #fff;
+	padding: 10px 15px;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+}
+
+.at-departures-header p.description {
+	margin: 0;
+	font-style: italic;
+}
+
+/* Spinner */
+.at-loading-spinner {
+	margin: 10px 0;
+	font-weight: 600;
+	color: #666;
+}
+
+/* Modal Window styles */
+.at-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.6);
+	justify-content: center;
+	align-items: center;
+	z-index: 99999;
+	backdrop-filter: blur(2px);
+}
+
+.at-modal-box {
+	background: #fff;
+	width: 100%;
+	max-width: 550px;
+	border-radius: 6px;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.at-modal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15px 20px;
+	background: #f0f0f1;
+	border-bottom: 1px solid #ccd0d4;
+}
+
+.at-modal-header h3 {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+	color: #23282d;
+}
+
+.at-modal-close {
+	font-size: 24px;
+	font-weight: bold;
+	cursor: pointer;
+	color: #666;
+}
+
+.at-modal-close:hover {
+	color: #000;
+}
+
+.at-modal-body {
+	padding: 20px;
+	max-height: 70vh;
+	overflow-y: auto;
+}
+
+.at-modal-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	padding: 15px 20px;
+	background: #f0f0f1;
+	border-top: 1px solid #ccd0d4;
+}
+
+/* Form layouts */
+.at-form-row {
+	margin-bottom: 15px;
+}
+
+.at-form-row label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 5px;
+	color: #3c434a;
+}
+
+.at-form-row input[type="text"],
+.at-form-row input[type="number"],
+.at-form-row input[type="url"],
+.at-form-row select,
+.at-form-row textarea {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	box-shadow: inset 0 1px 2px rgba(0,0,0,0.07);
+	box-sizing: border-box;
+	color: #3c434a;
+}
+
+.at-form-row input[type="text"],
+.at-form-row input[type="number"],
+.at-form-row input[type="url"],
+.at-form-row select {
+	height: 38px;
+	line-height: normal;
+}
+
+/* Style select placeholders (when invalid/empty option selected) */
+.at-form-row select:has(option[value=""]:checked) {
+	color: #646970;
+}
+
+.at-form-row select option {
+	color: #3c434a;
+}
+
+.at-form-grid-2 {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 15px;
+}
+
+/* Reordering classes */
+.at-row-drag-handle {
+	cursor: move;
+	font-size: 18px;
+	color: #a7aaad;
+	text-align: center;
+}
+
+/* Status colors */
+.at-status-badge {
+	display: inline-block;
+	padding: 3px 8px;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.at-status-badge.active {
+	background: #e2f0d9;
+	color: #385723;
+}
+
+.at-status-badge.inactive {
+	background: #fce4d6;
+	color: #c65911;
+}
+
+/* Action Links */
+.at-action-link {
+	text-decoration: none;
+	margin-left: 8px;
+	font-weight: 500;
+}
+
+.at-action-link.edit {
+	color: #2271b1;
+}
+
+.at-action-link.duplicate {
+	color: #137a7f;
+}
+
+.at-action-link.delete {
+	color: #b32d2e;
+}
+
+.at-action-link:hover {
+	text-decoration: underline;
+}

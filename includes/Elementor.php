@@ -1,0 +1,73 @@
+<?php
+/**
+ * Elementor integration bootstrap class.
+ *
+ * @package    AdventureTreks
+ * @subpackage AdventureTreks/Includes
+ * @author     Nilesh Vastarpara
+ */
+
+namespace AdventureTreks\Includes;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+/**
+ * Elementor class.
+ */
+class Elementor {
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		// Hook into Elementor initialization.
+		add_action( 'init', array( $this, 'check_and_hook' ) );
+	}
+
+	/**
+	 * Verify Elementor is loaded and register hooks.
+	 */
+	public function check_and_hook() {
+		if ( ! did_action( 'elementor/loaded' ) ) {
+			return;
+		}
+
+		// Register custom widgets category.
+		add_action( 'elementor/elements/categories_registered', array( $this, 'register_category' ) );
+
+		// Register widgets.
+		add_action( 'elementor/widgets/register', array( $this, 'register_widgets' ) );
+	}
+
+	/**
+	 * Register Custom Elementor Category.
+	 *
+	 * @param object $elements_manager Elementor elements manager instance.
+	 */
+	public function register_category( $elements_manager ) {
+		$elements_manager->add_category(
+			'adventure-treks',
+			array(
+				'title' => esc_html__( 'Adventure Treks', 'adventure-treks' ),
+				'icon'  => 'fa fa-mountain',
+			)
+		);
+	}
+
+	/**
+	 * Register Trek widgets.
+	 *
+	 * @param object $widgets_manager Elementor widgets manager instance.
+	 */
+	public function register_widgets( $widgets_manager ) {
+		// Include widget files
+		require_once ADVENTURE_TREKS_PATH . 'includes/Elementor/Widgets/TrekDetailsWidget.php';
+		require_once ADVENTURE_TREKS_PATH . 'includes/Elementor/Widgets/TrekBookingWidget.php';
+
+		// Instantiate and register
+		$widgets_manager->register( new \AdventureTreks\Includes\Elementor\Widgets\TrekDetailsWidget() );
+		$widgets_manager->register( new \AdventureTreks\Includes\Elementor\Widgets\TrekBookingWidget() );
+	}
+}
