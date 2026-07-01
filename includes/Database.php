@@ -172,6 +172,31 @@ class Database {
 			KEY date_id (date_id)
 		) $charset_collate;";
 		dbDelta( $sql_availability );
+
+		// 9. Bookings Table.
+		$table_bookings = $wpdb->prefix . 'at_bookings';
+		$sql_bookings = "CREATE TABLE $table_bookings (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			trek_id bigint(20) unsigned NOT NULL,
+			city_id bigint(20) unsigned NOT NULL,
+			date_id bigint(20) unsigned NOT NULL,
+			cust_name varchar(255) NOT NULL,
+			cust_email varchar(255) NOT NULL,
+			cust_phone varchar(255) NOT NULL,
+			seats int(11) DEFAULT 1 NOT NULL,
+			num_adults int(11) DEFAULT 1 NOT NULL,
+			num_children int(11) DEFAULT 0 NOT NULL,
+			pickup_point varchar(255) DEFAULT '' NOT NULL,
+			addons longtext DEFAULT NULL,
+			total_amount decimal(10,2) DEFAULT '0.00' NOT NULL,
+			status varchar(50) DEFAULT 'confirmed' NOT NULL,
+			created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+			PRIMARY KEY  (id),
+			KEY trek_id (trek_id),
+			KEY city_id (city_id),
+			KEY date_id (date_id)
+		) $charset_collate;";
+		dbDelta( $sql_bookings );
 	}
 
 	/**
@@ -191,6 +216,7 @@ class Database {
 			'at_departure_dates',
 			'at_departure_cities',
 			'at_treks',
+			'at_bookings',
 		);
 
 		foreach ( $tables as $table ) {

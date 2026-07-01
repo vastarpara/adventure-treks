@@ -454,6 +454,17 @@ document.addEventListener('DOMContentLoaded', function() {
 	checkoutConfirm.addEventListener('click', function() {
 		if (!checkoutForm.reportValidity()) return;
 
+		const phoneInput = document.getElementById('at_checkout_phone');
+		if (phoneInput) {
+			const cleanPhone = phoneInput.value.replace(/[\-\s]/g, '');
+			const indianPhoneRegex = /^(?:\+91|91|0)?[6789]\d{9}$/;
+			if (!indianPhoneRegex.test(cleanPhone)) {
+				alert('Please enter a valid Indian phone number (e.g. +91 98765 43210).');
+				phoneInput.focus();
+				return;
+			}
+		}
+
 		const adults = parseInt(inputAdults.value) || 1;
 		const children = parseInt(inputChildren.value) || 0;
 		const total = grandTotalTag.getAttribute('data-raw');

@@ -243,8 +243,13 @@ class TrekBookingController {
 		$addons       = is_array( $raw_addons ) ? array_map( 'sanitize_text_field', $raw_addons ) : array();
 		$total_price  = isset( $_POST['total_price'] ) ? floatval( wp_unslash( $_POST['total_price'] ) ) : 0.00;
 
-		if ( ! $trek_id || ! $city_id || ! $date_id || empty( $cust_name ) || empty( $cust_email ) ) {
+		if ( ! $trek_id || ! $city_id || ! $date_id || empty( $cust_name ) || empty( $cust_email ) || empty( $cust_phone ) ) {
 			wp_send_json_error( array( 'message' => 'Please fill all required customer contact details.' ) );
+		}
+
+		$clean_phone = preg_replace( '/[\-\s]/', '', $cust_phone );
+		if ( ! preg_match( '/^(?:\+91|91|0)?[6789]\d{9}$/', $clean_phone ) ) {
+			wp_send_json_error( array( 'message' => 'Please enter a valid Indian phone number.' ) );
 		}
 
 		$seats_requested = $num_adults + $num_children;
@@ -281,6 +286,45 @@ class TrekBookingController {
 			array( 'id' => $avail->id ),
 			array( '%d', '%d' ),
 			array( '%d' )
+		);
+
+		// Record booking in the database
+		$table_bookings = $wpdb->prefix . 'at_bookings';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$wpdb->insert(
+			$table_bookings,
+			array(
+				'trek_id'      => $trek_id,
+				'city_id'      => $city_id,
+				'date_id'      => $date_id,
+				'cust_name'    => $cust_name,
+				'cust_email'   => $cust_email,
+				'cust_phone'   => $cust_phone,
+				'seats'        => $seats_requested,
+				'num_adults'   => $num_adults,
+				'num_children' => $num_children,
+				'pickup_point' => $pickup_point,
+				'addons'       => wp_json_encode( $addons ),
+				'total_amount' => $total_price,
+				'status'       => 'confirmed',
+				'created_at'   => current_time( 'mysql' ),
+			),
+			array(
+				'%d',
+				'%d',
+				'%d',
+				'%s',
+				'%s',
+				'%s',
+				'%d',
+				'%d',
+				'%d',
+				'%s',
+				'%s',
+				'%f',
+				'%s',
+				'%s',
+			)
 		);
 
 		// Format dynamic confirmation message details
