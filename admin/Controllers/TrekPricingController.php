@@ -115,12 +115,19 @@ class TrekPricingController {
 	public function ajax_save_pricing() {
 		check_ajax_referer( 'at_pricing_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		$city_id = isset( $_POST['city_id'] ) ? intval( wp_unslash( $_POST['city_id'] ) ) : 0;
+		if ( ! $city_id ) {
+			wp_send_json_error( array( 'message' => 'Missing required IDs' ) );
+		}
+
+		global $wpdb;
+		$trek_id = (int) $wpdb->get_var(
+			$wpdb->prepare( "SELECT trek_id FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $city_id )
+		);
+		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
-		$city_id     = isset( $_POST['city_id'] ) ? intval( wp_unslash( $_POST['city_id'] ) ) : 0;
-		$trek_id     = isset( $_POST['trek_id'] ) ? intval( wp_unslash( $_POST['trek_id'] ) ) : 0;
 		$adult_price = isset( $_POST['adult_price'] ) ? floatval( wp_unslash( $_POST['adult_price'] ) ) : 0.00;
 		$child_price = isset( $_POST['child_price'] ) ? floatval( wp_unslash( $_POST['child_price'] ) ) : 0.00;
 		$offer_price = isset( $_POST['offer_price'] ) ? floatval( wp_unslash( $_POST['offer_price'] ) ) : 0.00;
@@ -176,11 +183,6 @@ class TrekPricingController {
 			}
 		}
 
-		if ( ! $city_id || ! $trek_id ) {
-			wp_send_json_error( array( 'message' => 'Missing required IDs' ) );
-		}
-
-		global $wpdb;
 		$table_name = $wpdb->prefix . 'at_pricing';
 
 		// Check if record exists

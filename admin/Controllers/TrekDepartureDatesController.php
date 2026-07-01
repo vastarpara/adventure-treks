@@ -56,6 +56,19 @@ class TrekDepartureDatesController {
 	}
 
 	/**
+	 * Resolve the trek ID that owns a given departure date.
+	 *
+	 * @param int $date_id Departure date ID.
+	 * @return int
+	 */
+	private function get_date_trek_id( $date_id ) {
+		global $wpdb;
+		return (int) $wpdb->get_var(
+			$wpdb->prepare( "SELECT trek_id FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $date_id )
+		);
+	}
+
+	/**
 	 * AJAX: Get dates, availability, and pricing overrides for a city.
 	 */
 	public function ajax_get_dates() {
@@ -127,13 +140,15 @@ class TrekDepartureDatesController {
 	public function ajax_save_date() {
 		check_ajax_referer( 'at_dates_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		$id      = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
+		$city_id = isset( $_POST['city_id'] ) ? intval( wp_unslash( $_POST['city_id'] ) ) : 0;
+		$trek_id = isset( $_POST['trek_id'] ) ? intval( wp_unslash( $_POST['trek_id'] ) ) : 0;
+
+		$owner_trek_id = $id ? $this->get_date_trek_id( $id ) : $trek_id;
+		if ( ! $owner_trek_id || ! current_user_can( 'edit_post', $owner_trek_id ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
-		$id             = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
-		$city_id        = isset( $_POST['city_id'] ) ? intval( wp_unslash( $_POST['city_id'] ) ) : 0;
-		$trek_id        = isset( $_POST['trek_id'] ) ? intval( wp_unslash( $_POST['trek_id'] ) ) : 0;
 		$departure_date = isset( $_POST['departure_date'] ) ? sanitize_text_field( wp_unslash( $_POST['departure_date'] ) ) : '';
 		$status         = isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : 'open';
 		$notes          = isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['notes'] ) ) : '';
@@ -244,13 +259,14 @@ class TrekDepartureDatesController {
 	public function ajax_delete_date() {
 		check_ajax_referer( 'at_dates_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
-		}
-
 		$id = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => 'Invalid Date ID' ) );
+		}
+
+		$trek_id = $this->get_date_trek_id( $id );
+		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
+			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
 		global $wpdb;

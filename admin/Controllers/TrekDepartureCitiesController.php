@@ -93,6 +93,19 @@ class TrekDepartureCitiesController {
 	}
 
 	/**
+	 * Resolve the trek ID that owns a given departure city.
+	 *
+	 * @param int $city_id Departure city ID.
+	 * @return int
+	 */
+	private function get_city_trek_id( $city_id ) {
+		global $wpdb;
+		return (int) $wpdb->get_var(
+			$wpdb->prepare( "SELECT trek_id FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $city_id )
+		);
+	}
+
+	/**
 	 * AJAX: Get list of departure cities for a trek.
 	 */
 	public function ajax_get_cities() {
@@ -122,12 +135,14 @@ class TrekDepartureCitiesController {
 	public function ajax_save_city() {
 		check_ajax_referer( 'at_departures_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		$id      = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
+		$trek_id = isset( $_POST['trek_id'] ) ? intval( wp_unslash( $_POST['trek_id'] ) ) : 0;
+
+		$owner_trek_id = $id ? $this->get_city_trek_id( $id ) : $trek_id;
+		if ( ! $owner_trek_id || ! current_user_can( 'edit_post', $owner_trek_id ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
-		$id               = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
-		$trek_id          = isset( $_POST['trek_id'] ) ? intval( wp_unslash( $_POST['trek_id'] ) ) : 0;
 		$city_name        = isset( $_POST['city_name'] ) ? sanitize_text_field( wp_unslash( $_POST['city_name'] ) ) : '';
 		$base_price       = isset( $_POST['base_price'] ) ? floatval( wp_unslash( $_POST['base_price'] ) ) : 0.00;
 		$offer_price      = isset( $_POST['offer_price'] ) ? floatval( wp_unslash( $_POST['offer_price'] ) ) : 0.00;
@@ -197,17 +212,18 @@ class TrekDepartureCitiesController {
 	public function ajax_delete_city() {
 		check_ajax_referer( 'at_departures_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
-		}
-
 		$id = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => 'Invalid City ID' ) );
 		}
 
+		$trek_id = $this->get_city_trek_id( $id );
+		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
+			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+		}
+
 		global $wpdb;
-		
+
 		// Delete city.
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery
 		$wpdb->delete( $wpdb->prefix . 'at_departure_cities', array( 'id' => $id ), array( '%d' ) );
@@ -228,13 +244,14 @@ class TrekDepartureCitiesController {
 	public function ajax_duplicate_city() {
 		check_ajax_referer( 'at_departures_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
-		}
-
 		$id = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => 'Invalid City ID' ) );
+		}
+
+		$trek_id = $this->get_city_trek_id( $id );
+		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
+			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
 		global $wpdb;
@@ -350,15 +367,18 @@ class TrekDepartureCitiesController {
 	public function ajax_reorder_cities() {
 		check_ajax_referer( 'at_departures_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
-		}
-
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$raw_order = isset( $_POST['order'] ) ? wp_unslash( $_POST['order'] ) : array();
 		$order     = is_array( $raw_order ) ? array_map( 'intval', $raw_order ) : array();
 		if ( empty( $order ) || ! is_array( $order ) ) {
 			wp_send_json_error( array( 'message' => 'No order layout received' ) );
+		}
+
+		foreach ( $order as $id ) {
+			$trek_id = $this->get_city_trek_id( $id );
+			if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
+				wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+			}
 		}
 
 		global $wpdb;

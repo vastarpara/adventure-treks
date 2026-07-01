@@ -61,6 +61,33 @@ class TrekItineraryController {
 	}
 
 	/**
+	 * Resolve the trek ID that owns a given itinerary day.
+	 *
+	 * @param int $day_id Itinerary day ID.
+	 * @return int
+	 */
+	private function get_day_trek_id( $day_id ) {
+		global $wpdb;
+		return (int) $wpdb->get_var(
+			$wpdb->prepare( "SELECT trek_id FROM {$wpdb->prefix}at_itineraries WHERE id = %d", $day_id )
+		);
+	}
+
+	/**
+	 * Resolve the trek ID that owns a given itinerary timeline item.
+	 *
+	 * @param int $item_id Itinerary item ID.
+	 * @return int
+	 */
+	private function get_item_trek_id( $item_id ) {
+		global $wpdb;
+		$itinerary_id = (int) $wpdb->get_var(
+			$wpdb->prepare( "SELECT itinerary_id FROM {$wpdb->prefix}at_itinerary_items WHERE id = %d", $item_id )
+		);
+		return $itinerary_id ? $this->get_day_trek_id( $itinerary_id ) : 0;
+	}
+
+	/**
 	 * AJAX: Get full itinerary structure for a city.
 	 */
 	public function ajax_get_itinerary() {
@@ -103,13 +130,15 @@ class TrekItineraryController {
 	public function ajax_save_day() {
 		check_ajax_referer( 'at_itinerary_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		$id      = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
+		$city_id = isset( $_POST['city_id'] ) ? intval( wp_unslash( $_POST['city_id'] ) ) : 0;
+		$trek_id = isset( $_POST['trek_id'] ) ? intval( wp_unslash( $_POST['trek_id'] ) ) : 0;
+
+		$owner_trek_id = $id ? $this->get_day_trek_id( $id ) : $trek_id;
+		if ( ! $owner_trek_id || ! current_user_can( 'edit_post', $owner_trek_id ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
-		$id          = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
-		$city_id     = isset( $_POST['city_id'] ) ? intval( wp_unslash( $_POST['city_id'] ) ) : 0;
-		$trek_id     = isset( $_POST['trek_id'] ) ? intval( wp_unslash( $_POST['trek_id'] ) ) : 0;
 		$day_number  = isset( $_POST['day_number'] ) ? intval( wp_unslash( $_POST['day_number'] ) ) : 0;
 		$title       = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
 		$description = isset( $_POST['description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['description'] ) ) : '';
@@ -155,13 +184,14 @@ class TrekItineraryController {
 	public function ajax_delete_day() {
 		check_ajax_referer( 'at_itinerary_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
-		}
-
 		$id = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => 'Invalid Day ID' ) );
+		}
+
+		$trek_id = $this->get_day_trek_id( $id );
+		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
+			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
 		global $wpdb;
@@ -179,15 +209,18 @@ class TrekItineraryController {
 	public function ajax_reorder_days() {
 		check_ajax_referer( 'at_itinerary_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
-		}
-
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$raw_order = isset( $_POST['order'] ) ? wp_unslash( $_POST['order'] ) : array();
 		$order     = is_array( $raw_order ) ? array_map( 'intval', $raw_order ) : array();
 		if ( empty( $order ) || ! is_array( $order ) ) {
 			wp_send_json_error( array( 'message' => 'No order layout received' ) );
+		}
+
+		foreach ( $order as $id ) {
+			$trek_id = $this->get_day_trek_id( $id );
+			if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
+				wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+			}
 		}
 
 		global $wpdb;
@@ -213,12 +246,14 @@ class TrekItineraryController {
 	public function ajax_save_item() {
 		check_ajax_referer( 'at_itinerary_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		$id           = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
+		$itinerary_id = isset( $_POST['itinerary_id'] ) ? intval( wp_unslash( $_POST['itinerary_id'] ) ) : 0;
+
+		$owner_trek_id = $id ? $this->get_item_trek_id( $id ) : ( $itinerary_id ? $this->get_day_trek_id( $itinerary_id ) : 0 );
+		if ( ! $owner_trek_id || ! current_user_can( 'edit_post', $owner_trek_id ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
-		$id           = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
-		$itinerary_id = isset( $_POST['itinerary_id'] ) ? intval( wp_unslash( $_POST['itinerary_id'] ) ) : 0;
 		$item_time    = isset( $_POST['item_time'] ) ? sanitize_text_field( wp_unslash( $_POST['item_time'] ) ) : '';
 		$title        = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
 		$description  = isset( $_POST['description'] ) ? wp_kses_post( wp_unslash( $_POST['description'] ) ) : '';
@@ -267,13 +302,14 @@ class TrekItineraryController {
 	public function ajax_delete_item() {
 		check_ajax_referer( 'at_itinerary_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
-		}
-
 		$id = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => 'Invalid Activity ID' ) );
+		}
+
+		$trek_id = $this->get_item_trek_id( $id );
+		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
+			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
 		global $wpdb;
@@ -290,15 +326,18 @@ class TrekItineraryController {
 	public function ajax_reorder_items() {
 		check_ajax_referer( 'at_itinerary_nonce_action', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
-		}
-
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$raw_order = isset( $_POST['order'] ) ? wp_unslash( $_POST['order'] ) : array();
 		$order     = is_array( $raw_order ) ? array_map( 'intval', $raw_order ) : array();
 		if ( empty( $order ) || ! is_array( $order ) ) {
 			wp_send_json_error( array( 'message' => 'No order layout received' ) );
+		}
+
+		foreach ( $order as $id ) {
+			$trek_id = $this->get_item_trek_id( $id );
+			if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
+				wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+			}
 		}
 
 		global $wpdb;
