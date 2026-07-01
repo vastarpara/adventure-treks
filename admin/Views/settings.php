@@ -29,13 +29,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</th>
 					<td>
 						<?php
-						$at_current_currency = get_option( 'at_currency_symbol', '₹' );
-						$at_currencies       = \AdventureTreks\Admin\Controllers\AdminController::get_currencies();
+						$adventure_treks_current_currency = get_option( 'at_currency_symbol', '₹' );
+						$adventure_treks_currencies       = \AdventureTreks\Admin\Controllers\AdminController::get_currencies();
 						?>
 						<select name="at_currency_symbol" id="at_currency_symbol">
-							<?php foreach ( $at_currencies as $at_symbol => $at_label ) : ?>
-								<option value="<?php echo esc_attr( $at_symbol ); ?>" <?php selected( $at_current_currency, $at_symbol ); ?>>
-									<?php echo esc_html( $at_label ); ?>
+							<?php foreach ( $adventure_treks_currencies as $adventure_treks_symbol => $adventure_treks_label ) : ?>
+								<option value="<?php echo esc_attr( $adventure_treks_symbol ); ?>" <?php selected( $adventure_treks_current_currency, $adventure_treks_symbol ); ?>>
+									<?php echo esc_html( $adventure_treks_label ); ?>
 								</option>
 							<?php endforeach; ?>
 						</select>

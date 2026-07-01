@@ -67,8 +67,8 @@ class TrekDepartureCitiesController {
 			ADVENTURE_TREKS_VERSION
 		);
 
-		wp_enqueue_style( 'flatpickr-css', 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css', array(), '4.6.13' );
-		wp_enqueue_script( 'flatpickr-js', 'https://cdn.jsdelivr.net/npm/flatpickr', array(), '4.6.13', true );
+		wp_enqueue_style( 'flatpickr-css', ADVENTURE_TREKS_URL . 'assets/vendor/flatpickr/flatpickr.min.css', array(), '4.6.13' );
+		wp_enqueue_script( 'flatpickr-js', ADVENTURE_TREKS_URL . 'assets/vendor/flatpickr/flatpickr.min.js', array(), '4.6.13', true );
 
 		wp_enqueue_script(
 			'at-admin-departures-js',
