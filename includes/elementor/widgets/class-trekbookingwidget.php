@@ -1,6 +1,6 @@
 <?php
 /**
- * Elementor Trek Details Widget.
+ * Elementor Trek Booking Widget.
  *
  * @package    AdventureTreks
  * @subpackage AdventureTreks/Includes/Elementor/Widgets
@@ -14,9 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * TrekDetailsWidget class.
+ * TrekBookingWidget class.
  */
-class TrekDetailsWidget extends \Elementor\Widget_Base {
+class TrekBookingWidget extends \Elementor\Widget_Base {
 
 	/**
 	 * Get widget name.
@@ -24,7 +24,7 @@ class TrekDetailsWidget extends \Elementor\Widget_Base {
 	 * @return string
 	 */
 	public function get_name() {
-		return 'at_trek_details';
+		return 'at_trek_booking';
 	}
 
 	/**
@@ -33,7 +33,7 @@ class TrekDetailsWidget extends \Elementor\Widget_Base {
 	 * @return string
 	 */
 	public function get_title() {
-		return esc_html__( 'Trek Details Panel', 'adventure-treks' );
+		return esc_html__( 'Trek Booking Sidebar', 'adventure-treks' );
 	}
 
 	/**
@@ -42,7 +42,7 @@ class TrekDetailsWidget extends \Elementor\Widget_Base {
 	 * @return string
 	 */
 	public function get_icon() {
-		return 'eicon-document-file';
+		return 'eicon-form-horizontal';
 	}
 
 	/**
@@ -67,10 +67,12 @@ class TrekDetailsWidget extends \Elementor\Widget_Base {
 		);
 
 		// Get all adventure treks.
-		$treks = get_posts( array(
-			'post_type'      => 'adventure_trek',
-			'posts_per_page' => -1,
-		) );
+		$treks = get_posts(
+			array(
+				'post_type'      => 'adventure_trek',
+				'posts_per_page' => -1,
+			)
+		);
 
 		$options = array( '0' => esc_html__( 'Current Post / Trek Page', 'adventure-treks' ) );
 		if ( ! empty( $treks ) ) {
@@ -104,7 +106,7 @@ class TrekDetailsWidget extends \Elementor\Widget_Base {
 		}
 
 		if ( $trek_id && get_post_type( $trek_id ) === 'adventure_trek' ) {
-			echo do_shortcode( '[trek_details id="' . $trek_id . '"]' );
+			echo do_shortcode( '[trek_booking id="' . $trek_id . '"]' );
 		} else {
 			echo '<p style="color:#666; font-style:italic;">' . esc_html__( 'Please select a valid Trek CPT or insert this widget into a Trek single post page.', 'adventure-treks' ) . '</p>';
 		}

@@ -62,11 +62,11 @@ class Elementor {
 	 * @param object $widgets_manager Elementor widgets manager instance.
 	 */
 	public function register_widgets( $widgets_manager ) {
-		// Include widget files
-		require_once ADVENTURE_TREKS_PATH . 'includes/Elementor/Widgets/TrekDetailsWidget.php';
-		require_once ADVENTURE_TREKS_PATH . 'includes/Elementor/Widgets/TrekBookingWidget.php';
+		// Include widget files.
+		require_once ADVENTURE_TREKS_PATH . 'includes/elementor/widgets/class-trekdetailswidget.php';
+		require_once ADVENTURE_TREKS_PATH . 'includes/elementor/widgets/class-trekbookingwidget.php';
 
-		// Instantiate and register
+		// Instantiate and register.
 		$widgets_manager->register( new \AdventureTreks\Includes\Elementor\Widgets\TrekDetailsWidget() );
 		$widgets_manager->register( new \AdventureTreks\Includes\Elementor\Widgets\TrekBookingWidget() );
 	}

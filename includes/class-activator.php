@@ -28,10 +28,10 @@ class Activator {
 	public static function activate() {
 		// Initialize the custom database schema.
 		Database::create_tables();
-		
+
 		// Register post types before flushing rewrite rules.
 		PostTypes::register_trek_post_type();
-		
+
 		// Flush rewrite rules for our Custom Post Type.
 		flush_rewrite_rules();
 	}

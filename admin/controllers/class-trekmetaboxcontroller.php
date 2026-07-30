@@ -23,7 +23,7 @@ class TrekMetaBoxController {
 	 */
 	public function __construct() {
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_box' ) );
-		add_action( 'save_post_adventure_trek', array( $this, 'save_trek_details' ), 10, 2 );
+		add_action( 'save_post_adventure_trek', array( $this, 'save_trek_details' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
@@ -46,10 +46,9 @@ class TrekMetaBoxController {
 	/**
 	 * Enqueue stylesheet and JS for meta box.
 	 *
-	 * @param string $hook The current admin page hook.
 	 * @return void
 	 */
-	public function enqueue_assets( $hook ) {
+	public function enqueue_assets() {
 		global $post_type;
 
 		if ( 'adventure_trek' !== $post_type ) {
@@ -124,17 +123,18 @@ class TrekMetaBoxController {
 		}
 
 		$policies_decoded = ! empty( $trek['policies'] ) ? json_decode( $trek['policies'], true ) : array();
-		$policies = array_merge( array(
-			'cancellation' => '',
-			'refund'       => '',
-			'medical'      => '',
-			'terms'        => '',
-		), is_array( $policies_decoded ) ? $policies_decoded : array() );
-
-
+		$policies         = array_merge(
+			array(
+				'cancellation' => '',
+				'refund'       => '',
+				'medical'      => '',
+				'terms'        => '',
+			),
+			is_array( $policies_decoded ) ? $policies_decoded : array()
+		);
 
 		// Include UI View.
-		$view_path = plugin_dir_path( dirname( __FILE__ ) ) . 'Views/trek-meta-box.php';
+		$view_path = plugin_dir_path( __DIR__ ) . 'views/trek-meta-box.php';
 		if ( file_exists( $view_path ) ) {
 			include $view_path;
 		}
@@ -143,11 +143,10 @@ class TrekMetaBoxController {
 	/**
 	 * Save trek data into the custom DB table.
 	 *
-	 * @param int      $post_id The CPT post ID.
-	 * @param \WP_Post $post    The CPT post object.
+	 * @param int $post_id The CPT post ID.
 	 * @return int
 	 */
-	public function save_trek_details( $post_id, $post ) {
+	public function save_trek_details( $post_id ) {
 		// Verify autosave or revision.
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return $post_id;
@@ -206,7 +205,7 @@ class TrekMetaBoxController {
 			'medical'      => isset( $_POST['at_policy_medical'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_medical'] ) ) : '',
 			'terms'        => isset( $_POST['at_policy_terms'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_terms'] ) ) : '',
 		);
-		$policies = wp_json_encode( $policies_data );
+		$policies      = wp_json_encode( $policies_data );
 
 		// Check if record exists.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter

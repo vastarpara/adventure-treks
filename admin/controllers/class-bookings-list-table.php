@@ -60,8 +60,8 @@ class Bookings_List_Table extends \WP_List_Table {
 	 */
 	protected function get_sortable_columns() {
 		return array(
-			'created_at'   => array( 'created_at', true ),
-			'date_val'     => array( 'date_val', false ),
+			'created_at' => array( 'created_at', true ),
+			'date_val'   => array( 'date_val', false ),
 		);
 	}
 
@@ -90,7 +90,7 @@ class Bookings_List_Table extends \WP_List_Table {
 				$currency = get_option( 'at_currency_symbol', '₹' );
 				return esc_html( $currency . ' ' . $item->$column_name );
 			case 'status':
-				$color = $item->status === 'confirmed' ? 'green' : 'red';
+				$color = 'confirmed' === $item->status ? 'green' : 'red';
 				return '<span style="color:' . esc_attr( $color ) . ';font-weight:bold;">' . esc_html( ucfirst( $item->$column_name ) ) . '</span>';
 			case 'created_at':
 				return esc_html( gmdate( 'd M Y, h:i A', strtotime( $item->created_at ) ) );
@@ -235,7 +235,7 @@ class Bookings_List_Table extends \WP_List_Table {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'at_bookings';
 
-		// Handle single delete action
+		// Handle single delete action.
 		if ( 'delete' === $this->current_action() ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'at_delete_booking' ) ) {
@@ -251,8 +251,8 @@ class Bookings_List_Table extends \WP_List_Table {
 			}
 		}
 
-		// Handle bulk delete action
-		if ( ( isset( $_GET['action'] ) && $_GET['action'] === 'bulk-delete' ) || ( isset( $_GET['action2'] ) && $_GET['action2'] === 'bulk-delete' ) ) {
+		// Handle bulk delete action.
+		if ( ( isset( $_GET['action'] ) && 'bulk-delete' === $_GET['action'] ) || ( isset( $_GET['action2'] ) && 'bulk-delete' === $_GET['action2'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$booking_ids = isset( $_GET['booking_ids'] ) ? array_map( 'absint', (array) wp_unslash( $_GET['booking_ids'] ) ) : array();
 			if ( ! empty( $booking_ids ) ) {
@@ -292,13 +292,13 @@ class Bookings_List_Table extends \WP_List_Table {
 
 		$table_name = $wpdb->prefix . 'at_bookings';
 
-		// Process actions before querying
+		// Process actions before querying.
 		$this->process_bulk_action();
 
 		$current_page = $this->get_pagenum();
 		$offset       = ( $current_page - 1 ) * $per_page;
 
-		// Build WHERE clause for filter and search
+		// Build WHERE clause for filter and search.
 		$where_clause = 'WHERE 1=1';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$filter_trek_id = isset( $_GET['filter_trek_id'] ) ? absint( wp_unslash( $_GET['filter_trek_id'] ) ) : 0;
@@ -306,11 +306,11 @@ class Bookings_List_Table extends \WP_List_Table {
 			$where_clause .= $wpdb->prepare( ' AND trek_id = %d', $filter_trek_id );
 		}
 
-		// Search handling
+		// Search handling.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$search_query = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 		if ( ! empty( $search_query ) ) {
-			$like = '%' . $wpdb->esc_like( $search_query ) . '%';
+			$like          = '%' . $wpdb->esc_like( $search_query ) . '%';
 			$where_clause .= $wpdb->prepare( ' AND (cust_name LIKE %s OR cust_email LIKE %s OR cust_phone LIKE %s)', $like, $like, $like );
 		}
 
@@ -337,41 +337,5 @@ class Bookings_List_Table extends \WP_List_Table {
 				'total_pages' => ceil( $total_items / $per_page ),
 			)
 		);
-	}
-}
-
-/**
- * Controller for Bookings Admin Page.
- */
-class TrekBookingsController {
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
-	}
-
-	/**
-	 * Register submenu.
-	 */
-	public function register_menu() {
-		add_submenu_page(
-			'edit.php?post_type=adventure_trek',
-			'Bookings',
-			'Bookings',
-			'edit_posts',
-			'at-bookings',
-			array( $this, 'render_page' )
-		);
-	}
-
-	/**
-	 * Render page.
-	 */
-	public function render_page() {
-		$table = new Bookings_List_Table();
-		$table->prepare_items();
-		include ADVENTURE_TREKS_PATH . 'admin/Views/bookings-list.php';
 	}
 }

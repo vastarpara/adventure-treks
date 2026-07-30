@@ -32,8 +32,10 @@ class TrekPricingController {
 
 	/**
 	 * Enqueue pricing assets.
+	 *
+	 * @return void
 	 */
-	public function enqueue_assets( $hook ) {
+	public function enqueue_assets() {
 		global $post_type;
 
 		if ( 'adventure_trek' !== $post_type ) {
@@ -48,10 +50,14 @@ class TrekPricingController {
 			true
 		);
 
-		wp_localize_script( 'at-admin-pricing-js', 'at_pricing_obj', array(
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'nonce'    => wp_create_nonce( 'at_pricing_nonce_action' ),
-		) );
+		wp_localize_script(
+			'at-admin-pricing-js',
+			'at_pricing_obj',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'at_pricing_nonce_action' ),
+			)
+		);
 	}
 
 	/**
@@ -77,7 +83,7 @@ class TrekPricingController {
 		);
 
 		if ( ! $pricing ) {
-			// If not configured, load parent base prices from departure cities table
+			// If not configured, load parent base prices from departure cities table.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$city = $wpdb->get_row(
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -134,29 +140,29 @@ class TrekPricingController {
 		$child_price = isset( $_POST['child_price'] ) ? floatval( wp_unslash( $_POST['child_price'] ) ) : 0.00;
 		$offer_price = isset( $_POST['offer_price'] ) ? floatval( wp_unslash( $_POST['offer_price'] ) ) : 0.00;
 
-		// Repeaters
+		// Repeaters.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$group_discount_input  = isset( $_POST['group_discount'] ) ? wp_unslash( $_POST['group_discount'] ) : array();
+		$group_discount_input = isset( $_POST['group_discount'] ) ? wp_unslash( $_POST['group_discount'] ) : array();
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$extra_charges_input   = isset( $_POST['extra_charges'] ) ? wp_unslash( $_POST['extra_charges'] ) : array();
+		$extra_charges_input = isset( $_POST['extra_charges'] ) ? wp_unslash( $_POST['extra_charges'] ) : array();
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$optional_addons_input = isset( $_POST['optional_addons'] ) ? wp_unslash( $_POST['optional_addons'] ) : array();
 
-		// Sanitize Group Discounts
+		// Sanitize Group Discounts.
 		$group_discount_data = array();
 		if ( is_array( $group_discount_input ) ) {
 			foreach ( $group_discount_input as $rule ) {
 				if ( intval( $rule['min_seats'] ) > 0 && floatval( $rule['value'] ) > 0 ) {
 					$group_discount_data[] = array(
 						'min_seats' => intval( $rule['min_seats'] ),
-						'type'      => sanitize_text_field( $rule['type'] ), // flat, percent
+						'type'      => sanitize_text_field( $rule['type'] ), // flat, percent.
 						'value'     => floatval( $rule['value'] ),
 					);
 				}
 			}
 		}
 
-		// Sanitize Extra Charges
+		// Sanitize Extra Charges.
 		$extra_charges_data = array();
 		if ( is_array( $extra_charges_input ) ) {
 			foreach ( $extra_charges_input as $charge ) {
@@ -164,13 +170,13 @@ class TrekPricingController {
 					$extra_charges_data[] = array(
 						'name'  => sanitize_text_field( $charge['name'] ),
 						'price' => floatval( $charge['price'] ),
-						'type'  => sanitize_text_field( $charge['type'] ), // person, flat
+						'type'  => sanitize_text_field( $charge['type'] ), // person, flat.
 					);
 				}
 			}
 		}
 
-		// Sanitize Optional Add-ons
+		// Sanitize Optional Add-ons.
 		$optional_addons_data = array();
 		if ( is_array( $optional_addons_input ) ) {
 			foreach ( $optional_addons_input as $addon ) {
@@ -179,7 +185,7 @@ class TrekPricingController {
 						'name'  => sanitize_text_field( $addon['name'] ),
 						'price' => floatval( $addon['price'] ),
 						'desc'  => sanitize_text_field( $addon['desc'] ),
-						'type'  => sanitize_text_field( $addon['type'] ), // person, flat
+						'type'  => sanitize_text_field( $addon['type'] ), // person, flat.
 					);
 				}
 			}
@@ -187,7 +193,7 @@ class TrekPricingController {
 
 		$table_name = $wpdb->prefix . 'at_pricing';
 
-		// Check if record exists
+		// Check if record exists.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$exists = $wpdb->get_var(
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -196,7 +202,7 @@ class TrekPricingController {
 
 		$db_data = array(
 			'city_id'         => $city_id,
-			'date_id'         => 0, // Default city pricing
+			'date_id'         => 0, // Default city pricing.
 			'trek_id'         => $trek_id,
 			'adult_price'     => $adult_price,
 			'child_price'     => $child_price,
@@ -224,7 +230,7 @@ class TrekPricingController {
 			);
 		}
 
-		// Sync prices to the main Departure Cities table to ensure cache indexes remain aligned
+		// Sync prices to the main Departure Cities table to ensure cache indexes remain aligned.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$wpdb->update(
 			$wpdb->prefix . 'at_departure_cities',
