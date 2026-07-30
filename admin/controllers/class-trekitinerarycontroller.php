@@ -106,7 +106,7 @@ class TrekItineraryController {
 
 		$city_id = isset( $_GET['city_id'] ) ? intval( $_GET['city_id'] ) : 0;
 		if ( ! $city_id ) {
-			wp_send_json_error( array( 'message' => 'Invalid City ID' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid City ID', 'adventure-treks' ) ) );
 		}
 
 		global $wpdb;
@@ -147,7 +147,7 @@ class TrekItineraryController {
 
 		$owner_trek_id = $id ? $this->get_day_trek_id( $id ) : $trek_id;
 		if ( ! $owner_trek_id || ! current_user_can( 'edit_post', $owner_trek_id ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
 		}
 
 		$day_number  = isset( $_POST['day_number'] ) ? intval( wp_unslash( $_POST['day_number'] ) ) : 0;
@@ -155,7 +155,7 @@ class TrekItineraryController {
 		$description = isset( $_POST['description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['description'] ) ) : '';
 
 		if ( empty( $title ) || ! $city_id || ! $trek_id ) {
-			wp_send_json_error( array( 'message' => 'Day title is required' ) );
+			wp_send_json_error( array( 'message' => __( 'Day title is required', 'adventure-treks' ) ) );
 		}
 
 		global $wpdb;
@@ -174,7 +174,7 @@ class TrekItineraryController {
 			$wpdb->update( $table_days, $data, array( 'id' => $id ), array( '%d', '%d', '%d', '%s', '%s' ), array( '%d' ) );
 			wp_send_json_success(
 				array(
-					'message' => 'Day updated successfully',
+					'message' => __( 'Day updated successfully', 'adventure-treks' ),
 					'id'      => $id,
 				)
 			);
@@ -187,12 +187,12 @@ class TrekItineraryController {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$inserted = $wpdb->insert( $table_days, $data, array( '%d', '%d', '%d', '%s', '%s', '%d' ) );
 			if ( ! $inserted ) {
-				wp_send_json_error( array( 'message' => 'Failed to add day' ) );
+				wp_send_json_error( array( 'message' => __( 'Failed to add day', 'adventure-treks' ) ) );
 			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			wp_send_json_success(
 				array(
-					'message' => 'Day added successfully',
+					'message' => __( 'Day added successfully', 'adventure-treks' ),
 					'id'      => $wpdb->insert_id,
 				)
 			);
@@ -207,12 +207,12 @@ class TrekItineraryController {
 
 		$id = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
-			wp_send_json_error( array( 'message' => 'Invalid Day ID' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid Day ID', 'adventure-treks' ) ) );
 		}
 
 		$trek_id = $this->get_day_trek_id( $id );
 		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
 		}
 
 		global $wpdb;
@@ -221,7 +221,7 @@ class TrekItineraryController {
 		$wpdb->delete( $wpdb->prefix . 'at_itinerary_items', array( 'itinerary_id' => $id ), array( '%d' ) );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery
 
-		wp_send_json_success( array( 'message' => 'Day deleted successfully' ) );
+		wp_send_json_success( array( 'message' => __( 'Day deleted successfully', 'adventure-treks' ) ) );
 	}
 
 	/**
@@ -234,13 +234,13 @@ class TrekItineraryController {
 		$raw_order = isset( $_POST['order'] ) ? wp_unslash( $_POST['order'] ) : array();
 		$order     = is_array( $raw_order ) ? array_map( 'intval', $raw_order ) : array();
 		if ( empty( $order ) || ! is_array( $order ) ) {
-			wp_send_json_error( array( 'message' => 'No order layout received' ) );
+			wp_send_json_error( array( 'message' => __( 'No order layout received', 'adventure-treks' ) ) );
 		}
 
 		foreach ( $order as $id ) {
 			$trek_id = $this->get_day_trek_id( $id );
 			if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
-				wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+				wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
 			}
 		}
 
@@ -258,7 +258,7 @@ class TrekItineraryController {
 			);
 		}
 
-		wp_send_json_success( array( 'message' => 'Days reordered successfully' ) );
+		wp_send_json_success( array( 'message' => __( 'Days reordered successfully', 'adventure-treks' ) ) );
 	}
 
 	/**
@@ -272,7 +272,7 @@ class TrekItineraryController {
 
 		$owner_trek_id = $id ? $this->get_item_trek_id( $id ) : ( $itinerary_id ? $this->get_day_trek_id( $itinerary_id ) : 0 );
 		if ( ! $owner_trek_id || ! current_user_can( 'edit_post', $owner_trek_id ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
 		}
 
 		$item_time   = isset( $_POST['item_time'] ) ? sanitize_text_field( wp_unslash( $_POST['item_time'] ) ) : '';
@@ -282,7 +282,7 @@ class TrekItineraryController {
 		$image_url   = isset( $_POST['image_url'] ) ? esc_url_raw( wp_unslash( $_POST['image_url'] ) ) : '';
 
 		if ( empty( $title ) || ! $itinerary_id ) {
-			wp_send_json_error( array( 'message' => 'Activity title is required' ) );
+			wp_send_json_error( array( 'message' => __( 'Activity title is required', 'adventure-treks' ) ) );
 		}
 
 		global $wpdb;
@@ -302,7 +302,7 @@ class TrekItineraryController {
 			$wpdb->update( $table_items, $data, array( 'id' => $id ), array( '%d', '%s', '%s', '%s', '%s', '%s' ), array( '%d' ) );
 			wp_send_json_success(
 				array(
-					'message' => 'Activity updated successfully',
+					'message' => __( 'Activity updated successfully', 'adventure-treks' ),
 					'id'      => $id,
 				)
 			);
@@ -315,12 +315,12 @@ class TrekItineraryController {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$inserted = $wpdb->insert( $table_items, $data, array( '%d', '%s', '%s', '%s', '%s', '%s', '%d' ) );
 			if ( ! $inserted ) {
-				wp_send_json_error( array( 'message' => 'Failed to add activity event' ) );
+				wp_send_json_error( array( 'message' => __( 'Failed to add activity event', 'adventure-treks' ) ) );
 			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			wp_send_json_success(
 				array(
-					'message' => 'Activity added successfully',
+					'message' => __( 'Activity added successfully', 'adventure-treks' ),
 					'id'      => $wpdb->insert_id,
 				)
 			);
@@ -335,12 +335,12 @@ class TrekItineraryController {
 
 		$id = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
-			wp_send_json_error( array( 'message' => 'Invalid Activity ID' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid Activity ID', 'adventure-treks' ) ) );
 		}
 
 		$trek_id = $this->get_item_trek_id( $id );
 		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
 		}
 
 		global $wpdb;
@@ -348,7 +348,7 @@ class TrekItineraryController {
 		$wpdb->delete( $wpdb->prefix . 'at_itinerary_items', array( 'id' => $id ), array( '%d' ) );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery
 
-		wp_send_json_success( array( 'message' => 'Activity deleted successfully' ) );
+		wp_send_json_success( array( 'message' => __( 'Activity deleted successfully', 'adventure-treks' ) ) );
 	}
 
 	/**
@@ -361,13 +361,13 @@ class TrekItineraryController {
 		$raw_order = isset( $_POST['order'] ) ? wp_unslash( $_POST['order'] ) : array();
 		$order     = is_array( $raw_order ) ? array_map( 'intval', $raw_order ) : array();
 		if ( empty( $order ) || ! is_array( $order ) ) {
-			wp_send_json_error( array( 'message' => 'No order layout received' ) );
+			wp_send_json_error( array( 'message' => __( 'No order layout received', 'adventure-treks' ) ) );
 		}
 
 		foreach ( $order as $id ) {
 			$trek_id = $this->get_item_trek_id( $id );
 			if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
-				wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+				wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
 			}
 		}
 
@@ -385,6 +385,6 @@ class TrekItineraryController {
 			);
 		}
 
-		wp_send_json_success( array( 'message' => 'Activities reordered successfully' ) );
+		wp_send_json_success( array( 'message' => __( 'Activities reordered successfully', 'adventure-treks' ) ) );
 	}
 }

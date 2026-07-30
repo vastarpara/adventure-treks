@@ -109,21 +109,21 @@ class AdminController {
 	 */
 	public static function get_currencies() {
 		return array(
-			'₹'   => '₹ (Indian Rupee)',
-			'$'   => '$ (US Dollar)',
-			'€'   => '€ (Euro)',
-			'£'   => '£ (British Pound)',
-			'¥'   => '¥ (Japanese Yen / Chinese Yuan)',
-			'A$'  => 'A$ (Australian Dollar)',
-			'C$'  => 'C$ (Canadian Dollar)',
-			'Fr'  => 'Fr (Swiss Franc)',
-			'NZ$' => 'NZ$ (New Zealand Dollar)',
-			'kr'  => 'kr (Swedish/Norwegian/Danish Krone)',
-			'R$'  => 'R$ (Brazilian Real)',
-			'R'   => 'R (South African Rand)',
-			'AED' => 'AED (UAE Dirham)',
-			'฿'   => '฿ (Thai Baht)',
-			'Rp'  => 'Rp (Indonesian Rupiah)',
+			'₹'   => __( '₹ (Indian Rupee)', 'adventure-treks' ),
+			'$'   => __( '$ (US Dollar)', 'adventure-treks' ),
+			'€'   => __( '€ (Euro)', 'adventure-treks' ),
+			'£'   => __( '£ (British Pound)', 'adventure-treks' ),
+			'¥'   => __( '¥ (Japanese Yen / Chinese Yuan)', 'adventure-treks' ),
+			'A$'  => __( 'A$ (Australian Dollar)', 'adventure-treks' ),
+			'C$'  => __( 'C$ (Canadian Dollar)', 'adventure-treks' ),
+			'Fr'  => __( 'Fr (Swiss Franc)', 'adventure-treks' ),
+			'NZ$' => __( 'NZ$ (New Zealand Dollar)', 'adventure-treks' ),
+			'kr'  => __( 'kr (Swedish/Norwegian/Danish Krone)', 'adventure-treks' ),
+			'R$'  => __( 'R$ (Brazilian Real)', 'adventure-treks' ),
+			'R'   => __( 'R (South African Rand)', 'adventure-treks' ),
+			'AED' => __( 'AED (UAE Dirham)', 'adventure-treks' ),
+			'฿'   => __( '฿ (Thai Baht)', 'adventure-treks' ),
+			'Rp'  => __( 'Rp (Indonesian Rupiah)', 'adventure-treks' ),
 		);
 	}
 

@@ -68,7 +68,7 @@ class TrekPricingController {
 
 		$city_id = isset( $_GET['city_id'] ) ? intval( $_GET['city_id'] ) : 0;
 		if ( ! $city_id ) {
-			wp_send_json_error( array( 'message' => 'Invalid City ID' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid City ID', 'adventure-treks' ) ) );
 		}
 
 		global $wpdb;
@@ -123,7 +123,7 @@ class TrekPricingController {
 
 		$city_id = isset( $_POST['city_id'] ) ? intval( wp_unslash( $_POST['city_id'] ) ) : 0;
 		if ( ! $city_id ) {
-			wp_send_json_error( array( 'message' => 'Missing required IDs' ) );
+			wp_send_json_error( array( 'message' => __( 'Missing required IDs', 'adventure-treks' ) ) );
 		}
 
 		global $wpdb;
@@ -133,7 +133,7 @@ class TrekPricingController {
 		);
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery
 		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
-			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
 		}
 
 		$adult_price = isset( $_POST['adult_price'] ) ? floatval( wp_unslash( $_POST['adult_price'] ) ) : 0.00;
@@ -243,6 +243,6 @@ class TrekPricingController {
 			array( '%d' )
 		);
 
-		wp_send_json_success( array( 'message' => 'City pricing rules saved successfully!' ) );
+		wp_send_json_success( array( 'message' => __( 'City pricing rules saved successfully!', 'adventure-treks' ) ) );
 	}
 }

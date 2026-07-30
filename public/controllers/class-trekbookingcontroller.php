@@ -126,7 +126,7 @@ class TrekBookingController {
 
 		$city_id = isset( $_GET['city_id'] ) ? intval( $_GET['city_id'] ) : 0;
 		if ( ! $city_id ) {
-			wp_send_json_error( array( 'message' => 'Invalid City' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid City', 'adventure-treks' ) ) );
 		}
 
 		global $wpdb;
@@ -170,7 +170,7 @@ class TrekBookingController {
 		$city_id = isset( $_GET['city_id'] ) ? intval( $_GET['city_id'] ) : 0;
 
 		if ( ! $date_id || ! $city_id ) {
-			wp_send_json_error( array( 'message' => 'Missing parameters' ) );
+			wp_send_json_error( array( 'message' => __( 'Missing parameters', 'adventure-treks' ) ) );
 		}
 
 		global $wpdb;
@@ -184,7 +184,7 @@ class TrekBookingController {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$city = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_cities WHERE id = %d", $city_id ), ARRAY_A );
 		if ( ! $city ) {
-			wp_send_json_error( array( 'message' => 'City not found' ) );
+			wp_send_json_error( array( 'message' => __( 'City not found', 'adventure-treks' ) ) );
 		}
 
 		// 2. Fetch date availability
@@ -251,17 +251,17 @@ class TrekBookingController {
 		$total_price = isset( $_POST['total_price'] ) ? floatval( wp_unslash( $_POST['total_price'] ) ) : 0.00;
 
 		if ( ! $trek_id || ! $city_id || ! $date_id || empty( $cust_name ) || empty( $cust_email ) || empty( $cust_phone ) ) {
-			wp_send_json_error( array( 'message' => 'Please fill all required customer contact details.' ) );
+			wp_send_json_error( array( 'message' => __( 'Please fill all required customer contact details.', 'adventure-treks' ) ) );
 		}
 
 		$clean_phone = preg_replace( '/[\-\s]/', '', $cust_phone );
 		if ( ! preg_match( '/^(?:\+91|91|0)?[6789]\d{9}$/', $clean_phone ) ) {
-			wp_send_json_error( array( 'message' => 'Please enter a valid Indian phone number.' ) );
+			wp_send_json_error( array( 'message' => __( 'Please enter a valid Indian phone number.', 'adventure-treks' ) ) );
 		}
 
 		$seats_requested = $num_adults + $num_children;
 		if ( $seats_requested <= 0 ) {
-			wp_send_json_error( array( 'message' => 'Please select at least 1 seat.' ) );
+			wp_send_json_error( array( 'message' => __( 'Please select at least 1 seat.', 'adventure-treks' ) ) );
 		}
 
 		global $wpdb;
@@ -271,12 +271,17 @@ class TrekBookingController {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$avail = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_avail WHERE date_id = %d", $date_id ) );
 		if ( ! $avail ) {
-			wp_send_json_error( array( 'message' => 'Seat availability record not found for this date.' ) );
+			wp_send_json_error( array( 'message' => __( 'Seat availability record not found for this date.', 'adventure-treks' ) ) );
 		}
 
 		$available_seats = intval( $avail->available_seats );
 		if ( $available_seats < $seats_requested ) {
-			wp_send_json_error( array( 'message' => sprintf( 'Sorry, only %d seats are remaining for this date.', $available_seats ) ) );
+			wp_send_json_error(
+				array(
+					/* translators: %d: number of remaining seats. */
+					'message' => sprintf( __( 'Sorry, only %d seats are remaining for this date.', 'adventure-treks' ), $available_seats ),
+				)
+			);
 		}
 
 		// Decrement availability counter.
