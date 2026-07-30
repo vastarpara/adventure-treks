@@ -1,0 +1,43 @@
+/**
+ * Bookings admin screen styles.
+ * Modal shell classes (.at-modal-overlay, .at-modal-box, etc.) come from admin-departures.css.
+ */
+
+#at_booking_view_table th {
+	background: #f6f7f7;
+	padding: 8px 12px;
+	font-weight: 600;
+	color: #3c434a;
+}
+
+#at_booking_view_table td {
+	padding: 8px 12px;
+}
+
+#at_booking_view_loading {
+	text-align: center;
+	color: #666;
+	padding: 20px 0;
+}
+
+/* Add/Edit Booking form. */
+.at-required {
+	color: #d63638;
+}
+
+.at-price-breakdown-box {
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: 10px 12px;
+	font-size: 13px;
+	max-width: 420px;
+}
+
+.at-price-breakdown-box p.description {
+	margin: 0;
+}
+
+.at-field-hint {
+	margin: 4px 0 0;
+}

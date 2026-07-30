@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	const checkoutCancel = document.getElementById('at_checkout_cancel_btn');
 	const checkoutConfirm = document.getElementById('at_checkout_confirm_btn');
 	const checkoutForm = document.getElementById('at_checkout_form');
+	const checkoutTermsAgree = document.getElementById('at_checkout_terms_agree');
 
 	const pickupField = document.getElementById('at_checkout_pickup_field');
 	const pickupSelect = document.getElementById('at_checkout_pickup');
@@ -425,7 +426,13 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 
 		pickupInstructions.textContent = '';
+		checkoutTermsAgree.checked = false;
+		checkoutConfirm.disabled = true;
 		checkoutModal.style.display = 'flex';
+	});
+
+	checkoutTermsAgree.addEventListener('change', function() {
+		checkoutConfirm.disabled = !checkoutTermsAgree.checked;
 	});
 
 	// Pickup instruction updates
@@ -443,6 +450,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	function closeCheckout() {
 		checkoutModal.style.display = 'none';
 		checkoutForm.reset();
+		checkoutTermsAgree.checked = false;
+		checkoutConfirm.disabled = true;
 	}
 
 	checkoutClose.addEventListener('click', closeCheckout);
@@ -452,6 +461,11 @@ document.addEventListener('DOMContentLoaded', function() {
 	// 5. Booking Form Submission
 	// ==========================================
 	checkoutConfirm.addEventListener('click', function() {
+		if (!checkoutTermsAgree.checked) {
+			alert('Please agree to the cancellation, refund policies, and terms and conditions before confirming.');
+			return;
+		}
+
 		if (!checkoutForm.reportValidity()) return;
 
 		const phoneInput = document.getElementById('at_checkout_phone');

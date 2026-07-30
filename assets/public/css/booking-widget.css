@@ -503,6 +503,12 @@
 	background: #0f6165;
 }
 
+.at-modal-btn.confirm:disabled {
+	background: #a7bdbe;
+	border-color: #a7bdbe;
+	cursor: not-allowed;
+}
+
 .at-form-field {
 	margin-bottom: 15px;
 }

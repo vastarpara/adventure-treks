@@ -169,14 +169,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 				</form>
 				<div class="at-checkout-terms">
-					<p style="font-size:11px; color:#666; margin:0;">
-						<?php esc_html_e( 'By booking, you agree to the cancellation, refund policies, and terms and conditions configured for this trek.', 'adventure-treks' ); ?>
-					</p>
+					<label style="display:flex; align-items:flex-start; gap:6px; font-size:11px; color:#666; margin:0; cursor:pointer;">
+						<input type="checkbox" id="at_checkout_terms_agree" style="margin-top:2px;" />
+						<span><?php esc_html_e( 'By booking, you agree to the cancellation, refund policies, and terms and conditions configured for this trek.', 'adventure-treks' ); ?></span>
+					</label>
 				</div>
 			</div>
 			<div class="at-booking-modal-footer">
 				<button type="button" class="at-modal-btn cancel" id="at_checkout_cancel_btn"><?php esc_html_e( 'Cancel', 'adventure-treks' ); ?></button>
-				<button type="button" class="at-modal-btn confirm" id="at_checkout_confirm_btn"><?php esc_html_e( 'Confirm Reservation', 'adventure-treks' ); ?></button>
+				<button type="button" class="at-modal-btn confirm" id="at_checkout_confirm_btn" disabled><?php esc_html_e( 'Confirm Reservation', 'adventure-treks' ); ?></button>
 			</div>
 		</div>
 	</div>

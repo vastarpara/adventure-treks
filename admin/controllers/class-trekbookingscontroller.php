@@ -21,6 +21,64 @@ class TrekBookingsController {
 	 */
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'admin_post_at_save_booking', array( $this, 'handle_save_booking' ) );
+		add_action( 'wp_ajax_at_get_single_booking_details', array( $this, 'ajax_get_booking_details' ) );
+	}
+
+	/**
+	 * Format a booking ID into its display reference, e.g. 45 -> "AD: 45".
+	 *
+	 * @param int $booking_id Raw booking ID.
+	 * @return string
+	 */
+	public static function format_booking_ref( $booking_id ) {
+		return 'AD: ' . intval( $booking_id );
+	}
+
+	/**
+	 * Apply a seat delta to a departure date's availability counters.
+	 *
+	 * Positive delta consumes seats (new/reactivated booking), negative delta
+	 * releases seats (cancelled/deleted booking, or a seat-count reduction).
+	 * Both counters are clamped to zero to avoid negative seat counts if data
+	 * ever drifts out of sync.
+	 *
+	 * @param int $date_id    Departure date ID.
+	 * @param int $seat_delta Signed number of seats to add to booked_seats.
+	 * @return void
+	 */
+	public static function sync_availability( $date_id, $seat_delta ) {
+		$date_id    = intval( $date_id );
+		$seat_delta = intval( $seat_delta );
+
+		if ( ! $date_id || 0 === $seat_delta ) {
+			return;
+		}
+
+		global $wpdb;
+		$table_avail = $wpdb->prefix . 'at_availability';
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery
+		$avail = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_avail WHERE date_id = %d", $date_id ) );
+		if ( ! $avail ) {
+			return;
+		}
+
+		$new_booked    = max( 0, intval( $avail->booked_seats ) + $seat_delta );
+		$new_available = max( 0, intval( $avail->total_seats ) - $new_booked );
+
+		$wpdb->update(
+			$table_avail,
+			array(
+				'booked_seats'    => $new_booked,
+				'available_seats' => $new_available,
+			),
+			array( 'id' => $avail->id ),
+			array( '%d', '%d' ),
+			array( '%d' )
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery
 	}
 
 	/**
@@ -38,11 +96,268 @@ class TrekBookingsController {
 	}
 
 	/**
-	 * Render page.
+	 * Enqueue CSS/JS for the bookings admin screen only.
+	 *
+	 * @param string $hook Current admin page hook suffix.
+	 * @return void
+	 */
+	public function enqueue_assets( $hook ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		if ( 'at-bookings' !== $page ) {
+			return;
+		}
+
+		// Reuse the shared modal/form styling already used by the trek meta boxes.
+		wp_enqueue_style(
+			'at-admin-departures-css',
+			ADVENTURE_TREKS_URL . 'assets/admin/css/admin-departures.css',
+			array(),
+			ADVENTURE_TREKS_VERSION
+		);
+
+		wp_enqueue_style(
+			'at-admin-bookings-css',
+			ADVENTURE_TREKS_URL . 'assets/admin/css/admin-bookings.css',
+			array( 'at-admin-departures-css' ),
+			ADVENTURE_TREKS_VERSION
+		);
+
+		wp_enqueue_script(
+			'at-admin-bookings-js',
+			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-bookings.js',
+			array(),
+			ADVENTURE_TREKS_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'at-admin-bookings-js',
+			'at_bookings_obj',
+			array(
+				'ajax_url'             => admin_url( 'admin-ajax.php' ),
+				'details_nonce'        => wp_create_nonce( 'at_bookings_nonce_action' ),
+				'cities_nonce'         => wp_create_nonce( 'at_departures_nonce_action' ),
+				'dates_nonce'          => wp_create_nonce( 'at_dates_nonce_action' ),
+				'public_pricing_nonce' => wp_create_nonce( 'at_booking_nonce_action' ),
+				'currency'             => get_option( 'at_currency_symbol', '₹' ),
+			)
+		);
+	}
+
+	/**
+	 * Render page: list table, or the Add/Edit form depending on the requested action.
 	 */
 	public function render_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : '';
+
+		if ( in_array( $action, array( 'add', 'edit' ), true ) ) {
+			$this->render_form( $action );
+			return;
+		}
+
 		$table = new Bookings_List_Table();
 		$table->prepare_items();
 		include ADVENTURE_TREKS_PATH . 'admin/views/bookings-list.php';
+	}
+
+	/**
+	 * Render the Add/Edit booking form screen.
+	 *
+	 * @param string $mode 'add' or 'edit'.
+	 * @return void
+	 */
+	private function render_form( $mode ) {
+		global $wpdb;
+
+		$booking = null;
+
+		if ( 'edit' === $mode ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$booking_id = isset( $_GET['booking'] ) ? absint( wp_unslash( $_GET['booking'] ) ) : 0;
+			if ( $booking_id ) {
+				// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+				$booking = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}at_bookings WHERE id = %d", $booking_id ) );
+				// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			}
+
+			if ( ! $booking ) {
+				wp_die( esc_html__( 'Booking not found.', 'adventure-treks' ) );
+			}
+		}
+
+		$treks = get_posts(
+			array(
+				'post_type'      => 'adventure_trek',
+				'posts_per_page' => -1,
+				'post_status'    => 'publish',
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+			)
+		);
+
+		include ADVENTURE_TREKS_PATH . 'admin/views/booking-form.php';
+	}
+
+	/**
+	 * Handle Add/Edit booking form submission (admin-post.php).
+	 *
+	 * @return void
+	 */
+	public function handle_save_booking() {
+		if ( ! isset( $_POST['at_booking_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['at_booking_nonce'] ) ), 'at_save_booking' ) ) {
+			wp_die( esc_html__( 'Security check failed.', 'adventure-treks' ) );
+		}
+
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_die( esc_html__( 'You are not allowed to do this.', 'adventure-treks' ) );
+		}
+
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'at_bookings';
+
+		$booking_id   = isset( $_POST['booking_id'] ) ? absint( wp_unslash( $_POST['booking_id'] ) ) : 0;
+		$trek_id      = isset( $_POST['trek_id'] ) ? absint( wp_unslash( $_POST['trek_id'] ) ) : 0;
+		$city_id      = isset( $_POST['city_id'] ) ? absint( wp_unslash( $_POST['city_id'] ) ) : 0;
+		$date_id      = isset( $_POST['date_id'] ) ? absint( wp_unslash( $_POST['date_id'] ) ) : 0;
+		$cust_name    = isset( $_POST['cust_name'] ) ? sanitize_text_field( wp_unslash( $_POST['cust_name'] ) ) : '';
+		$cust_email   = isset( $_POST['cust_email'] ) ? sanitize_email( wp_unslash( $_POST['cust_email'] ) ) : '';
+		$cust_phone   = isset( $_POST['cust_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['cust_phone'] ) ) : '';
+		$num_adults   = isset( $_POST['num_adults'] ) ? absint( wp_unslash( $_POST['num_adults'] ) ) : 0;
+		$num_children = isset( $_POST['num_children'] ) ? absint( wp_unslash( $_POST['num_children'] ) ) : 0;
+		$pickup_point = isset( $_POST['pickup_point'] ) ? sanitize_text_field( wp_unslash( $_POST['pickup_point'] ) ) : '';
+		$total_amount   = isset( $_POST['total_amount'] ) ? floatval( wp_unslash( $_POST['total_amount'] ) ) : 0.00;
+		$status         = isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : 'pending';
+		$payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : 'pending';
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$addons_input = isset( $_POST['addons'] ) ? wp_unslash( $_POST['addons'] ) : array();
+		$addons_data  = array();
+		if ( is_array( $addons_input ) ) {
+			foreach ( $addons_input as $addon_name ) {
+				$addon_name = sanitize_text_field( $addon_name );
+				if ( '' !== $addon_name ) {
+					$addons_data[] = $addon_name;
+				}
+			}
+		}
+		$addons = ! empty( $addons_data ) ? wp_json_encode( $addons_data ) : '';
+
+		$valid_statuses = array( 'pending', 'confirmed', 'cancelled' );
+		if ( ! in_array( $status, $valid_statuses, true ) ) {
+			$status = 'pending';
+		}
+
+		$valid_payment_statuses = array( 'pending', 'paid' );
+		if ( ! in_array( $payment_status, $valid_payment_statuses, true ) ) {
+			$payment_status = 'pending';
+		}
+
+		$seats = $num_adults + $num_children;
+
+		$redirect_args = array(
+			'post_type' => 'adventure_trek',
+			'page'      => 'at-bookings',
+		);
+
+		if ( empty( $cust_name ) || empty( $cust_email ) || ! $trek_id || ! $city_id || ! $date_id || $seats < 1 ) {
+			$redirect_args['action']   = $booking_id ? 'edit' : 'add';
+			$redirect_args['booking']  = $booking_id;
+			$redirect_args['at_error'] = 1;
+			wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'edit.php' ) ) );
+			exit;
+		}
+
+		// Capture prior state so seat availability can be reconciled after saving.
+		$old_booking = null;
+		if ( $booking_id ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			$old_booking = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE id = %d", $booking_id ) );
+		}
+
+		$data = array(
+			'trek_id'        => $trek_id,
+			'city_id'        => $city_id,
+			'date_id'        => $date_id,
+			'cust_name'      => $cust_name,
+			'cust_email'     => $cust_email,
+			'cust_phone'     => $cust_phone,
+			'seats'          => $seats,
+			'num_adults'     => $num_adults,
+			'num_children'   => $num_children,
+			'pickup_point'   => $pickup_point,
+			'addons'         => $addons,
+			'total_amount'   => $total_amount,
+			'status'         => $status,
+			'payment_status' => $payment_status,
+		);
+		$format = array( '%d', '%d', '%d', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%f', '%s', '%s' );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery
+		if ( $booking_id ) {
+			$wpdb->update( $table_name, $data, array( 'id' => $booking_id ), $format, array( '%d' ) );
+		} else {
+			$data['created_at'] = current_time( 'mysql' );
+			$format[]           = '%s';
+			$wpdb->insert( $table_name, $data, $format );
+			$booking_id = $wpdb->insert_id;
+		}
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery
+
+		// Reconcile seat availability against whatever changed (status, seat count, or date).
+		$old_effective_seats = ( $old_booking && 'cancelled' !== $old_booking->status ) ? intval( $old_booking->seats ) : 0;
+		$new_effective_seats = ( 'cancelled' !== $status ) ? $seats : 0;
+
+		if ( $old_booking && intval( $old_booking->date_id ) === $date_id ) {
+			self::sync_availability( $date_id, $new_effective_seats - $old_effective_seats );
+		} else {
+			if ( $old_booking ) {
+				self::sync_availability( intval( $old_booking->date_id ), -$old_effective_seats );
+			}
+			self::sync_availability( $date_id, $new_effective_seats );
+		}
+
+		$redirect_args['at_saved'] = 1;
+		wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'edit.php' ) ) );
+		exit;
+	}
+
+	/**
+	 * AJAX: Get full details for a single booking (used by the "View" popup).
+	 *
+	 * @return void
+	 */
+	public function ajax_get_booking_details() {
+		check_ajax_referer( 'at_bookings_nonce_action', 'nonce' );
+
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+		}
+
+		$booking_id = isset( $_GET['booking_id'] ) ? absint( wp_unslash( $_GET['booking_id'] ) ) : 0;
+		if ( ! $booking_id ) {
+			wp_send_json_error( array( 'message' => 'Invalid booking ID' ) );
+		}
+
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$booking = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}at_bookings WHERE id = %d", $booking_id ), ARRAY_A );
+		if ( ! $booking ) {
+			wp_send_json_error( array( 'message' => 'Booking not found' ) );
+		}
+
+		$booking['booking_ref']    = self::format_booking_ref( $booking['id'] );
+		$booking['trek_title']     = get_the_title( $booking['trek_id'] );
+		$booking['city_name']      = $wpdb->get_var( $wpdb->prepare( "SELECT city_name FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $booking['city_id'] ) );
+		$booking['departure_date'] = $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $booking['date_id'] ) );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+
+		$addons             = ! empty( $booking['addons'] ) ? json_decode( $booking['addons'], true ) : array();
+		$booking['addons']  = is_array( $addons ) ? $addons : array();
+		$booking['currency'] = get_option( 'at_currency_symbol', '₹' );
+
+		wp_send_json_success( $booking );
 	}
 }

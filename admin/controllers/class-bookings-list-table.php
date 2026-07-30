@@ -40,16 +40,18 @@ class Bookings_List_Table extends \WP_List_Table {
 	 */
 	public function get_columns() {
 		return array(
-			'cb'           => '<input type="checkbox" />',
-			'cust_name'    => __( 'Customer', 'adventure-treks' ),
-			'trek_title'   => __( 'Trek', 'adventure-treks' ),
-			'city_name'    => __( 'Departure City', 'adventure-treks' ),
-			'date_val'     => __( 'Travel Date', 'adventure-treks' ),
-			'seats'        => __( 'Seats', 'adventure-treks' ),
-			'addons'       => __( 'Add-ons', 'adventure-treks' ),
-			'total_amount' => __( 'Amount', 'adventure-treks' ),
-			'created_at'   => __( 'Booked On', 'adventure-treks' ),
-			'status'       => __( 'Status', 'adventure-treks' ),
+			'cb'             => '<input type="checkbox" />',
+			'cust_name'      => __( 'Customer', 'adventure-treks' ),
+			'trek_title'     => __( 'Trek', 'adventure-treks' ),
+			'city_name'      => __( 'Departure City', 'adventure-treks' ),
+			'date_val'       => __( 'Travel Date', 'adventure-treks' ),
+			'seats'          => __( 'Seats', 'adventure-treks' ),
+			'addons'         => __( 'Add-ons', 'adventure-treks' ),
+			'total_amount'   => __( 'Amount', 'adventure-treks' ),
+			'created_at'     => __( 'Booked On', 'adventure-treks' ),
+			'status'         => __( 'Status', 'adventure-treks' ),
+			'payment_status' => __( 'Payment Status', 'adventure-treks' ),
+			'view'           => __( 'Details', 'adventure-treks' ),
 		);
 	}
 
@@ -92,8 +94,17 @@ class Bookings_List_Table extends \WP_List_Table {
 			case 'status':
 				$color = 'confirmed' === $item->status ? 'green' : 'red';
 				return '<span style="color:' . esc_attr( $color ) . ';font-weight:bold;">' . esc_html( ucfirst( $item->$column_name ) ) . '</span>';
+			case 'payment_status':
+				$color = 'paid' === $item->payment_status ? 'green' : 'red';
+				return '<span style="color:' . esc_attr( $color ) . ';font-weight:bold;">' . esc_html( ucfirst( $item->$column_name ) ) . '</span>';
 			case 'created_at':
 				return esc_html( gmdate( 'd M Y, h:i A', strtotime( $item->created_at ) ) );
+			case 'view':
+				return sprintf(
+					'<button type="button" class="button at-view-booking-btn" data-booking-id="%d">%s</button>',
+					intval( $item->id ),
+					esc_html__( 'View', 'adventure-treks' )
+				);
 			default:
 				return '';
 		}
@@ -111,10 +122,11 @@ class Bookings_List_Table extends \WP_List_Table {
 		$name .= '<br>' . esc_html( $item->cust_phone );
 
 		$delete_nonce = wp_create_nonce( 'at_delete_booking' );
-		$title        = _x( 'Delete', 'verb', 'adventure-treks' );
-		$url          = sprintf( '?post_type=adventure_trek&page=at-bookings&action=delete&booking=%d&_wpnonce=%s', $item->id, $delete_nonce );
+		$edit_url     = sprintf( '?post_type=adventure_trek&page=at-bookings&action=edit&booking=%d', $item->id );
+		$delete_url   = sprintf( '?post_type=adventure_trek&page=at-bookings&action=delete&booking=%d&_wpnonce=%s', $item->id, $delete_nonce );
 		$actions      = array(
-			'delete' => sprintf( '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>', esc_url( $url ), esc_attr__( 'Are you sure you want to delete this booking? This cannot be undone.', 'adventure-treks' ), esc_html( $title ) ),
+			'edit'   => sprintf( '<a href="%s">%s</a>', esc_url( $edit_url ), esc_html__( 'Edit', 'adventure-treks' ) ),
+			'delete' => sprintf( '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>', esc_url( $delete_url ), esc_attr__( 'Are you sure you want to delete this booking? This cannot be undone.', 'adventure-treks' ), esc_html__( 'Delete', 'adventure-treks' ) ),
 		);
 
 		return $name . $this->row_actions( $actions );
@@ -195,7 +207,7 @@ class Bookings_List_Table extends \WP_List_Table {
 	}
 
 	/**
-	 * Extra table nav (Filter by Trek).
+	 * Extra table nav (Filter by Trek, Filter by Status).
 	 *
 	 * @param string $which Top or bottom.
 	 */
@@ -212,6 +224,14 @@ class Bookings_List_Table extends \WP_List_Table {
 					'order'          => 'ASC',
 				)
 			);
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$selected_status = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
+			$statuses        = array(
+				'pending'   => __( 'Pending', 'adventure-treks' ),
+				'confirmed' => __( 'Confirmed', 'adventure-treks' ),
+				'cancelled' => __( 'Cancelled', 'adventure-treks' ),
+			);
 			?>
 			<div class="alignleft actions">
 				<select name="filter_trek_id">
@@ -219,6 +239,14 @@ class Bookings_List_Table extends \WP_List_Table {
 					<?php foreach ( $treks as $trek ) : ?>
 						<option value="<?php echo esc_attr( $trek->ID ); ?>" <?php selected( $selected_trek, $trek->ID ); ?>>
 							<?php echo esc_html( $trek->post_title ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+				<select name="filter_status">
+					<option value=""><?php esc_html_e( 'All Statuses', 'adventure-treks' ); ?></option>
+					<?php foreach ( $statuses as $status_val => $status_label ) : ?>
+						<option value="<?php echo esc_attr( $status_val ); ?>" <?php selected( $selected_status, $status_val ); ?>>
+							<?php echo esc_html( $status_label ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>
@@ -244,9 +272,15 @@ class Bookings_List_Table extends \WP_List_Table {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$booking_id = isset( $_GET['booking'] ) ? absint( wp_unslash( $_GET['booking'] ) ) : 0;
 			if ( $booking_id ) {
-				// phpcs:disable WordPress.DB.DirectDatabaseQuery
+				// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+				$booking = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE id = %d", $booking_id ) );
 				$wpdb->delete( $table_name, array( 'id' => $booking_id ), array( '%d' ) );
-				// phpcs:enable WordPress.DB.DirectDatabaseQuery
+				// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+
+				if ( $booking && 'cancelled' !== $booking->status ) {
+					TrekBookingsController::sync_availability( $booking->date_id, -intval( $booking->seats ) );
+				}
+
 				echo '<div class="notice notice-success is-dismissible"><p>Booking deleted successfully.</p></div>';
 			}
 		}
@@ -257,9 +291,17 @@ class Bookings_List_Table extends \WP_List_Table {
 			$booking_ids = isset( $_GET['booking_ids'] ) ? array_map( 'absint', (array) wp_unslash( $_GET['booking_ids'] ) ) : array();
 			if ( ! empty( $booking_ids ) ) {
 				// phpcs:disable WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$ids = implode( ',', $booking_ids );
+				$ids                = implode( ',', $booking_ids );
+				$bookings_to_delete = $wpdb->get_results( "SELECT * FROM $table_name WHERE id IN ($ids)" );
 				$wpdb->query( "DELETE FROM $table_name WHERE id IN ($ids)" );
 				// phpcs:enable WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+				foreach ( $bookings_to_delete as $booking ) {
+					if ( 'cancelled' !== $booking->status ) {
+						TrekBookingsController::sync_availability( $booking->date_id, -intval( $booking->seats ) );
+					}
+				}
+
 				echo '<div class="notice notice-success is-dismissible"><p>Bookings deleted successfully.</p></div>';
 			}
 		}
@@ -288,7 +330,7 @@ class Bookings_List_Table extends \WP_List_Table {
 			$orderby = 'created_at';
 		}
 
-		$order = ( strtoupper( $order ) === 'ASC' ) ? 'ASC' : 'DESC';
+		$order = ( 'ASC' === strtoupper( $order ) ) ? 'ASC' : 'DESC';
 
 		$table_name = $wpdb->prefix . 'at_bookings';
 
@@ -304,6 +346,13 @@ class Bookings_List_Table extends \WP_List_Table {
 		$filter_trek_id = isset( $_GET['filter_trek_id'] ) ? absint( wp_unslash( $_GET['filter_trek_id'] ) ) : 0;
 		if ( $filter_trek_id > 0 ) {
 			$where_clause .= $wpdb->prepare( ' AND trek_id = %d', $filter_trek_id );
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$filter_status  = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
+		$valid_statuses = array( 'pending', 'confirmed', 'cancelled' );
+		if ( in_array( $filter_status, $valid_statuses, true ) ) {
+			$where_clause .= $wpdb->prepare( ' AND status = %s', $filter_status );
 		}
 
 		// Search handling.

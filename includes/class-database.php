@@ -190,6 +190,7 @@ class Database {
 			addons longtext DEFAULT NULL,
 			total_amount decimal(10,2) DEFAULT '0.00' NOT NULL,
 			status varchar(50) DEFAULT 'confirmed' NOT NULL,
+			payment_status varchar(20) DEFAULT 'pending' NOT NULL,
 			created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 			PRIMARY KEY  (id),
 			KEY trek_id (trek_id),
