@@ -65,7 +65,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					
 					<div class="at-form-row">
 						<label for="at_form_city_name"><?php esc_html_e( 'City Name', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
-						<input type="text" id="at_form_city_name" name="city_name" placeholder="e.g. Surat" />
+						<input type="text" id="at_form_city_name" name="city_name" placeholder="<?php esc_attr_e( 'e.g. Surat', 'adventure-treks' ); ?>" />
 					</div>
 
 					<div class="at-form-grid-2">
@@ -82,17 +82,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
 							<label for="at_form_transport_type"><?php esc_html_e( 'Transport Type', 'adventure-treks' ); ?></label>
-							<input type="text" id="at_form_transport_type" name="transport_type" placeholder="e.g. AC Sleeper Bus / Train" />
+							<input type="text" id="at_form_transport_type" name="transport_type" placeholder="<?php esc_attr_e( 'e.g. AC Sleeper Bus / Train', 'adventure-treks' ); ?>" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_reporting_time"><?php esc_html_e( 'Reporting Time', 'adventure-treks' ); ?></label>
-							<input type="text" id="at_form_reporting_time" name="reporting_time" class="at-timepicker" placeholder="e.g. 09:30 AM" />
+							<input type="text" id="at_form_reporting_time" name="reporting_time" class="at-timepicker" placeholder="<?php esc_attr_e( 'e.g. 09:30 AM', 'adventure-treks' ); ?>" />
 						</div>
 					</div>
 
 					<div class="at-form-row">
 						<label for="at_form_google_map_link"><?php esc_html_e( 'Google Map Link for Pickup', 'adventure-treks' ); ?></label>
-						<input type="url" id="at_form_google_map_link" name="google_map_link" placeholder="https://maps.google.com/..." />
+						<input type="url" id="at_form_google_map_link" name="google_map_link" placeholder="<?php esc_attr_e( 'https://maps.google.com/...', 'adventure-treks' ); ?>" />
 					</div>
 
 					<div class="at-form-grid-2">
@@ -196,7 +196,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<div class="at-form-row">
 						<label for="at_form_date_notes"><?php esc_html_e( 'Notes / Warning Message', 'adventure-treks' ); ?></label>
-						<input type="text" id="at_form_date_notes" name="notes" placeholder="e.g. Weather updates or custom notes" />
+						<input type="text" id="at_form_date_notes" name="notes" placeholder="<?php esc_attr_e( 'e.g. Weather updates or custom notes', 'adventure-treks' ); ?>" />
 					</div>
 
 					<div style="border-top: 1px solid #ddd; margin: 15px 0 10px 0; padding-top: 10px; font-weight: bold; color: #23282d;">
@@ -260,7 +260,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div id="at_day_timeline_wrapper" style="display: none; flex-direction: column; height: 100%;">
 						<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
 							<div>
-								<h4 id="at_selected_day_title" style="margin: 0; font-size: 15px; font-weight: 600;">Day 1: Arrival</h4>
+								<h4 id="at_selected_day_title" style="margin: 0; font-size: 15px; font-weight: 600;"></h4>
 								<p id="at_selected_day_desc" style="margin: 3px 0 0 0; font-size: 12px; color: #666; font-style: italic;"></p>
 							</div>
 							<div>
@@ -301,12 +301,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<div class="at-form-row">
 						<label for="at_form_day_title"><?php esc_html_e( 'Day Title', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
-						<input type="text" id="at_form_day_title" name="title" placeholder="e.g. Arrival at Basecamp & Briefing" />
+						<input type="text" id="at_form_day_title" name="title" placeholder="<?php esc_attr_e( 'e.g. Arrival at Basecamp & Briefing', 'adventure-treks' ); ?>" />
 					</div>
 
 					<div class="at-form-row">
 						<label for="at_form_day_description"><?php esc_html_e( 'Day Overview / Description', 'adventure-treks' ); ?></label>
-						<textarea id="at_form_day_description" name="description" rows="4" placeholder="Brief outline of this day's trekking milestones..."></textarea>
+						<textarea id="at_form_day_description" name="description" rows="4" placeholder="<?php esc_attr_e( 'Brief outline of this day\'s trekking milestones...', 'adventure-treks' ); ?>"></textarea>
 					</div>
 				</div>
 			</div>
@@ -331,7 +331,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
 							<label for="at_form_activity_time"><?php esc_html_e( 'Time', 'adventure-treks' ); ?></label>
-							<input type="text" id="at_form_activity_time" name="item_time" class="at-timepicker" placeholder="e.g. 08:30 AM" />
+							<input type="text" id="at_form_activity_time" name="item_time" class="at-timepicker" placeholder="<?php esc_attr_e( 'e.g. 08:30 AM', 'adventure-treks' ); ?>" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_activity_icon"><?php esc_html_e( 'Event Icon', 'adventure-treks' ); ?></label>
@@ -350,13 +350,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<div class="at-form-row">
 						<label for="at_form_activity_title"><?php esc_html_e( 'Activity Title', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
-						<input type="text" id="at_form_activity_title" name="title" placeholder="e.g. Hot Breakfast served at Camp" />
+						<input type="text" id="at_form_activity_title" name="title" placeholder="<?php esc_attr_e( 'e.g. Hot Breakfast served at Camp', 'adventure-treks' ); ?>" />
 					</div>
 
 					<div class="at-form-row">
 						<label for="at_form_activity_image"><?php esc_html_e( 'Event Image', 'adventure-treks' ); ?></label>
 						<div style="display:flex; gap:10px; align-items:center;">
-							<input type="text" id="at_form_activity_image" name="image_url" placeholder="https://..." class="regular-text" style="flex-grow:1;" />
+							<input type="text" id="at_form_activity_image" name="image_url" placeholder="<?php esc_attr_e( 'https://...', 'adventure-treks' ); ?>" class="regular-text" style="flex-grow:1;" />
 							<button type="button" class="button" id="at_select_activity_image_btn"><?php esc_html_e( 'Select', 'adventure-treks' ); ?></button>
 						</div>
 						<div id="at_activity_image_preview" style="margin-top:10px;"></div>
@@ -364,7 +364,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<div class="at-form-row">
 						<label for="at_form_activity_desc"><?php esc_html_e( 'Activity Details', 'adventure-treks' ); ?></label>
-						<textarea id="at_form_activity_desc" name="description" rows="4" placeholder="Detailed outline of what trekkers do during this activity slot..."></textarea>
+						<textarea id="at_form_activity_desc" name="description" rows="4" placeholder="<?php esc_attr_e( 'Detailed outline of what trekkers do during this activity slot...', 'adventure-treks' ); ?>"></textarea>
 					</div>
 				</div>
 			</div>
@@ -481,22 +481,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
 							<label for="at_pickup_location_name"><?php esc_html_e( 'Location Name', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
-							<input type="text" id="at_pickup_location_name" name="location_name" placeholder="e.g. Dehradun Railway Station" />
+							<input type="text" id="at_pickup_location_name" name="location_name" placeholder="<?php esc_attr_e( 'e.g. Dehradun Railway Station', 'adventure-treks' ); ?>" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_pickup_time"><?php esc_html_e( 'Pickup Time', 'adventure-treks' ); ?></label>
-							<input type="text" id="at_pickup_time" name="pickup_time" class="at-timepicker" placeholder="e.g. 06:30 AM" />
+							<input type="text" id="at_pickup_time" name="pickup_time" class="at-timepicker" placeholder="<?php esc_attr_e( 'e.g. 06:30 AM', 'adventure-treks' ); ?>" />
 						</div>
 					</div>
 					
 					<div class="at-form-row">
 						<label for="at_pickup_map_url"><?php esc_html_e( 'Google Maps URL', 'adventure-treks' ); ?></label>
-						<input type="url" id="at_pickup_map_url" name="google_maps_url" placeholder="https://maps.google.com/..." class="regular-text" style="width: 100%;" />
+						<input type="url" id="at_pickup_map_url" name="google_maps_url" placeholder="<?php esc_attr_e( 'https://maps.google.com/...', 'adventure-treks' ); ?>" class="regular-text" style="width: 100%;" />
 					</div>
 					
 					<div class="at-form-row">
 						<label for="at_pickup_instructions"><?php esc_html_e( 'Special Instructions', 'adventure-treks' ); ?></label>
-						<textarea id="at_pickup_instructions" name="instructions" rows="2" placeholder="e.g. Wait near Gate 1..."></textarea>
+						<textarea id="at_pickup_instructions" name="instructions" rows="2" placeholder="<?php esc_attr_e( 'e.g. Wait near Gate 1...', 'adventure-treks' ); ?>"></textarea>
 					</div>
 					
 					<div style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px;">

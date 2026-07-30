@@ -29,8 +29,8 @@ class TrekBookingsController {
 	public function register_menu() {
 		add_submenu_page(
 			'edit.php?post_type=adventure_trek',
-			'Bookings',
-			'Bookings',
+			__( 'Bookings', 'adventure-treks' ),
+			__( 'Bookings', 'adventure-treks' ),
 			'edit_posts',
 			'at-bookings',
 			array( $this, 'render_page' )

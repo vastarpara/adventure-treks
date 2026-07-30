@@ -150,15 +150,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<form id="at_checkout_form">
 					<div class="at-form-field">
 						<label for="at_checkout_name"><?php esc_html_e( 'Full Name *', 'adventure-treks' ); ?></label>
-						<input type="text" id="at_checkout_name" name="cust_name" required placeholder="e.g. Nilesh Vastarpara" />
+						<input type="text" id="at_checkout_name" name="cust_name" required placeholder="<?php esc_attr_e( 'e.g. Nilesh Vastarpara', 'adventure-treks' ); ?>" />
 					</div>
 					<div class="at-form-field">
 						<label for="at_checkout_email"><?php esc_html_e( 'Email Address *', 'adventure-treks' ); ?></label>
-						<input type="email" id="at_checkout_email" name="cust_email" required placeholder="e.g. nilesh@example.com" />
+						<input type="email" id="at_checkout_email" name="cust_email" required placeholder="<?php esc_attr_e( 'e.g. nilesh@example.com', 'adventure-treks' ); ?>" />
 					</div>
 					<div class="at-form-field">
 						<label for="at_checkout_phone"><?php esc_html_e( 'Phone Number *', 'adventure-treks' ); ?></label>
-						<input type="tel" id="at_checkout_phone" name="cust_phone" required placeholder="e.g. +91 98765 43210" />
+						<input type="tel" id="at_checkout_phone" name="cust_phone" required placeholder="<?php esc_attr_e( 'e.g. +91 98765 43210', 'adventure-treks' ); ?>" />
 					</div>
 					<div class="at-form-field" id="at_checkout_pickup_field" style="display:none;">
 						<label for="at_checkout_pickup"><?php esc_html_e( 'Preferred Pickup Location *', 'adventure-treks' ); ?></label>

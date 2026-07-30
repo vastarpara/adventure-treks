@@ -41,15 +41,15 @@ class Bookings_List_Table extends \WP_List_Table {
 	public function get_columns() {
 		return array(
 			'cb'           => '<input type="checkbox" />',
-			'cust_name'    => 'Customer',
-			'trek_title'   => 'Trek',
-			'city_name'    => 'Departure City',
-			'date_val'     => 'Travel Date',
-			'seats'        => 'Seats',
-			'addons'       => 'Add-ons',
-			'total_amount' => 'Amount',
-			'created_at'   => 'Booked On',
-			'status'       => 'Status',
+			'cust_name'    => __( 'Customer', 'adventure-treks' ),
+			'trek_title'   => __( 'Trek', 'adventure-treks' ),
+			'city_name'    => __( 'Departure City', 'adventure-treks' ),
+			'date_val'     => __( 'Travel Date', 'adventure-treks' ),
+			'seats'        => __( 'Seats', 'adventure-treks' ),
+			'addons'       => __( 'Add-ons', 'adventure-treks' ),
+			'total_amount' => __( 'Amount', 'adventure-treks' ),
+			'created_at'   => __( 'Booked On', 'adventure-treks' ),
+			'status'       => __( 'Status', 'adventure-treks' ),
 		);
 	}
 
@@ -190,7 +190,7 @@ class Bookings_List_Table extends \WP_List_Table {
 	 */
 	protected function get_bulk_actions() {
 		return array(
-			'bulk-delete' => 'Delete',
+			'bulk-delete' => __( 'Delete', 'adventure-treks' ),
 		);
 	}
 
