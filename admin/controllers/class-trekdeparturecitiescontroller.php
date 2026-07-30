@@ -52,8 +52,10 @@ class TrekDepartureCitiesController {
 
 	/**
 	 * Enqueue stylesheet and JS for departures.
+	 *
+	 * @return void
 	 */
-	public function enqueue_assets( $hook ) {
+	public function enqueue_assets() {
 		global $post_type;
 
 		if ( 'adventure_trek' !== $post_type ) {
@@ -87,17 +89,24 @@ class TrekDepartureCitiesController {
 		);
 
 		// Localize script with nonce and AJAX URL.
-		wp_localize_script( 'at-admin-departures-js', 'at_departures_obj', array(
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'nonce'    => wp_create_nonce( 'at_departures_nonce_action' ),
-		) );
+		wp_localize_script(
+			'at-admin-departures-js',
+			'at_departures_obj',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'at_departures_nonce_action' ),
+			)
+		);
 	}
 
 	/**
 	 * Render departures meta box.
+	 *
+	 * @param \WP_Post $post Current post object, required by the add_meta_box() callback signature but unused here.
+	 * @return void
 	 */
-	public function render_meta_box( $post ) {
-		$view_path = plugin_dir_path( dirname( __FILE__ ) ) . 'Views/departure-cities-meta-box.php';
+	public function render_meta_box( $post ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+		$view_path = plugin_dir_path( __DIR__ ) . 'views/departure-cities-meta-box.php';
 		if ( file_exists( $view_path ) ) {
 			include $view_path;
 		}
@@ -198,11 +207,16 @@ class TrekDepartureCitiesController {
 			if ( false === $updated ) {
 				wp_send_json_error( array( 'message' => 'Failed to update city' ) );
 			}
-			wp_send_json_success( array( 'message' => 'City updated successfully', 'id' => $id ) );
+			wp_send_json_success(
+				array(
+					'message' => 'City updated successfully',
+					'id'      => $id,
+				)
+			);
 		} else {
 			// Get max menu_order.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$max_order = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM $table_name WHERE trek_id = %d", $trek_id ) );
+			$max_order          = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM $table_name WHERE trek_id = %d", $trek_id ) );
 			$data['menu_order'] = intval( $max_order ) + 1;
 
 			// Insert.
@@ -216,7 +230,12 @@ class TrekDepartureCitiesController {
 				wp_send_json_error( array( 'message' => 'Failed to insert city' ) );
 			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			wp_send_json_success( array( 'message' => 'City added successfully', 'id' => $wpdb->insert_id ) );
+			wp_send_json_success(
+				array(
+					'message' => 'City added successfully',
+					'id'      => $wpdb->insert_id,
+				)
+			);
 		}
 	}
 
@@ -280,10 +299,10 @@ class TrekDepartureCitiesController {
 
 		// Insert duplicate city with modified name.
 		unset( $city['id'] );
-		$city['city_name']  .= ' (Copy)';
+		$city['city_name'] .= ' (Copy)';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$max_order           = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM $table_name WHERE trek_id = %d", $city['trek_id'] ) );
-		$city['menu_order']  = intval( $max_order ) + 1;
+		$max_order          = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM $table_name WHERE trek_id = %d", $city['trek_id'] ) );
+		$city['menu_order'] = intval( $max_order ) + 1;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$inserted = $wpdb->insert( $table_name, $city );
@@ -364,7 +383,7 @@ class TrekDepartureCitiesController {
 				$old_date = $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $price['date_id'] ) );
 				if ( $old_date ) {
 					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-					$new_date_id = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}at_departure_dates WHERE city_id = %d AND departure_date = %s", $new_city_id, $old_date ) );
+					$new_date_id      = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}at_departure_dates WHERE city_id = %d AND departure_date = %s", $new_city_id, $old_date ) );
 					$price['date_id'] = $new_date_id ? $new_date_id : 0;
 				}
 			}

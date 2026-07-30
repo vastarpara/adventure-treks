@@ -48,29 +48,45 @@ class AdminController {
 	 * @return void
 	 */
 	public function register_settings_fields() {
-		register_setting( 'adventure_treks_settings_group', 'at_currency_symbol', array(
-			'type'              => 'string',
-			'sanitize_callback' => array( $this, 'sanitize_currency_symbol' ),
-			'default'           => '₹',
-		) );
+		register_setting(
+			'adventure_treks_settings_group',
+			'at_currency_symbol',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( $this, 'sanitize_currency_symbol' ),
+				'default'           => '₹',
+			)
+		);
 
-		register_setting( 'adventure_treks_settings_group', 'at_booking_email', array(
-			'type'              => 'string',
-			'sanitize_callback' => 'sanitize_email',
-			'default'           => get_option( 'admin_email' ),
-		) );
+		register_setting(
+			'adventure_treks_settings_group',
+			'at_booking_email',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_email',
+				'default'           => get_option( 'admin_email' ),
+			)
+		);
 
-		register_setting( 'adventure_treks_settings_group', 'at_enable_schema', array(
-			'type'              => 'boolean',
-			'sanitize_callback' => 'rest_sanitize_boolean',
-			'default'           => true,
-		) );
+		register_setting(
+			'adventure_treks_settings_group',
+			'at_enable_schema',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => true,
+			)
+		);
 
-		register_setting( 'adventure_treks_settings_group', 'at_remove_data_on_uninstall', array(
-			'type'              => 'boolean',
-			'sanitize_callback' => 'rest_sanitize_boolean',
-			'default'           => false,
-		) );
+		register_setting(
+			'adventure_treks_settings_group',
+			'at_remove_data_on_uninstall',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => false,
+			)
+		);
 	}
 
 	/**
@@ -80,7 +96,7 @@ class AdminController {
 	 */
 	public function render_settings_page() {
 		// Output the settings form view.
-		$view_path = plugin_dir_path( dirname( __FILE__ ) ) . 'Views/settings.php';
+		$view_path = plugin_dir_path( __DIR__ ) . 'views/settings.php';
 		if ( file_exists( $view_path ) ) {
 			include $view_path;
 		}
@@ -119,12 +135,12 @@ class AdminController {
 	 */
 	public function sanitize_currency_symbol( $input ) {
 		$input = sanitize_text_field( $input );
-		
+
 		$currencies = self::get_currencies();
 		if ( array_key_exists( $input, $currencies ) ) {
 			return $input;
 		}
-		
+
 		return get_option( 'at_currency_symbol', '₹' );
 	}
 }

@@ -49,7 +49,7 @@ class TrekShortcodesController {
 				return $theme_tpl;
 			}
 			// Fall back to plugin template.
-			$plugin_tpl = plugin_dir_path( dirname( __FILE__ ) ) . 'Views/single-adventure_trek.php';
+			$plugin_tpl = plugin_dir_path( __DIR__ ) . 'views/single-adventure_trek.php';
 			if ( file_exists( $plugin_tpl ) ) {
 				return $plugin_tpl;
 			}
@@ -91,13 +91,16 @@ class TrekShortcodesController {
 	 * @return string
 	 */
 	public function render_trek_details( $atts ) {
-		// Enqueue assets on demand
+		// Enqueue assets on demand.
 		wp_enqueue_style( 'at-public-details-css' );
 		wp_enqueue_script( 'at-public-details-js' );
 
-		$args = shortcode_atts( array(
-			'id' => get_the_ID(),
-		), $atts );
+		$args = shortcode_atts(
+			array(
+				'id' => get_the_ID(),
+			),
+			$atts
+		);
 
 		$trek_id = intval( $args['id'] );
 		if ( ! $trek_id || get_post_type( $trek_id ) !== 'adventure_trek' ) {
@@ -129,13 +132,13 @@ class TrekShortcodesController {
 
 		$default_city_id = ! empty( $cities ) ? intval( $cities[0]->id ) : 0;
 
-		// Decode lists
+		// Decode lists.
 		$faq_items = ! empty( $trek['faq'] ) ? json_decode( $trek['faq'], true ) : array();
 		$policies  = ! empty( $trek['policies'] ) ? json_decode( $trek['policies'], true ) : array();
 		$gallery   = ! empty( $trek['gallery'] ) ? explode( ',', $trek['gallery'] ) : array();
 
 		ob_start();
-		$view_path = plugin_dir_path( dirname( __FILE__ ) ) . 'Views/trek-details.php';
+		$view_path = plugin_dir_path( __DIR__ ) . 'views/trek-details.php';
 		if ( file_exists( $view_path ) ) {
 			include $view_path;
 		}
@@ -151,24 +154,29 @@ class TrekShortcodesController {
 	public function render_trek_itinerary( $atts ) {
 		wp_enqueue_style( 'at-public-details-css' );
 
-		$args = shortcode_atts( array(
-			'city_id' => 0,
-			'trek_id' => get_the_ID(),
-		), $atts );
+		$args = shortcode_atts(
+			array(
+				'city_id' => 0,
+				'trek_id' => get_the_ID(),
+			),
+			$atts
+		);
 
 		$city_id = intval( $args['city_id'] );
 		$trek_id = intval( $args['trek_id'] );
 
 		global $wpdb;
 
-		// If city_id is not specified, lookup first active city for the current trek
+		// If city_id is not specified, lookup first active city for the current trek.
 		if ( ! $city_id && $trek_id ) {
 			$table_cities = $wpdb->prefix . 'at_departure_cities';
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$city_id = intval( $wpdb->get_var(
+			$city_id      = intval(
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-				$wpdb->prepare( "SELECT id FROM $table_cities WHERE trek_id = %d AND status = 'active' ORDER BY menu_order ASC LIMIT 1", $trek_id )
-			) );
+				$wpdb->get_var(
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+					$wpdb->prepare( "SELECT id FROM $table_cities WHERE trek_id = %d AND status = 'active' ORDER BY menu_order ASC LIMIT 1", $trek_id )
+				)
+			);
 		}
 
 		if ( ! $city_id ) {
@@ -191,7 +199,8 @@ class TrekShortcodesController {
 		ob_start();
 		?>
 		<div class="at-frontend-itinerary-timeline" id="trek_itinerary_container">
-			<?php foreach ( $days as $day ) : 
+			<?php
+			foreach ( $days as $day ) :
 				$day_id = intval( $day->id );
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 				$items = $wpdb->get_results(
@@ -215,7 +224,8 @@ class TrekShortcodesController {
 
 					<?php if ( ! empty( $items ) ) : ?>
 						<div class="at-timeline-events">
-							<?php foreach ( $items as $item ) : 
+							<?php
+							foreach ( $items as $item ) :
 								$icon_class = $item->icon ? $item->icon : 'dashicons-palmtree';
 								?>
 								<div class="at-timeline-event-card">

@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 /**
  * Frontend Booking Widget view template.
  *
@@ -7,6 +6,8 @@
  * @subpackage AdventureTreks/Public/Views
  * @author     Nilesh Vastarpara
  */
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.

@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 /**
  * View template for rendering Trek details frontend UI.
  *
@@ -7,6 +6,8 @@
  * @subpackage AdventureTreks/Public/Views
  * @author     Nilesh Vastarpara
  */
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -134,9 +135,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="at-tab-inner-content">
 					<h3 class="at-tab-headline"><?php esc_html_e( 'Detailed Itinerary', 'adventure-treks' ); ?></h3>
 					<div id="trek_itinerary_container">
-						<?php 
+						<?php
 						if ( $default_city_id ) {
-							echo do_shortcode( '[trek_itinerary city_id="' . $default_city_id . '"]' ); 
+							echo do_shortcode( '[trek_itinerary city_id="' . $default_city_id . '"]' );
 						} else {
 							echo '<p style="color:#666; font-style:italic;">' . esc_html__( 'Please select a departure city to load the itinerary.', 'adventure-treks' ) . '</p>';
 						}
@@ -151,8 +152,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-tab-inner-content">
 						<h3 class="at-tab-headline"><?php esc_html_e( 'Trek Highlights', 'adventure-treks' ); ?></h3>
 						<div class="at-highlights-list-box">
-							<?php 
-							$items = explode( "\n", str_replace( "\r", "", $trek['highlights'] ) );
+							<?php
+							$items = explode( "\n", str_replace( "\r", '', $trek['highlights'] ) );
 							echo '<ul>';
 							foreach ( $items as $item ) {
 								$item = trim( $item );
@@ -195,8 +196,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-tab-inner-content">
 						<h3 class="at-tab-headline"><?php esc_html_e( 'Essential Items & Packing Guidelines', 'adventure-treks' ); ?></h3>
 						<div class="at-carry-items-grid">
-							<?php 
-							$carry_items = explode( "\n", str_replace( "\r", "", $trek['things_to_carry'] ) );
+							<?php
+							$carry_items = explode( "\n", str_replace( "\r", '', $trek['things_to_carry'] ) );
 							foreach ( $carry_items as $c_item ) {
 								$c_item = trim( $c_item );
 								if ( ! empty( $c_item ) ) {
@@ -260,17 +261,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="at-trek-photo-gallery-section">
 			<h4 class="at-gallery-section-title"><?php esc_html_e( 'Captured Moments & Visual Gallery', 'adventure-treks' ); ?></h4>
 			<div class="at-gallery-masonry-grid">
-				<?php $img_index = 0; foreach ( $gallery as $attachment_id ) : 
+				<?php
+				$img_index = 0; foreach ( $gallery as $attachment_id ) :
 					$img_url = wp_get_attachment_url( intval( $attachment_id ) );
 					$img_alt = get_post_meta( intval( $attachment_id ), '_wp_attachment_image_alt', true );
-					if ( ! $img_url ) continue;
+					if ( ! $img_url ) {
+						continue;
+					}
 					?>
 					<div class="at-gallery-grid-card">
 						<a href="<?php echo esc_url( $img_url ); ?>" class="at-gallery-lightbox-link" data-index="<?php echo esc_attr( $img_index ); ?>">
 							<img src="<?php echo esc_url( $img_url ); ?>" alt="<?php echo esc_attr( $img_alt ); ?>" loading="lazy" />
 						</a>
 					</div>
-				<?php $img_index++; endforeach; ?>
+					<?php
+					++$img_index;
+endforeach;
+				?>
 			</div>
 		</div>
 	<?php endif; ?>

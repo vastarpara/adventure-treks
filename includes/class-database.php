@@ -33,7 +33,7 @@ class Database {
 
 		// 1. Core Trek attributes (extending standard wp_posts CPT info).
 		$table_treks = $wpdb->prefix . 'at_treks';
-		$sql_treks = "CREATE TABLE $table_treks (
+		$sql_treks   = "CREATE TABLE $table_treks (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			post_id bigint(20) unsigned NOT NULL,
 			difficulty varchar(50) DEFAULT '' NOT NULL,
@@ -58,7 +58,7 @@ class Database {
 
 		// 2. Departure Cities.
 		$table_cities = $wpdb->prefix . 'at_departure_cities';
-		$sql_cities = "CREATE TABLE $table_cities (
+		$sql_cities   = "CREATE TABLE $table_cities (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			trek_id bigint(20) unsigned NOT NULL,
 			city_name varchar(150) NOT NULL,
@@ -77,7 +77,7 @@ class Database {
 
 		// 3. Departure Dates.
 		$table_dates = $wpdb->prefix . 'at_departure_dates';
-		$sql_dates = "CREATE TABLE $table_dates (
+		$sql_dates   = "CREATE TABLE $table_dates (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			city_id bigint(20) unsigned NOT NULL,
 			trek_id bigint(20) unsigned NOT NULL,
@@ -93,7 +93,7 @@ class Database {
 
 		// 4. Itineraries (Days).
 		$table_itineraries = $wpdb->prefix . 'at_itineraries';
-		$sql_itineraries = "CREATE TABLE $table_itineraries (
+		$sql_itineraries   = "CREATE TABLE $table_itineraries (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			city_id bigint(20) unsigned NOT NULL,
 			trek_id bigint(20) unsigned NOT NULL,
@@ -109,7 +109,7 @@ class Database {
 
 		// 5. Itinerary Timeline Items.
 		$table_itinerary_items = $wpdb->prefix . 'at_itinerary_items';
-		$sql_itinerary_items = "CREATE TABLE $table_itinerary_items (
+		$sql_itinerary_items   = "CREATE TABLE $table_itinerary_items (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			itinerary_id bigint(20) unsigned NOT NULL,
 			item_time varchar(50) DEFAULT '' NOT NULL,
@@ -125,7 +125,7 @@ class Database {
 
 		// 6. Pickup Points.
 		$table_pickup_points = $wpdb->prefix . 'at_pickup_points';
-		$sql_pickup_points = "CREATE TABLE $table_pickup_points (
+		$sql_pickup_points   = "CREATE TABLE $table_pickup_points (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			city_id bigint(20) unsigned NOT NULL,
 			trek_id bigint(20) unsigned NOT NULL,
@@ -142,7 +142,7 @@ class Database {
 
 		// 7. Pricing Table (Adult/Child price variations, Group discounts, Extra charges & Add-ons as JSON structures).
 		$table_pricing = $wpdb->prefix . 'at_pricing';
-		$sql_pricing = "CREATE TABLE $table_pricing (
+		$sql_pricing   = "CREATE TABLE $table_pricing (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			city_id bigint(20) unsigned NOT NULL,
 			date_id bigint(20) unsigned DEFAULT 0 NOT NULL,
@@ -162,7 +162,7 @@ class Database {
 
 		// 8. Seat Availability.
 		$table_availability = $wpdb->prefix . 'at_availability';
-		$sql_availability = "CREATE TABLE $table_availability (
+		$sql_availability   = "CREATE TABLE $table_availability (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			date_id bigint(20) unsigned NOT NULL,
 			total_seats int(11) DEFAULT 0 NOT NULL,
@@ -175,7 +175,7 @@ class Database {
 
 		// 9. Bookings Table.
 		$table_bookings = $wpdb->prefix . 'at_bookings';
-		$sql_bookings = "CREATE TABLE $table_bookings (
+		$sql_bookings   = "CREATE TABLE $table_bookings (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			trek_id bigint(20) unsigned NOT NULL,
 			city_id bigint(20) unsigned NOT NULL,

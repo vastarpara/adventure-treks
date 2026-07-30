@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ruleset name="AdventureTreks">
+	<description>WPCS ruleset for the Adventure Treks plugin.</description>
+
+	<file>.</file>
+	<arg value="sp"/>
+	<arg name="extensions" value="php"/>
+
+	<rule ref="WordPress"/>
+
+	<!--
+	single-adventure_trek.php intentionally keeps the underscore: its name
+	must match the "single-{post_type}.php" WordPress template-hierarchy
+	convention for the "adventure_trek" CPT slug (registered in
+	includes/class-posttypes.php) so themes can override it the same way
+	WordPress core resolves single post templates.
+	-->
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>public/Views/single-adventure_trek\.php</exclude-pattern>
+	</rule>
+</ruleset>

@@ -27,7 +27,7 @@ if ( ! have_posts() ) {
 while ( have_posts() ) :
 	the_post();
 	$trek_id = get_the_ID();
-?>
+	?>
 
 <style>
 /* ── Single Trek Layout ───────────────────────────────────────── */
@@ -143,8 +143,8 @@ while ( have_posts() ) :
 	<div class="at-single-hero">
 		<?php if ( has_post_thumbnail() ) : ?>
 			<img src="<?php echo esc_url( get_the_post_thumbnail_url( $trek_id, 'full' ) ); ?>"
-				 alt="<?php echo esc_attr( get_the_title() ); ?>"
-				 class="at-single-hero-img" />
+				alt="<?php echo esc_attr( get_the_title() ); ?>"
+				class="at-single-hero-img" />
 		<?php endif; ?>
 		<div class="at-single-hero-content">
 			<h1><?php the_title(); ?></h1>
@@ -182,7 +182,7 @@ while ( have_posts() ) :
 
 </div><!-- /.at-single-trek-wrap -->
 
-<?php
+	<?php
 endwhile;
 
 get_footer();

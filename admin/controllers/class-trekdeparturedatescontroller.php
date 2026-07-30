@@ -33,8 +33,10 @@ class TrekDepartureDatesController {
 
 	/**
 	 * Enqueue date management scripts.
+	 *
+	 * @return void
 	 */
-	public function enqueue_assets( $hook ) {
+	public function enqueue_assets() {
 		global $post_type;
 
 		if ( 'adventure_trek' !== $post_type ) {
@@ -49,10 +51,14 @@ class TrekDepartureDatesController {
 			true
 		);
 
-		wp_localize_script( 'at-admin-dates-js', 'at_dates_obj', array(
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'nonce'    => wp_create_nonce( 'at_dates_nonce_action' ),
-		) );
+		wp_localize_script(
+			'at-admin-dates-js',
+			'at_dates_obj',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'at_dates_nonce_action' ),
+			)
+		);
 	}
 
 	/**
@@ -212,7 +218,7 @@ class TrekDepartureDatesController {
 		// Save seats availability.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$avail_exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $table_avail WHERE date_id = %d", $date_id ) );
-		$avail_data = array(
+		$avail_data   = array(
 			'date_id'         => $date_id,
 			'total_seats'     => $total_seats,
 			'booked_seats'    => $booked_seats,
@@ -229,7 +235,7 @@ class TrekDepartureDatesController {
 		// Save pricing overrides.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$price_exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $table_price WHERE date_id = %d", $date_id ) );
-		
+
 		// We only insert or update if at least one price override is set.
 		if ( $adult_price > 0 || $child_price > 0 || $offer_price > 0 ) {
 			$price_data = array(
@@ -253,7 +259,12 @@ class TrekDepartureDatesController {
 			// phpcs:enable WordPress.DB.DirectDatabaseQuery
 		}
 
-		wp_send_json_success( array( 'message' => 'Departure date configured successfully', 'id' => $date_id ) );
+		wp_send_json_success(
+			array(
+				'message' => 'Departure date configured successfully',
+				'id'      => $date_id,
+			)
+		);
 	}
 
 	/**

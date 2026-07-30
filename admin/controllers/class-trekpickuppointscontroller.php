@@ -90,9 +90,9 @@ class TrekPickupPointsController {
 
 		$id      = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
 		$city_id = isset( $_POST['city_id'] ) ? intval( wp_unslash( $_POST['city_id'] ) ) : 0;
-		
+
 		$trek_id = $id ? $this->get_pickup_trek_id( $id ) : $this->get_city_trek_id( $city_id );
-		
+
 		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
@@ -129,15 +129,20 @@ class TrekPickupPointsController {
 				array( '%d' )
 			);
 			// phpcs:enable WordPress.DB.DirectDatabaseQuery
-			
+
 			if ( false === $updated ) {
 				wp_send_json_error( array( 'message' => 'Failed to update pickup point' ) );
 			}
-			wp_send_json_success( array( 'message' => 'Pickup point updated successfully', 'id' => $id ) );
+			wp_send_json_success(
+				array(
+					'message' => 'Pickup point updated successfully',
+					'id'      => $id,
+				)
+			);
 		} else {
 			// Get max menu_order.
 			// phpcs:disable WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$max_order = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM $table_name WHERE city_id = %d", $city_id ) );
+			$max_order          = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM $table_name WHERE city_id = %d", $city_id ) );
 			$data['menu_order'] = intval( $max_order ) + 1;
 
 			$inserted = $wpdb->insert(
@@ -150,7 +155,12 @@ class TrekPickupPointsController {
 			if ( ! $inserted ) {
 				wp_send_json_error( array( 'message' => 'Failed to insert pickup point' ) );
 			}
-			wp_send_json_success( array( 'message' => 'Pickup point added successfully', 'id' => $wpdb->insert_id ) );
+			wp_send_json_success(
+				array(
+					'message' => 'Pickup point added successfully',
+					'id'      => $wpdb->insert_id,
+				)
+			);
 		}
 	}
 
@@ -189,8 +199,8 @@ class TrekPickupPointsController {
 		if ( empty( $order ) ) {
 			wp_send_json_error( array( 'message' => 'No order data' ) );
 		}
-		
-		// Verify capability for first item
+
+		// Verify capability for first item.
 		$first_item = $order[0];
 		$trek_id    = $this->get_pickup_trek_id( $first_item );
 		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {

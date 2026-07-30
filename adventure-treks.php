@@ -36,7 +36,7 @@ define( 'ADVENTURE_TREKS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'ADVENTURE_TREKS_URL', plugin_dir_url( __FILE__ ) );
 
 // Load Autoloader.
-require_once ADVENTURE_TREKS_PATH . 'includes/Autoloader.php';
+require_once ADVENTURE_TREKS_PATH . 'includes/class-autoloader.php';
 AdventureTreks\Includes\Autoloader::register();
 
 /**

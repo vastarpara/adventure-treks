@@ -38,8 +38,10 @@ class TrekItineraryController {
 
 	/**
 	 * Enqueue itinerary assets.
+	 *
+	 * @return void
 	 */
-	public function enqueue_assets( $hook ) {
+	public function enqueue_assets() {
 		global $post_type;
 
 		if ( 'adventure_trek' !== $post_type ) {
@@ -54,10 +56,14 @@ class TrekItineraryController {
 			true
 		);
 
-		wp_localize_script( 'at-admin-itinerary-js', 'at_itinerary_obj', array(
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'nonce'    => wp_create_nonce( 'at_itinerary_nonce_action' ),
-		) );
+		wp_localize_script(
+			'at-admin-itinerary-js',
+			'at_itinerary_obj',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'at_itinerary_nonce_action' ),
+			)
+		);
 	}
 
 	/**
@@ -107,7 +113,7 @@ class TrekItineraryController {
 		$table_days  = $wpdb->prefix . 'at_itineraries';
 		$table_items = $wpdb->prefix . 'at_itinerary_items';
 
-		// Fetch days
+		// Fetch days.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$days = $wpdb->get_results(
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -115,7 +121,7 @@ class TrekItineraryController {
 			ARRAY_A
 		);
 
-		// Hydrate days with timeline items
+		// Hydrate days with timeline items.
 		foreach ( $days as &$day ) {
 			$day_id = intval( $day['id'] );
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -166,11 +172,16 @@ class TrekItineraryController {
 		if ( $id ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->update( $table_days, $data, array( 'id' => $id ), array( '%d', '%d', '%d', '%s', '%s' ), array( '%d' ) );
-			wp_send_json_success( array( 'message' => 'Day updated successfully', 'id' => $id ) );
+			wp_send_json_success(
+				array(
+					'message' => 'Day updated successfully',
+					'id'      => $id,
+				)
+			);
 		} else {
-			// Find max order
+			// Find max order.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$max_order = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM $table_days WHERE city_id = %d", $city_id ) );
+			$max_order          = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM $table_days WHERE city_id = %d", $city_id ) );
 			$data['menu_order'] = intval( $max_order ) + 1;
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -179,7 +190,12 @@ class TrekItineraryController {
 				wp_send_json_error( array( 'message' => 'Failed to add day' ) );
 			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			wp_send_json_success( array( 'message' => 'Day added successfully', 'id' => $wpdb->insert_id ) );
+			wp_send_json_success(
+				array(
+					'message' => 'Day added successfully',
+					'id'      => $wpdb->insert_id,
+				)
+			);
 		}
 	}
 
@@ -259,11 +275,11 @@ class TrekItineraryController {
 			wp_send_json_error( array( 'message' => 'Unauthorized' ) );
 		}
 
-		$item_time    = isset( $_POST['item_time'] ) ? sanitize_text_field( wp_unslash( $_POST['item_time'] ) ) : '';
-		$title        = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
-		$description  = isset( $_POST['description'] ) ? wp_kses_post( wp_unslash( $_POST['description'] ) ) : '';
-		$icon         = isset( $_POST['icon'] ) ? sanitize_text_field( wp_unslash( $_POST['icon'] ) ) : '';
-		$image_url    = isset( $_POST['image_url'] ) ? esc_url_raw( wp_unslash( $_POST['image_url'] ) ) : '';
+		$item_time   = isset( $_POST['item_time'] ) ? sanitize_text_field( wp_unslash( $_POST['item_time'] ) ) : '';
+		$title       = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
+		$description = isset( $_POST['description'] ) ? wp_kses_post( wp_unslash( $_POST['description'] ) ) : '';
+		$icon        = isset( $_POST['icon'] ) ? sanitize_text_field( wp_unslash( $_POST['icon'] ) ) : '';
+		$image_url   = isset( $_POST['image_url'] ) ? esc_url_raw( wp_unslash( $_POST['image_url'] ) ) : '';
 
 		if ( empty( $title ) || ! $itinerary_id ) {
 			wp_send_json_error( array( 'message' => 'Activity title is required' ) );
@@ -284,11 +300,16 @@ class TrekItineraryController {
 		if ( $id ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->update( $table_items, $data, array( 'id' => $id ), array( '%d', '%s', '%s', '%s', '%s', '%s' ), array( '%d' ) );
-			wp_send_json_success( array( 'message' => 'Activity updated successfully', 'id' => $id ) );
+			wp_send_json_success(
+				array(
+					'message' => 'Activity updated successfully',
+					'id'      => $id,
+				)
+			);
 		} else {
-			// Find max order
+			// Find max order.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$max_order = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM $table_items WHERE itinerary_id = %d", $itinerary_id ) );
+			$max_order          = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM $table_items WHERE itinerary_id = %d", $itinerary_id ) );
 			$data['menu_order'] = intval( $max_order ) + 1;
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -297,7 +318,12 @@ class TrekItineraryController {
 				wp_send_json_error( array( 'message' => 'Failed to add activity event' ) );
 			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			wp_send_json_success( array( 'message' => 'Activity added successfully', 'id' => $wpdb->insert_id ) );
+			wp_send_json_success(
+				array(
+					'message' => 'Activity added successfully',
+					'id'      => $wpdb->insert_id,
+				)
+			);
 		}
 	}
 
