@@ -276,6 +276,28 @@ class TrekBookingsController {
 			$old_booking = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE id = %d", $booking_id ) );
 		}
 
+		// Authoritative server-side seat capacity check (never trust the browser alone for this).
+		if ( 'cancelled' !== $status ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			$target_avail = $wpdb->get_row( $wpdb->prepare( "SELECT available_seats FROM {$wpdb->prefix}at_availability WHERE date_id = %d", $date_id ) );
+
+			// If this same booking already holds seats on the same date, those seats are
+			// being released and re-consumed, so they count back toward capacity for this save.
+			$own_seats_on_target_date = ( $old_booking && intval( $old_booking->date_id ) === $date_id && 'cancelled' !== $old_booking->status )
+				? intval( $old_booking->seats )
+				: 0;
+
+			$max_allowed_seats = $target_avail ? ( intval( $target_avail->available_seats ) + $own_seats_on_target_date ) : 0;
+
+			if ( $target_avail && $seats > $max_allowed_seats ) {
+				$redirect_args['action']          = $booking_id ? 'edit' : 'add';
+				$redirect_args['booking']         = $booking_id;
+				$redirect_args['at_seats_error']  = $max_allowed_seats;
+				wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'edit.php' ) ) );
+				exit;
+			}
+		}
+
 		$data = array(
 			'trek_id'        => $trek_id,
 			'city_id'        => $city_id,
@@ -318,9 +340,120 @@ class TrekBookingsController {
 			self::sync_availability( $date_id, $new_effective_seats );
 		}
 
+		// Notify the customer when a new booking is created from admin, or when an existing booking's status changes.
+		if ( ! $old_booking || $old_booking->status !== $status ) {
+			$this->send_status_update_email( $booking_id, $trek_id, $city_id, $date_id, $cust_name, $cust_email, $seats, $num_adults, $num_children, $pickup_point, $total_amount, $status );
+		}
+
 		$redirect_args['at_saved'] = 1;
 		wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'edit.php' ) ) );
 		exit;
+	}
+
+	/**
+	 * Email the customer when an admin changes a booking's status (e.g. Pending -> Confirmed).
+	 *
+	 * @param int    $booking_id   Booking ID.
+	 * @param int    $trek_id      Trek post ID.
+	 * @param int    $city_id      Departure city ID.
+	 * @param int    $date_id      Departure date ID.
+	 * @param string $cust_name    Customer name.
+	 * @param string $cust_email   Customer email.
+	 * @param int    $seats        Total seats booked.
+	 * @param int    $num_adults   Adult count.
+	 * @param int    $num_children Children count.
+	 * @param string $pickup_point Pickup point label, if any.
+	 * @param float  $total_amount Booking total amount.
+	 * @param string $status       New status: pending, confirmed, or cancelled.
+	 * @return void
+	 */
+	private function send_status_update_email( $booking_id, $trek_id, $city_id, $date_id, $cust_name, $cust_email, $seats, $num_adults, $num_children, $pickup_point, $total_amount, $status ) {
+		if ( empty( $cust_email ) ) {
+			return;
+		}
+
+		global $wpdb;
+
+		$trek_title = get_the_title( $trek_id );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$city_name = $wpdb->get_var( $wpdb->prepare( "SELECT city_name FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $city_id ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$date_val       = $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $date_id ) );
+		$date_formatted = $date_val ? gmdate( 'd M Y', strtotime( $date_val ) ) : '';
+
+		$currency = get_option( 'at_currency_symbol', '₹' );
+
+		$status_labels = array(
+			'pending'   => __( 'Pending Confirmation', 'adventure-treks' ),
+			'confirmed' => __( 'Confirmed', 'adventure-treks' ),
+			'cancelled' => __( 'Cancelled', 'adventure-treks' ),
+		);
+		$status_label = isset( $status_labels[ $status ] ) ? $status_labels[ $status ] : ucfirst( $status );
+
+		$intro_messages = array(
+			'pending'   => __( 'Thank you for booking your adventure with us! Our team is currently reviewing your booking details, and we will confirm it shortly. Stay tuned!', 'adventure-treks' ),
+			'confirmed' => __( 'Great news! Our team has reviewed and confirmed your booking. Get ready for your exciting adventure!', 'adventure-treks' ),
+			'cancelled' => __( 'Your booking has been successfully cancelled. If you have any questions or need further assistance, please feel free to reach out to our team.', 'adventure-treks' ),
+		);
+		$intro = isset( $intro_messages[ $status ] ) ? $intro_messages[ $status ] : __( 'Your reservation status has been updated.', 'adventure-treks' );
+
+		/* translators: %s: new booking status label. */
+		$subject = sprintf( __( 'Booking %s', 'adventure-treks' ), $status_label );
+
+		$details_rows = array(
+			array(
+				'label' => __( 'Booking ID', 'adventure-treks' ),
+				'value' => self::format_booking_ref( $booking_id ),
+			),
+			array(
+				'label' => __( 'Trek', 'adventure-treks' ),
+				'value' => $trek_title,
+			),
+			array(
+				'label' => __( 'Departure City', 'adventure-treks' ),
+				'value' => $city_name,
+			),
+			array(
+				'label' => __( 'Departure Date', 'adventure-treks' ),
+				'value' => $date_formatted,
+			),
+			array(
+				/* translators: 1: total seats, 2: adult count, 3: children count. */
+				'label' => __( 'Seats Booked', 'adventure-treks' ),
+				'value' => sprintf( '%1$d (Adults: %2$d, Children: %3$d)', $seats, $num_adults, $num_children ),
+			),
+			array(
+				'label' => __( 'Pickup Point', 'adventure-treks' ),
+				'value' => $pickup_point,
+			),
+			array(
+				'label' => __( 'Total Amount', 'adventure-treks' ),
+				'value' => $currency . ' ' . number_format( (float) $total_amount, 2 ),
+			),
+			array(
+				'label' => __( 'Status', 'adventure-treks' ),
+				'value' => $status_label,
+			),
+		);
+
+		$message = \AdventureTreks\Includes\Plugin::render_email_html(
+			/* translators: %s: customer name. */
+			sprintf( __( 'Hello, %s!', 'adventure-treks' ), $cust_name ),
+			$intro,
+			$details_rows,
+			__( 'View Trek Details', 'adventure-treks' ),
+			get_permalink( $trek_id )
+		);
+
+		$from_name  = get_option( 'at_from_name', get_bloginfo( 'name' ) );
+		$from_email = get_option( 'at_booking_email', get_option( 'admin_email' ) );
+
+		$headers = array(
+			'Content-Type: text/html; charset=UTF-8',
+			sprintf( 'From: %s <%s>', $from_name, $from_email ),
+		);
+
+		wp_mail( $cust_email, $subject, $message, $headers );
 	}
 
 	/**

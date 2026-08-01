@@ -37,6 +37,18 @@ class TrekBookingController {
 
 		// Load CSS/JS.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'add_dynamic_color_vars' ), 20 );
+	}
+
+	/**
+	 * Attach the admin-configured Primary/Secondary colors as CSS custom
+	 * properties to the booking widget stylesheet. No-ops on pages where
+	 * that stylesheet was never registered.
+	 *
+	 * @return void
+	 */
+	public function add_dynamic_color_vars() {
+		wp_add_inline_style( 'at-public-booking-css', \AdventureTreks\Includes\Plugin::get_dynamic_color_css() );
 	}
 
 	/**
@@ -68,6 +80,9 @@ class TrekBookingController {
 				'ajax_url'        => admin_url( 'admin-ajax.php' ),
 				'nonce'           => wp_create_nonce( 'at_booking_nonce_action' ),
 				'currency_symbol' => get_option( 'at_currency_symbol', '₹' ),
+				'payment_method'  => get_option( 'at_payment_method', 'cash' ),
+				'upi_id'          => get_option( 'at_upi_id', '' ),
+				'upi_qr_code'     => get_option( 'at_upi_qr_code', '' ),
 			)
 		);
 
@@ -318,7 +333,7 @@ class TrekBookingController {
 				'pickup_point'   => $pickup_point,
 				'addons'         => wp_json_encode( $addons ),
 				'total_amount'   => $total_price,
-				'status'         => 'confirmed',
+				'status'         => 'pending',
 				'payment_status' => 'pending',
 				'created_at'     => current_time( 'mysql' ),
 			),
@@ -341,6 +356,8 @@ class TrekBookingController {
 			)
 		);
 
+		$booking_id = $wpdb->insert_id;
+
 		// Format dynamic confirmation message details.
 		$trek_title = get_the_title( $trek_id );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -351,39 +368,87 @@ class TrekBookingController {
 
 		$currency = get_option( 'at_currency_symbol', '₹' );
 
-		// Compile email body markup.
-		$subject  = sprintf( '[Adventure Treks] Booking Confirmed: %s', $trek_title );
-		$message  = '<h2>Booking Confirmation Receipt</h2>';
-		$message .= "<p>Hello <strong>{$cust_name}</strong>,</p>";
-		$message .= '<p>Your booking for the upcoming adventure has been successfully processed!</p>';
-		$message .= "<table style='width:100%; max-width:600px; border-collapse:collapse; margin-top:15px;'>";
-		$message .= "<tr><td style='padding:8px; border-bottom:1px solid #ddd;'><strong>Trek:</strong></td><td style='padding:8px; border-bottom:1px solid #ddd;'>{$trek_title}</td></tr>";
-		$message .= "<tr><td style='padding:8px; border-bottom:1px solid #ddd;'><strong>Departure City:</strong></td><td style='padding:8px; border-bottom:1px solid #ddd;'>{$city_name}</td></tr>";
-		$message .= "<tr><td style='padding:8px; border-bottom:1px solid #ddd;'><strong>Departure Date:</strong></td><td style='padding:8px; border-bottom:1px solid #ddd;'>{$date_formatted}</td></tr>";
-		$message .= "<tr><td style='padding:8px; border-bottom:1px solid #ddd;'><strong>Seats Booked:</strong></td><td style='padding:8px; border-bottom:1px solid #ddd;'>{$seats_requested} (Adults: {$num_adults}, Children: {$num_children})</td></tr>";
-		if ( ! empty( $pickup_point ) ) {
-			$message .= "<tr><td style='padding:8px; border-bottom:1px solid #ddd;'><strong>Pickup Point:</strong></td><td style='padding:8px; border-bottom:1px solid #ddd;'>{$pickup_point}</td></tr>";
-		}
-		if ( ! empty( $addons ) ) {
-			$message .= "<tr><td style='padding:8px; border-bottom:1px solid #ddd;'><strong>Add-ons Chosen:</strong></td><td style='padding:8px; border-bottom:1px solid #ddd;'>" . implode( ', ', array_map( 'sanitize_text_field', $addons ) ) . '</td></tr>';
-		}
-		$message .= "<tr><td style='padding:8px; border-bottom:1px solid #ddd;'><strong>Total Paid Amount:</strong></td><td style='padding:8px; border-bottom:1px solid #ddd; color:#137a7f; font-weight:bold;'>{$currency} {$total_price}</td></tr>";
-		$message .= '</table>';
-		$message .= "<p style='margin-top:20px; font-size:12px; color:#666;'>We look forward to trekking with you! Detailed reporting instructions will follow soon.</p>";
+		$details_rows = array(
+			array(
+				'label' => __( 'Booking ID', 'adventure-treks' ),
+				'value' => \AdventureTreks\Admin\Controllers\TrekBookingsController::format_booking_ref( $booking_id ),
+			),
+			array(
+				'label' => __( 'Trek', 'adventure-treks' ),
+				'value' => $trek_title,
+			),
+			array(
+				'label' => __( 'Departure City', 'adventure-treks' ),
+				'value' => $city_name,
+			),
+			array(
+				'label' => __( 'Departure Date', 'adventure-treks' ),
+				'value' => $date_formatted,
+			),
+			array(
+				/* translators: 1: total seats, 2: adult count, 3: children count. */
+				'label' => __( 'Seats Booked', 'adventure-treks' ),
+				'value' => sprintf( '%1$d (Adults: %2$d, Children: %3$d)', $seats_requested, $num_adults, $num_children ),
+			),
+			array(
+				'label' => __( 'Pickup Point', 'adventure-treks' ),
+				'value' => $pickup_point,
+			),
+			array(
+				'label' => __( 'Add-ons', 'adventure-treks' ),
+				'value' => ! empty( $addons ) ? implode( ', ', array_map( 'sanitize_text_field', $addons ) ) : '',
+			),
+			array(
+				'label' => __( 'Total Amount', 'adventure-treks' ),
+				'value' => $currency . ' ' . number_format( (float) $total_price, 2 ),
+			),
+			array(
+				'label' => __( 'Status', 'adventure-treks' ),
+				'value' => __( 'Pending Confirmation', 'adventure-treks' ),
+			),
+		);
 
-		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
+		$trek_url = get_permalink( $trek_id );
+
+		$customer_message = \AdventureTreks\Includes\Plugin::render_email_html(
+			/* translators: %s: customer name. */
+			sprintf( __( 'Thank You, %s!', 'adventure-treks' ), $cust_name ),
+			__( 'Thank you for booking your adventure with us! Our team is currently reviewing your booking details, and we will confirm it shortly. Stay tuned!', 'adventure-treks' ),
+			$details_rows,
+			__( 'View Trek Details', 'adventure-treks' ),
+			$trek_url
+		);
+
+		$admin_message = \AdventureTreks\Includes\Plugin::render_email_html(
+			__( 'New Booking Received', 'adventure-treks' ),
+			/* translators: %s: customer name. */
+			sprintf( __( 'You have received a new booking request from %s! Please review the booking details and confirm or reject it as soon as possible.', 'adventure-treks' ), $cust_name ),
+			$details_rows,
+			__( 'Manage Booking', 'adventure-treks' ),
+			admin_url( 'edit.php?post_type=adventure_trek&page=at-bookings&action=edit&booking=' . $booking_id )
+		);
+
+		$subject = sprintf( 'Booking Pending' );
+
+		$from_name  = get_option( 'at_from_name', get_bloginfo( 'name' ) );
+		$from_email = get_option( 'at_booking_email', get_option( 'admin_email' ) );
+
+		$headers = array(
+			'Content-Type: text/html; charset=UTF-8',
+			sprintf( 'From: %s <%s>', $from_name, $from_email ),
+		);
 
 		// Send customer confirmation.
-		wp_mail( $cust_email, $subject, $message, $headers );
+		wp_mail( $cust_email, $subject, $customer_message, $headers );
 
 		// Send admin notice alert.
 		$admin_email = get_option( 'at_booking_email', get_option( 'admin_email' ) );
-		wp_mail( $admin_email, '[ALERT] New Trek Registration: ' . $trek_title, $message, $headers );
+		wp_mail( $admin_email, 'New Booking Received', $admin_message, $headers );
 
 		// Return booking summary receipt.
 		wp_send_json_success(
 			array(
-				'message'      => 'Booking confirmed successfully!',
+				'message'      => 'Booking request received and pending confirmation!',
 				'trek_title'   => $trek_title,
 				'city_name'    => $city_name,
 				'date'         => $date_formatted,

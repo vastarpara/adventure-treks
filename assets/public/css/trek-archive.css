@@ -1,0 +1,212 @@
+/**
+ * Frontend Trek Archive Grid styles.
+ */
+
+.at-trek-archive-wrapper {
+	width: 100%;
+}
+
+.at-trek-archive-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 24px;
+}
+
+.at-trek-archive-cols-2 {
+	grid-template-columns: repeat(2, 1fr);
+}
+
+.at-trek-archive-cols-3 {
+	grid-template-columns: repeat(3, 1fr);
+}
+
+.at-trek-archive-cols-4 {
+	grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 900px) {
+	.at-trek-archive-cols-3,
+	.at-trek-archive-cols-4 {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 600px) {
+	.at-trek-archive-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.at-trek-archive-card {
+	background: #fff;
+	border: 1px solid #e5e5e5;
+	border-radius: 10px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.at-trek-archive-card:hover {
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+	transform: translateY(-2px);
+}
+
+.at-trek-archive-thumb {
+	position: relative;
+	display: block;
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	background: #f0f0f0;
+	overflow: hidden;
+}
+
+.at-trek-archive-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.at-trek-archive-thumb-placeholder {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #bbb;
+}
+
+.at-trek-archive-thumb-placeholder .dashicons {
+	font-size: 48px;
+	width: 48px;
+	height: 48px;
+}
+
+.at-trek-archive-price-badge {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	background: var(--at-primary-color, #137a7f);
+	color: #fff;
+	font-size: 12px;
+	font-weight: 700;
+	padding: 5px 10px;
+	border-radius: 4px;
+}
+
+.at-trek-archive-body {
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.at-trek-archive-title {
+	margin: 0 0 8px 0;
+	font-size: 17px;
+	font-weight: 700;
+	line-height: 1.3;
+}
+
+.at-trek-archive-title a {
+	color: #222;
+	text-decoration: none;
+}
+
+.at-trek-archive-title a:hover {
+	color: var(--at-primary-color, #137a7f);
+}
+
+.at-trek-archive-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-bottom: 10px;
+	font-size: 12px;
+	color: #666;
+}
+
+.at-trek-archive-meta span {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.at-trek-archive-meta .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	color: var(--at-primary-color, #137a7f);
+}
+
+.at-trek-archive-excerpt {
+	font-size: 13px;
+	color: #555;
+	line-height: 1.5;
+	margin: 0 0 14px 0;
+	flex-grow: 1;
+}
+
+.at-trek-archive-btn {
+	display: block;
+	text-align: center;
+	background: var(--at-primary-color, #137a7f);
+	color: #fff;
+	text-decoration: none;
+	font-weight: 700;
+	font-size: 13px;
+	padding: 10px;
+	border-radius: 6px;
+	transition: background 0.2s;
+}
+
+.at-trek-archive-btn:hover {
+	background: var(--at-secondary-color, #0f6165);
+	color: #fff;
+}
+
+.at-trek-archive-empty {
+	text-align: center;
+	color: #666;
+	font-style: italic;
+	padding: 30px 0;
+}
+
+.at-trek-archive-pagination {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 6px;
+	margin-top: 30px;
+}
+
+.at-trek-archive-pagination .page-numbers {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 36px;
+	height: 36px;
+	padding: 0 10px;
+	border: 1px solid #e5e5e5;
+	border-radius: 4px;
+	color: #444;
+	text-decoration: none;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.at-trek-archive-pagination a.page-numbers:hover {
+	border-color: var(--at-primary-color, #137a7f);
+	color: var(--at-primary-color, #137a7f);
+}
+
+.at-trek-archive-pagination .page-numbers.current {
+	background: var(--at-primary-color, #137a7f);
+	border-color: var(--at-primary-color, #137a7f);
+	color: #fff;
+}
+
+.at-trek-archive-pagination .page-numbers.dots {
+	border: none;
+}

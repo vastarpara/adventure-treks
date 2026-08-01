@@ -25,12 +25,27 @@ class TrekShortcodesController {
 		// Register Shortcodes.
 		add_shortcode( 'trek_details', array( $this, 'render_trek_details' ) );
 		add_shortcode( 'trek_itinerary', array( $this, 'render_trek_itinerary' ) );
+		add_shortcode( 'trek_archive', array( $this, 'render_trek_archive' ) );
 
-		// Override single template for adventure_trek CPT.
+		// Override single/archive templates for adventure_trek CPT.
 		add_filter( 'template_include', array( $this, 'load_single_trek_template' ) );
+		add_filter( 'template_include', array( $this, 'load_archive_trek_template' ) );
 
 		// Load CSS/JS.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'add_dynamic_color_vars' ), 20 );
+	}
+
+	/**
+	 * Attach the admin-configured Primary/Secondary colors as CSS custom
+	 * properties to the trek details stylesheet. No-ops on pages where
+	 * that stylesheet was never registered.
+	 *
+	 * @return void
+	 */
+	public function add_dynamic_color_vars() {
+		wp_add_inline_style( 'at-public-details-css', \AdventureTreks\Includes\Plugin::get_dynamic_color_css() );
+		wp_add_inline_style( 'at-public-archive-css', \AdventureTreks\Includes\Plugin::get_dynamic_color_css() );
 	}
 
 	/**
@@ -58,6 +73,109 @@ class TrekShortcodesController {
 	}
 
 	/**
+	 * Load plugin's archive-adventure_trek.php template for the CPT archive page.
+	 *
+	 * Priority order: child theme → parent theme → plugin fallback.
+	 *
+	 * @param string $template Current template path.
+	 * @return string Modified template path.
+	 */
+	public function load_archive_trek_template( $template ) {
+		if ( is_post_type_archive( 'adventure_trek' ) ) {
+			// Allow theme override first.
+			$theme_tpl = locate_template( array( 'archive-adventure_trek.php', 'archive.php' ) );
+			if ( $theme_tpl && 'archive-adventure_trek.php' === basename( $theme_tpl ) ) {
+				return $theme_tpl;
+			}
+			// Fall back to plugin template.
+			$plugin_tpl = plugin_dir_path( __DIR__ ) . 'views/archive-adventure_trek.php';
+			if ( file_exists( $plugin_tpl ) ) {
+				return $plugin_tpl;
+			}
+		}
+		return $template;
+	}
+
+	/**
+	 * Build the HTML for one trek's archive/grid card (thumbnail, starting
+	 * price badge, meta row, optional excerpt, and a "View Details" link).
+	 * Shared by the [trek_archive] shortcode/widget view and the native
+	 * archive-adventure_trek.php template so both stay visually identical.
+	 *
+	 * Must be called from within a loop iteration (after the_post()) so
+	 * template tags like the_permalink()/the_title() resolve to the right post.
+	 *
+	 * @param int  $trek_id    Trek post ID (current post in the loop).
+	 * @param bool $show_excerpt Whether to render the trimmed excerpt.
+	 * @param bool $show_price   Whether to compute and render the starting price badge.
+	 * @return string
+	 */
+	public static function get_trek_archive_card_html( $trek_id, $show_excerpt = true, $show_price = true ) {
+		global $wpdb;
+
+		$at_currency = get_option( 'at_currency_symbol', '₹' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$at_trek_meta = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}at_treks WHERE post_id = %d", $trek_id ), ARRAY_A );
+
+		$at_start_price = 0;
+		if ( $show_price ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			$at_cities_prices = $wpdb->get_results( $wpdb->prepare( "SELECT base_price, offer_price FROM {$wpdb->prefix}at_departure_cities WHERE trek_id = %d AND status = 'active'", $trek_id ), ARRAY_A );
+
+			if ( ! empty( $at_cities_prices ) ) {
+				$at_effective_prices = array();
+				foreach ( $at_cities_prices as $at_city_price ) {
+					$at_effective_prices[] = floatval( $at_city_price['offer_price'] ) > 0 ? floatval( $at_city_price['offer_price'] ) : floatval( $at_city_price['base_price'] );
+				}
+				$at_start_price = min( $at_effective_prices );
+			}
+		}
+
+		ob_start();
+		?>
+		<div class="at-trek-archive-card">
+			<a href="<?php the_permalink(); ?>" class="at-trek-archive-thumb">
+				<?php if ( has_post_thumbnail() ) : ?>
+					<?php the_post_thumbnail( 'medium_large' ); ?>
+				<?php else : ?>
+					<div class="at-trek-archive-thumb-placeholder"><span class="dashicons dashicons-palmtree"></span></div>
+				<?php endif; ?>
+				<?php if ( $show_price && $at_start_price > 0 ) : ?>
+					<span class="at-trek-archive-price-badge">
+						<?php esc_html_e( 'From', 'adventure-treks' ); ?> <?php echo esc_html( $at_currency . number_format( $at_start_price, 0 ) ); ?>
+					</span>
+				<?php endif; ?>
+			</a>
+			<div class="at-trek-archive-body">
+				<h3 class="at-trek-archive-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+
+				<?php if ( ! empty( $at_trek_meta ) ) : ?>
+					<div class="at-trek-archive-meta">
+						<?php if ( ! empty( $at_trek_meta['duration'] ) ) : ?>
+							<span><span class="dashicons dashicons-clock"></span> <?php echo esc_html( $at_trek_meta['duration'] ); ?></span>
+						<?php endif; ?>
+						<?php if ( ! empty( $at_trek_meta['difficulty'] ) ) : ?>
+							<span><span class="dashicons dashicons-performance"></span> <?php echo esc_html( $at_trek_meta['difficulty'] ); ?></span>
+						<?php endif; ?>
+						<?php if ( ! empty( $at_trek_meta['region'] ) ) : ?>
+							<span><span class="dashicons dashicons-location"></span> <?php echo esc_html( $at_trek_meta['region'] ); ?></span>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( $show_excerpt ) : ?>
+					<p class="at-trek-archive-excerpt"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 18 ) ); ?></p>
+				<?php endif; ?>
+
+				<a href="<?php the_permalink(); ?>" class="at-trek-archive-btn"><?php esc_html_e( 'View Details', 'adventure-treks' ); ?></a>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
 	 * Register frontend CSS and JS.
 	 */
 	public function enqueue_assets() {
@@ -81,6 +199,18 @@ class TrekShortcodesController {
 		if ( is_singular( 'adventure_trek' ) || ( get_post() && has_shortcode( get_post()->post_content, 'trek_details' ) ) || ( get_post() && has_shortcode( get_post()->post_content, 'trek_itinerary' ) ) ) {
 			wp_enqueue_style( 'at-public-details-css' );
 			wp_enqueue_script( 'at-public-details-js' );
+		}
+
+		// Trek Archive stylesheet.
+		wp_register_style(
+			'at-public-archive-css',
+			ADVENTURE_TREKS_URL . 'assets/public/css/trek-archive.css',
+			array( 'dashicons' ),
+			ADVENTURE_TREKS_VERSION
+		);
+
+		if ( is_post_type_archive( 'adventure_trek' ) || ( get_post() && has_shortcode( get_post()->post_content, 'trek_archive' ) ) ) {
+			wp_enqueue_style( 'at-public-archive-css' );
 		}
 	}
 
@@ -142,6 +272,62 @@ class TrekShortcodesController {
 		if ( file_exists( $view_path ) ) {
 			include $view_path;
 		}
+		return ob_get_clean();
+	}
+
+	/**
+	 * Shortcode Renderer for [trek_archive]. Also used by the "Trek Archive Grid" Elementor widget.
+	 *
+	 * @param array $atts Shortcode attributes.
+	 * @return string
+	 */
+	public function render_trek_archive( $atts ) {
+		wp_enqueue_style( 'at-public-archive-css' );
+
+		$args = shortcode_atts(
+			array(
+				'posts_per_page' => 9,
+				'columns'        => 3,
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+				'show_excerpt'   => 'yes',
+				'show_price'     => 'yes',
+				'pagination'     => 'yes',
+			),
+			$atts,
+			'trek_archive'
+		);
+
+		$posts_per_page  = max( 1, intval( $args['posts_per_page'] ) );
+		$columns         = in_array( intval( $args['columns'] ), array( 2, 3, 4 ), true ) ? intval( $args['columns'] ) : 3;
+		$orderby         = in_array( $args['orderby'], array( 'date', 'title', 'menu_order', 'rand' ), true ) ? $args['orderby'] : 'date';
+		$order           = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
+		$show_excerpt    = 'yes' === $args['show_excerpt'];
+		$show_price      = 'yes' === $args['show_price'];
+		$show_pagination = 'yes' === $args['pagination'];
+
+		// Dedicated query var (not core's `paged`) so this loop's pagination never
+		// collides with the host page's own main-query pagination.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$current_page = isset( $_GET['at_trek_page'] ) ? max( 1, absint( wp_unslash( $_GET['at_trek_page'] ) ) ) : 1;
+
+		$query = new \WP_Query(
+			array(
+				'post_type'      => 'adventure_trek',
+				'post_status'    => 'publish',
+				'posts_per_page' => $posts_per_page,
+				'paged'          => $current_page,
+				'orderby'        => $orderby,
+				'order'          => $order,
+			)
+		);
+
+		ob_start();
+		$view_path = plugin_dir_path( __DIR__ ) . 'views/trek-archive.php';
+		if ( file_exists( $view_path ) ) {
+			include $view_path;
+		}
+		wp_reset_postdata();
 		return ob_get_clean();
 	}
 

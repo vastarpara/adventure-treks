@@ -158,7 +158,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							foreach ( $items as $item ) {
 								$item = trim( $item );
 								if ( ! empty( $item ) ) {
-									echo '<li><span class="dashicons dashicons-yes-alt" style="color:#137a7f; margin-right:8px; font-size:16px; width:16px; height:16px;"></span> ' . esc_html( $item ) . '</li>';
+									echo '<li><span class="dashicons dashicons-yes-alt" style="color:var(--at-primary-color, #137a7f); margin-right:8px; font-size:16px; width:16px; height:16px;"></span> ' . esc_html( $item ) . '</li>';
 								}
 							}
 							echo '</ul>';
@@ -202,7 +202,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								$c_item = trim( $c_item );
 								if ( ! empty( $c_item ) ) {
 									echo '<div class="at-carry-card">';
-									echo '  <span class="dashicons dashicons-saved" style="color:#137a7f; font-size:18px; width:18px; height:18px; line-height:1;"></span>';
+									echo '  <span class="dashicons dashicons-saved" style="color:var(--at-primary-color, #137a7f); font-size:18px; width:18px; height:18px; line-height:1;"></span>';
 									echo '  <span>' . esc_html( $c_item ) . '</span>';
 									echo '</div>';
 								}

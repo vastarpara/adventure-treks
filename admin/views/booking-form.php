@@ -25,10 +25,41 @@ $at_currency = get_option( 'at_currency_symbol', '₹' );
 		<p><strong><?php esc_html_e( 'Booking ID:', 'adventure-treks' ); ?></strong> <?php echo esc_html( \AdventureTreks\Admin\Controllers\TrekBookingsController::format_booking_ref( $booking->id ) ); ?></p>
 	<?php endif; ?>
 
+	<?php
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( isset( $_GET['at_seats_error'] ) ) :
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$at_max_seats = absint( wp_unslash( $_GET['at_seats_error'] ) );
+		?>
+		<div class="notice notice-error is-dismissible">
+			<p>
+				<?php
+				if ( $at_max_seats > 0 ) {
+					printf(
+						/* translators: %d: maximum number of seats available for the selected date. */
+						esc_html__( 'Only %d seat(s) available for the selected departure date. Please reduce Adults/Children or choose another date.', 'adventure-treks' ),
+						(int) $at_max_seats
+					);
+				} else {
+					esc_html_e( 'No seats are available for the selected departure date. Please choose another date.', 'adventure-treks' );
+				}
+				?>
+			</p>
+		</div>
+		<?php
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	elseif ( isset( $_GET['at_error'] ) ) :
+		?>
+		<div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Please fill in all the required fields before saving the booking.', 'adventure-treks' ); ?></p></div>
+		<?php
+	endif;
+	?>
+
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="at_booking_form">
 		<?php wp_nonce_field( 'at_save_booking', 'at_booking_nonce' ); ?>
 		<input type="hidden" name="action" value="at_save_booking" />
 		<input type="hidden" name="booking_id" value="<?php echo esc_attr( $at_is_edit ? $booking->id : 0 ); ?>" />
+		<input type="hidden" name="total_amount" id="at_b_amount" value="<?php echo esc_attr( $at_is_edit ? $booking->total_amount : '0.00' ); ?>" />
 
 		<table class="form-table" role="presentation">
 			<tbody>
@@ -61,20 +92,18 @@ $at_currency = get_option( 'at_currency_symbol', '₹' );
 						</select>
 					</td>
 				</tr>
-				<tr>
+				<tr id="at_b_pickup_row" style="display:none;">
 					<th scope="row"><label for="at_b_pickup"><?php esc_html_e( 'Pickup Point', 'adventure-treks' ); ?></label></th>
 					<td>
 						<select name="pickup_point" id="at_b_pickup" class="regular-text" data-selected="<?php echo esc_attr( $at_is_edit ? $booking->pickup_point : '' ); ?>">
-							<option value=""><?php esc_html_e( '-- None --', 'adventure-treks' ); ?></option>
+							<option value=""><?php esc_html_e( '-- Select Pickup Point --', 'adventure-treks' ); ?></option>
 						</select>
 					</td>
 				</tr>
-				<tr>
+				<tr id="at_b_addons_row" style="display:none;">
 					<th scope="row"><?php esc_html_e( 'Add-ons', 'adventure-treks' ); ?></th>
 					<td>
-						<div id="at_b_addons_container" data-selected="<?php echo esc_attr( $at_is_edit && ! empty( $booking->addons ) ? $booking->addons : '[]' ); ?>">
-							<p class="description"><?php esc_html_e( 'Select a trek and departure city to see available add-ons.', 'adventure-treks' ); ?></p>
-						</div>
+						<div id="at_b_addons_container" data-selected="<?php echo esc_attr( $at_is_edit && ! empty( $booking->addons ) ? $booking->addons : '[]' ); ?>"></div>
 					</td>
 				</tr>
 				<tr>
@@ -103,14 +132,6 @@ $at_currency = get_option( 'at_currency_symbol', '₹' );
 						<div id="at_b_price_breakdown" class="at-price-breakdown-box">
 							<p class="description"><?php esc_html_e( 'Select a trek, city, and date to calculate pricing automatically.', 'adventure-treks' ); ?></p>
 						</div>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="at_b_amount"><?php esc_html_e( 'Total Amount', 'adventure-treks' ); ?> <span class="at-required">*</span></label></th>
-					<td>
-						<?php echo esc_html( $at_currency ); ?>
-						<input type="number" step="0.01" min="0" name="total_amount" id="at_b_amount" required value="<?php echo esc_attr( $at_is_edit ? $booking->total_amount : '0.00' ); ?>" />
-						<p class="description at-field-hint"><?php esc_html_e( 'Auto-calculated from the trek pricing rules above. You may manually override it if needed.', 'adventure-treks' ); ?></p>
 					</td>
 				</tr>
 				<tr>

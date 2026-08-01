@@ -55,6 +55,17 @@ class TrekBookingWidget extends \Elementor\Widget_Base {
 	}
 
 	/**
+	 * Declare the stylesheet this widget needs so Elementor loads it
+	 * reliably in both the editor preview and the live frontend, instead
+	 * of depending on the ad-hoc wp_enqueue_style() call inside render().
+	 *
+	 * @return array
+	 */
+	public function get_style_depends() {
+		return array( 'at-public-booking-css' );
+	}
+
+	/**
 	 * Register widget controls.
 	 */
 	protected function register_controls() {

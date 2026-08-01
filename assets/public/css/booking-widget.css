@@ -61,7 +61,7 @@
 	display: inline-block;
 	width: 20px;
 	height: 20px;
-	background: #137a7f;
+	background: var(--at-primary-color, #137a7f);
 	color: #fff;
 	font-size: 11px;
 	font-weight: 700;
@@ -99,8 +99,8 @@
 }
 
 .at-city-pill-btn.active {
-	background: #137a7f;
-	border-color: #137a7f;
+	background: var(--at-primary-color, #137a7f);
+	border-color: var(--at-primary-color, #137a7f);
 	color: #ffffff;
 	box-shadow: 0 2px 8px rgba(19, 122, 127, 0.3);
 }
@@ -136,14 +136,14 @@
 }
 
 .at-date-select-btn:hover {
-	border-color: #137a7f;
+	border-color: var(--at-primary-color, #137a7f);
 	background: #fafafa;
 }
 
 .at-date-select-btn.active {
-	border-color: #137a7f;
-	background: #f2f9f9;
-	box-shadow: 0 0 0 1px #137a7f;
+	border-color: var(--at-primary-color, #137a7f);
+	background: color-mix(in srgb, var(--at-primary-color, #137a7f) 8%, white);
+	box-shadow: 0 0 0 1px var(--at-primary-color, #137a7f);
 }
 
 .at-date-select-btn.sold-out {
@@ -216,8 +216,8 @@
 
 /* Pricing Info box */
 .at-pricing-infobox {
-	background: #f2f9f9;
-	border: 1px dashed #137a7f;
+	background: color-mix(in srgb, var(--at-primary-color, #137a7f) 8%, white);
+	border: 1px dashed var(--at-primary-color, #137a7f);
 	padding: 15px;
 	border-radius: 6px;
 	margin-bottom: 20px;
@@ -344,7 +344,7 @@
 .at-addon-price-label {
 	font-size: 12px;
 	font-weight: 700;
-	color: #137a7f;
+	color: var(--at-primary-color, #137a7f);
 }
 
 /* Receipt breakdown */
@@ -377,13 +377,79 @@
 }
 
 .at-receipt-total strong {
-	color: #137a7f;
+	color: var(--at-primary-color, #137a7f);
 	font-size: 18px;
+}
+
+/* Payment step */
+.at-payment-method-box {
+	background: #f9f9f9;
+	border: 1px solid #e5e5e5;
+	border-radius: 8px;
+	padding: 15px;
+	text-align: center;
+}
+
+.at-payment-qr-img {
+	display: block;
+	max-width: 180px;
+	width: 100%;
+	height: auto;
+	margin: 0 auto 10px auto;
+	border: 1px solid #e5e5e5;
+	border-radius: 6px;
+	background: #fff;
+	padding: 6px;
+}
+
+.at-payment-upi-id {
+	font-size: 13px;
+	color: #222;
+	margin: 0 0 6px 0;
+}
+
+.at-upi-copy-btn {
+	-webkit-appearance: none;
+	appearance: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: 22px;
+	height: 22px;
+	background: transparent;
+	border: none;
+	border-radius: 3px;
+	padding: 0;
+	margin: 0 0 0 4px;
+	cursor: pointer;
+	color: var(--at-primary-color, #137a7f);
+	vertical-align: middle;
+	box-shadow: none;
+	line-height: 1;
+}
+
+.at-upi-copy-btn .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 1;
+}
+
+.at-upi-copy-btn:hover,
+.at-upi-copy-btn:focus {
+	background: rgba(19, 122, 127, 0.08);
+	color: var(--at-secondary-color, #0f6165);
+	outline: none;
+}
+
+.at-upi-copy-btn.copied {
+	color: #385723;
 }
 
 /* Submit buttons */
 .at-book-now-btn {
-	background: #137a7f;
+	background: var(--at-primary-color, #137a7f);
 	border: none;
 	color: #fff;
 	font-weight: 700;
@@ -400,7 +466,7 @@
 }
 
 .at-book-now-btn:hover {
-	background: #0f6165;
+	background: var(--at-secondary-color, #0f6165);
 	box-shadow: 0 4px 15px rgba(19, 122, 127, 0.35);
 }
 
@@ -494,13 +560,13 @@
 }
 
 .at-modal-btn.confirm {
-	background: #137a7f;
-	border-color: #137a7f;
+	background: var(--at-primary-color, #137a7f);
+	border-color: var(--at-primary-color, #137a7f);
 	color: #fff;
 }
 
 .at-modal-btn.confirm:hover {
-	background: #0f6165;
+	background: var(--at-secondary-color, #0f6165);
 }
 
 .at-modal-btn.confirm:disabled {
@@ -534,9 +600,9 @@
 
 .at-form-field input:focus,
 .at-form-field select:focus {
-	border-color: #137a7f;
+	border-color: var(--at-primary-color, #137a7f);
 	outline: none;
-	box-shadow: 0 0 0 1px #137a7f;
+	box-shadow: 0 0 0 1px var(--at-primary-color, #137a7f);
 }
 
 /* Timeline Layout for Itinerary integration on page */
@@ -564,7 +630,7 @@
 }
 
 .at-timeline-day-badge {
-	background: #137a7f;
+	background: var(--at-primary-color, #137a7f);
 	color: #fff;
 	font-size: 11px;
 	font-weight: 700;
@@ -601,8 +667,8 @@
 .at-event-icon-wrapper {
 	width: 24px;
 	height: 24px;
-	background: #f2f9f9;
-	border: 1px solid #137a7f;
+	background: color-mix(in srgb, var(--at-primary-color, #137a7f) 8%, white);
+	border: 1px solid var(--at-primary-color, #137a7f);
 	border-radius: 50%;
 	display: flex;
 	justify-content: center;
@@ -613,7 +679,7 @@
 	font-size: 14px;
 	width: 14px;
 	height: 14px;
-	color: #137a7f;
+	color: var(--at-primary-color, #137a7f);
 }
 
 .at-event-content-box {
@@ -630,8 +696,8 @@
 
 .at-event-time {
 	display: inline-block;
-	background: #eef6f6;
-	color: #137a7f;
+	background: color-mix(in srgb, var(--at-primary-color, #137a7f) 8%, white);
+	color: var(--at-primary-color, #137a7f);
 	padding: 4px 8px;
 	border-radius: 4px;
 	font-size: 11px;

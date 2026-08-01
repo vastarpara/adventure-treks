@@ -40,7 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<!-- Step 2: Select Date (Hidden initially until City is selected) -->
 	<div class="at-widget-section" id="at_widget_date_section" style="display: none;">
 		<h4 class="at-section-title"><span class="at-step-badge">2</span> <?php esc_html_e( 'Select Departure Date', 'adventure-treks' ); ?></h4>
-		<div class="at-loading-indicator" id="at_widget_dates_loading" style="display:none; padding: 15px 0; align-items: center; color: #137a7f; font-weight: 600;">
+		<div class="at-loading-indicator" id="at_widget_dates_loading" style="display:none; padding: 15px 0; align-items: center; color: var(--at-primary-color, #137a7f); font-weight: 600;">
 			<span class="dashicons dashicons-update" style="animation: spin 2s linear infinite; margin-right: 8px;"></span> <?php esc_html_e( 'Finding scheduled slots...', 'adventure-treks' ); ?>
 		</div>
 		<div class="at-dates-grid" id="at_widget_dates_grid">
@@ -49,7 +49,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 
 	<!-- Loader for Booking Details -->
-	<div class="at-loading-indicator" id="at_widget_details_loading" style="display:none; padding: 20px 0; justify-content: center; align-items: center; color: #137a7f; font-weight: 600;">
+	<div class="at-loading-indicator" id="at_widget_details_loading" style="display:none; padding: 20px 0; justify-content: center; align-items: center; color: var(--at-primary-color, #137a7f); font-weight: 600;">
 		<span class="dashicons dashicons-update" style="animation: spin 2s linear infinite; margin-right: 8px;"></span> <?php esc_html_e( 'Loading booking details...', 'adventure-treks' ); ?>
 		<style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
 	</div>
@@ -80,7 +80,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<span style="font-weight:600; flex-shrink: 0;"><?php esc_html_e( 'Per Person Rate', 'adventure-treks' ); ?>:</span>
 				<div style="text-align:right; white-space:nowrap; flex-shrink: 0;">
 					<span id="at_widget_base_price_cross" style="text-decoration:line-through; color:#999; margin-right:8px; display:none; white-space:nowrap;"></span>
-					<span id="at_widget_price_tag" style="font-size:18px; font-weight:700; color:#137a7f; white-space:nowrap;"></span>
+					<span id="at_widget_price_tag" style="font-size:18px; font-weight:700; color:var(--at-primary-color, #137a7f); white-space:nowrap;"></span>
 				</div>
 			</div>
 			<p class="description" id="at_widget_child_price_tag" style="margin:5px 0 0 0; text-align:right; font-size:11px; display:none;"></p>
@@ -128,7 +128,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<!-- Dynamically generated receipt -->
 			</div>
 			<div class="at-receipt-total">
-				<span><?php esc_html_e( 'Estimated Total', 'adventure-treks' ); ?>:</span>
+				<span><?php esc_html_e( 'Total', 'adventure-treks' ); ?>:</span>
 				<strong id="at_widget_grand_total">--</strong>
 			</div>
 		</div>
@@ -177,7 +177,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 			<div class="at-booking-modal-footer">
 				<button type="button" class="at-modal-btn cancel" id="at_checkout_cancel_btn"><?php esc_html_e( 'Cancel', 'adventure-treks' ); ?></button>
-				<button type="button" class="at-modal-btn confirm" id="at_checkout_confirm_btn" disabled><?php esc_html_e( 'Confirm Reservation', 'adventure-treks' ); ?></button>
+				<button type="button" class="at-modal-btn confirm" id="at_checkout_confirm_btn" disabled><?php esc_html_e( 'Proceed to Payment', 'adventure-treks' ); ?></button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Step 4.5: Payment Modal (price breakdown + admin-configured payment method) -->
+	<div class="at-booking-modal" id="at_payment_modal" style="display: none;">
+		<div class="at-booking-modal-content">
+			<div class="at-booking-modal-header">
+				<h4><?php esc_html_e( 'Payment', 'adventure-treks' ); ?></h4>
+				<span class="at-booking-modal-close" id="at_payment_modal_close">&times;</span>
+			</div>
+			<div class="at-booking-modal-body">
+				<div class="at-booking-receipt">
+					<h5 style="margin:0 0 8px 0; font-size:12px; font-weight:600; color:#3c434a;"><?php esc_html_e( 'Price Breakdown', 'adventure-treks' ); ?></h5>
+					<div class="at-receipt-rows" id="at_payment_receipt_rows">
+						<!-- Cloned from the booking calculator receipt -->
+					</div>
+					<div class="at-receipt-total">
+						<span><?php esc_html_e( 'Total', 'adventure-treks' ); ?>:</span>
+						<strong id="at_payment_grand_total">--</strong>
+					</div>
+				</div>
+
+				<div class="at-payment-method-box" id="at_payment_method_box">
+					<!-- Populated dynamically based on admin Payment settings -->
+				</div>
+			</div>
+			<div class="at-booking-modal-footer">
+				<button type="button" class="at-modal-btn cancel" id="at_payment_back_btn"><?php esc_html_e( 'Back', 'adventure-treks' ); ?></button>
+				<button type="button" class="at-modal-btn confirm" id="at_payment_confirm_btn"><?php esc_html_e( 'Confirm Reservation', 'adventure-treks' ); ?></button>
 			</div>
 		</div>
 	</div>
@@ -187,9 +217,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="at-booking-modal-content" style="max-width:450px; text-align:center;">
 			<div class="at-booking-modal-body" style="padding:30px 20px;">
 				<span class="dashicons dashicons-saved" style="color:#385723; font-size:64px; width:64px; height:64px; display:block; margin:0 auto 15px auto;"></span>
-				<h3 style="color:#385723; margin:0 0 10px 0; font-size:22px; font-weight:700;"><?php esc_html_e( 'Booking Confirmed!', 'adventure-treks' ); ?></h3>
+				<h3 style="color:#385723; margin:0 0 10px 0; font-size:22px; font-weight:700;"><?php esc_html_e( 'Thank you for your booking!', 'adventure-treks' ); ?></h3>
 				<p style="font-size:13px; color:#555; margin-bottom:20px; line-height:1.4;">
-					<?php esc_html_e( 'Your reservation is successful. An email containing your receipt breakdown and reporting details has been dispatched.', 'adventure-treks' ); ?>
+					<?php esc_html_e( 'Your reservation is pending confirmation. We have sent your booking receipt by email, and you will receive another email once your reservation is confirmed.', 'adventure-treks' ); ?>
 				</p>
 				<div class="at-success-receipt" id="at_success_receipt_body" style="text-align:left; background:#fafafa; border:1px solid #ddd; padding:15px; border-radius:4px; font-size:12px; margin-bottom:20px;">
 					<!-- Loaded via response -->

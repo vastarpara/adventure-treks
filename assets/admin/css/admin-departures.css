@@ -186,7 +186,7 @@
 }
 
 .at-action-link.duplicate {
-	color: #137a7f;
+	color: var(--at-primary-color, #137a7f);
 }
 
 .at-action-link.delete {

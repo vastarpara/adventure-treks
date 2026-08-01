@@ -30,7 +30,9 @@ document.addEventListener('DOMContentLoaded', function () {
 	const trekSelect        = document.getElementById('at_b_trek');
 	const citySelect        = document.getElementById('at_b_city');
 	const dateSelect        = document.getElementById('at_b_date');
+	const pickupRow         = document.getElementById('at_b_pickup_row');
 	const pickupSelect      = document.getElementById('at_b_pickup');
+	const addonsRow         = document.getElementById('at_b_addons_row');
 	const addonsContainer   = document.getElementById('at_b_addons_container');
 	const adultsInput       = document.getElementById('at_b_adults');
 	const childrenInput     = document.getElementById('at_b_children');
@@ -39,12 +41,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	if (trekSelect && citySelect && dateSelect) {
 		let currentPricing = null; // Holds the last fetched date/city pricing payload.
+		let lastValidAdults = adultsInput ? (parseInt(adultsInput.value, 10) || 1) : 1;
+		let lastValidChildren = childrenInput ? (parseInt(childrenInput.value, 10) || 0) : 0;
 
 		function loadCities(trekId, preselectCityId) {
 			citySelect.innerHTML = '<option value="">-- Loading cities... --</option>';
 			dateSelect.innerHTML = '<option value="">-- Select City First --</option>';
 			if (pickupSelect) {
-				pickupSelect.innerHTML = '<option value="">-- None --</option>';
+				pickupSelect.innerHTML = '<option value="">-- Select Pickup Point --</option>';
+				pickupSelect.required = false;
+			}
+			if (pickupRow) {
+				pickupRow.style.display = 'none';
 			}
 			resetAddonsAndPricing();
 
@@ -73,11 +81,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		function resetAddonsAndPricing() {
 			currentPricing = null;
+			if (addonsRow) {
+				addonsRow.style.display = 'none';
+			}
 			if (addonsContainer) {
-				addonsContainer.innerHTML = '<p class="description">Select a trek, city, and date to see available add-ons.</p>';
+				addonsContainer.innerHTML = '';
 			}
 			if (breakdownEl) {
-				breakdownEl.innerHTML = '<p class="description" style="margin:0;">Select a trek, city, and date to calculate pricing automatically.</p>';
+				breakdownEl.innerHTML = '<p class="description">Select a trek, city, and date to calculate pricing automatically.</p>';
 			}
 		}
 
@@ -111,8 +122,19 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (pickupSelect) {
 				pickupSelect.innerHTML = '<option value="">-- Loading pickup points... --</option>';
 				ajaxGet('at_get_pickups', at_bookings_obj.cities_nonce, { city_id: cityId }, function (pickups) {
-					pickupSelect.innerHTML = '<option value="">-- None --</option>';
-					(pickups || []).forEach(function (pickup) {
+					pickups = pickups || [];
+
+					if (!pickups.length) {
+						pickupSelect.innerHTML = '<option value="">-- Select Pickup Point --</option>';
+						pickupSelect.required = false;
+						if (pickupRow) {
+							pickupRow.style.display = 'none';
+						}
+						return;
+					}
+
+					pickupSelect.innerHTML = '<option value="">-- Select Pickup Point --</option>';
+					pickups.forEach(function (pickup) {
 						const opt = document.createElement('option');
 						opt.value = pickup.location_name;
 						opt.textContent = pickup.location_name + ' (' + pickup.pickup_time + ')';
@@ -121,6 +143,10 @@ document.addEventListener('DOMContentLoaded', function () {
 						}
 						pickupSelect.appendChild(opt);
 					});
+					pickupSelect.required = true;
+					if (pickupRow) {
+						pickupRow.style.display = '';
+					}
 				});
 			}
 		}
@@ -151,9 +177,16 @@ document.addEventListener('DOMContentLoaded', function () {
 				}
 
 				if (!addons.length) {
-					addonsContainer.innerHTML = '<p class="description">No add-ons configured for this departure city.</p>';
+					addonsContainer.innerHTML = '';
+					if (addonsRow) {
+						addonsRow.style.display = 'none';
+					}
 					calculateTotal();
 					return;
+				}
+
+				if (addonsRow) {
+					addonsRow.style.display = '';
 				}
 
 				addonsContainer.innerHTML = '';
@@ -273,11 +306,60 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 		}
 
+		function validateSeatCounts(changedInput) {
+			let adults = parseInt(adultsInput.value, 10);
+			let children = parseInt(childrenInput.value, 10);
+
+			// Enforce minimums: at least 1 adult, never negative children.
+			if (isNaN(adults) || adults < 1) {
+				adults = 1;
+			}
+			if (isNaN(children) || children < 0) {
+				children = 0;
+			}
+
+			// Enforce the selected date's remaining seat capacity, if known.
+			const availableSeats = currentPricing ? parseInt(currentPricing.available_seats, 10) : null;
+			if (availableSeats !== null && ! isNaN(availableSeats) && (adults + children) > availableSeats) {
+				alert('Cannot exceed remaining seat capacity limit (' + availableSeats + ' seats available).');
+				adults = Math.min(adults, lastValidAdults);
+				children = Math.min(children, lastValidChildren);
+				if ((adults + children) > availableSeats) {
+					if (changedInput === adultsInput) {
+						adults = Math.max(1, availableSeats - children);
+					} else {
+						children = Math.max(0, availableSeats - adults);
+					}
+				}
+			}
+
+			adultsInput.value = adults;
+			childrenInput.value = children;
+			lastValidAdults = adults;
+			lastValidChildren = children;
+		}
+
 		if (adultsInput) {
 			adultsInput.addEventListener('input', calculateTotal);
+			adultsInput.addEventListener('change', function () {
+				validateSeatCounts(adultsInput);
+				calculateTotal();
+			});
 		}
 		if (childrenInput) {
 			childrenInput.addEventListener('input', calculateTotal);
+			childrenInput.addEventListener('change', function () {
+				validateSeatCounts(childrenInput);
+				calculateTotal();
+			});
+		}
+
+		const bookingForm = document.getElementById('at_booking_form');
+		if (bookingForm) {
+			bookingForm.addEventListener('submit', function () {
+				validateSeatCounts(adultsInput);
+				calculateTotal();
+			});
 		}
 
 		trekSelect.addEventListener('change', function () {

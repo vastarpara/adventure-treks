@@ -19,7 +19,34 @@
       "Bash(php -l \"wp-content/plugins/adventure-treks/public/controllers/class-trekbookingcontroller.php\")",
       "Bash(php -l \"wp-content/plugins/adventure-treks/includes/class-database.php\")",
       "Bash(php -l \"wp-content/plugins/adventure-treks/includes/class-plugin.php\")",
-      "Bash(php -l \"wp-content/plugins/adventure-treks/admin/views/booking-form.php\")"
+      "Bash(php -l \"wp-content/plugins/adventure-treks/admin/views/booking-form.php\")",
+      "Bash(php -l \"wp-content/plugins/adventure-treks/admin/views/settings.php\")",
+      "Bash(php -l \"wp-content/plugins/adventure-treks/admin/controllers/class-admincontroller.php\")",
+      "Bash(node --check \"wp-content/plugins/adventure-treks/assets/admin/js/admin-settings.js\")",
+      "Bash(php -l \"wp-content/plugins/adventure-treks/public/views/booking-widget.php\")",
+      "Bash(php -l \"wp-content/plugins/adventure-treks/public/views/trek-details.php\")",
+      "Bash(grep -n 'email_primary_color\\\\|color:{$email_primary_color}' d:/wamp64/www/wp701/wp-content/plugins/adventure-treks/public/controllers/class-trekbookingcontroller.php)",
+      "Bash(node -e ' *)",
+      "Bash(php -l \"wp-content/plugins/adventure-treks/adventure-treks.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\public\\\\controllers\\\\class-trekbookingcontroller.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\public\\\\views\\\\booking-widget.php\")",
+      "Bash(node --check \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\assets\\\\public\\\\js\\\\booking-widget.js\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\admin\\\\controllers\\\\class-admincontroller.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\admin\\\\views\\\\settings.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\admin\\\\controllers\\\\class-trekbookingscontroller.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\includes\\\\class-plugin.php\")",
+      "Bash(node --check \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\assets\\\\admin\\\\js\\\\admin-settings.js\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\admin\\\\views\\\\booking-form.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\includes\\\\class-elementor.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\includes\\\\elementor\\\\widgets\\\\class-trekarchivewidget.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\public\\\\controllers\\\\class-trekshortcodescontroller.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\public\\\\views\\\\trek-archive.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\includes\\\\elementor\\\\widgets\\\\class-trekdetailswidget.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\includes\\\\elementor\\\\widgets\\\\class-trekbookingwidget.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\public\\\\views\\\\archive-adventure_trek.php\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Techeshta\\AppData\\Local\\Temp\\fz3temp-2"
     ]
   }
 }

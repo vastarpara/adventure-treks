@@ -65,9 +65,11 @@ class Elementor {
 		// Include widget files.
 		require_once ADVENTURE_TREKS_PATH . 'includes/elementor/widgets/class-trekdetailswidget.php';
 		require_once ADVENTURE_TREKS_PATH . 'includes/elementor/widgets/class-trekbookingwidget.php';
+		require_once ADVENTURE_TREKS_PATH . 'includes/elementor/widgets/class-trekarchivewidget.php';
 
 		// Instantiate and register.
 		$widgets_manager->register( new \AdventureTreks\Includes\Elementor\Widgets\TrekDetailsWidget() );
 		$widgets_manager->register( new \AdventureTreks\Includes\Elementor\Widgets\TrekBookingWidget() );
+		$widgets_manager->register( new \AdventureTreks\Includes\Elementor\Widgets\TrekArchiveWidget() );
 	}
 }

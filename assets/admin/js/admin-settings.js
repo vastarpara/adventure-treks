@@ -1,0 +1,172 @@
+/**
+ * Settings page tab switching.
+ */
+document.addEventListener('DOMContentLoaded', function () {
+	'use strict';
+
+	const tabLinks = document.querySelectorAll('.nav-tab-wrapper .nav-tab[data-at-tab]');
+	if (!tabLinks.length) {
+		return;
+	}
+
+	function activateTab(tabKey) {
+		tabLinks.forEach(function (link) {
+			link.classList.toggle('nav-tab-active', link.getAttribute('data-at-tab') === tabKey);
+		});
+
+		document.querySelectorAll('.at-settings-tab').forEach(function (panel) {
+			panel.style.display = (panel.id === 'at-settings-tab-' + tabKey) ? '' : 'none';
+		});
+	}
+
+	tabLinks.forEach(function (link) {
+		link.addEventListener('click', function (e) {
+			e.preventDefault();
+			const tabKey = link.getAttribute('data-at-tab');
+			activateTab(tabKey);
+			window.location.hash = tabKey;
+		});
+	});
+
+	const initialTab = window.location.hash ? window.location.hash.replace('#', '') : 'general';
+	const validTabs = Array.prototype.map.call(tabLinks, function (link) {
+		return link.getAttribute('data-at-tab');
+	});
+	activateTab(validTabs.indexOf(initialTab) !== -1 ? initialTab : 'general');
+
+	// ==========================================
+	// Payment tab: Cash / UPI toggle.
+	// ==========================================
+	const paymentMethodRadios = document.querySelectorAll('input[name="at_payment_method"]');
+	const upiFields = document.getElementById('at_upi_fields');
+
+	function toggleUpiFields() {
+		if (!upiFields) {
+			return;
+		}
+		const checked = document.querySelector('input[name="at_payment_method"]:checked');
+		upiFields.style.display = (checked && checked.value === 'upi') ? '' : 'none';
+	}
+
+	paymentMethodRadios.forEach(function (radio) {
+		radio.addEventListener('change', toggleUpiFields);
+	});
+	toggleUpiFields();
+});
+
+/**
+ * Color picker fields.
+ */
+if (typeof jQuery !== 'undefined') {
+	jQuery(function ($) {
+		$('.at-color-picker').wpColorPicker();
+	});
+}
+
+/**
+ * Site Logo media uploader.
+ */
+if (typeof jQuery !== 'undefined') {
+	jQuery(function ($) {
+		const logoInput = document.getElementById('at_site_logo');
+		const logoPreview = document.getElementById('at_site_logo_preview');
+		const logoSelectBtn = document.getElementById('at_site_logo_select_btn');
+		const logoRemoveBtn = document.getElementById('at_site_logo_remove_btn');
+
+		if (!logoInput || !logoSelectBtn || typeof wp === 'undefined' || !wp.media) {
+			return;
+		}
+
+		let logoFrame;
+
+		logoSelectBtn.addEventListener('click', function (e) {
+			e.preventDefault();
+
+			if (logoFrame) {
+				logoFrame.open();
+				return;
+			}
+
+			logoFrame = wp.media({
+				title: 'Select Site Logo',
+				button: { text: 'Use this image' },
+				multiple: false,
+				library: { type: 'image' }
+			});
+
+			logoFrame.on('select', function () {
+				const attachment = logoFrame.state().get('selection').first().toJSON();
+				logoInput.value = attachment.url;
+				logoPreview.innerHTML = '<img src="' + attachment.url + '" class="at-logo-preview-img" />';
+				if (logoRemoveBtn) {
+					logoRemoveBtn.style.display = '';
+				}
+			});
+
+			logoFrame.open();
+		});
+
+		if (logoRemoveBtn) {
+			logoRemoveBtn.addEventListener('click', function (e) {
+				e.preventDefault();
+				logoInput.value = '';
+				logoPreview.innerHTML = '';
+				logoRemoveBtn.style.display = 'none';
+			});
+		}
+	});
+}
+
+/**
+ * UPI QR Code media uploader.
+ */
+if (typeof jQuery !== 'undefined') {
+	jQuery(function ($) {
+		const qrInput = document.getElementById('at_upi_qr_code');
+		const qrPreview = document.getElementById('at_upi_qr_code_preview');
+		const qrSelectBtn = document.getElementById('at_upi_qr_code_select_btn');
+		const qrRemoveBtn = document.getElementById('at_upi_qr_code_remove_btn');
+
+		if (!qrInput || !qrSelectBtn || typeof wp === 'undefined' || !wp.media) {
+			return;
+		}
+
+		let qrFrame;
+
+		qrSelectBtn.addEventListener('click', function (e) {
+			e.preventDefault();
+
+			if (qrFrame) {
+				qrFrame.open();
+				return;
+			}
+
+			qrFrame = wp.media({
+				title: 'Select UPI QR Code Image',
+				button: { text: 'Use this image' },
+				multiple: false,
+				library: { type: 'image' }
+			});
+
+			qrFrame.on('select', function () {
+				const attachment = qrFrame.state().get('selection').first().toJSON();
+				qrInput.value = attachment.url;
+				qrPreview.innerHTML = '<img src="' + attachment.url + '" class="at-qr-code-preview-img" />';
+				if (qrRemoveBtn) {
+					qrRemoveBtn.style.display = '';
+				}
+			});
+
+			qrFrame.open();
+		});
+
+		if (qrRemoveBtn) {
+			qrRemoveBtn.addEventListener('click', function (e) {
+				e.preventDefault();
+				qrInput.value = '';
+				qrPreview.innerHTML = '';
+				qrRemoveBtn.style.display = 'none';
+			});
+		}
+	});
+}

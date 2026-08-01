@@ -55,6 +55,15 @@ document.addEventListener('DOMContentLoaded', function() {
 	const pickupSelect = document.getElementById('at_checkout_pickup');
 	const pickupInstructions = document.getElementById('at_checkout_pickup_instructions');
 
+	// Payment Modal
+	const paymentModal = document.getElementById('at_payment_modal');
+	const paymentModalClose = document.getElementById('at_payment_modal_close');
+	const paymentBackBtn = document.getElementById('at_payment_back_btn');
+	const paymentConfirmBtn = document.getElementById('at_payment_confirm_btn');
+	const paymentReceiptRows = document.getElementById('at_payment_receipt_rows');
+	const paymentGrandTotal = document.getElementById('at_payment_grand_total');
+	const paymentMethodBox = document.getElementById('at_payment_method_box');
+
 	// Success Modal
 	const successModal = document.getElementById('at_success_modal');
 	const successClose = document.getElementById('at_success_close_btn');
@@ -458,7 +467,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	checkoutCancel.addEventListener('click', closeCheckout);
 
 	// ==========================================
-	// 5. Booking Form Submission
+	// 5. Step 4 -> 4.5: Proceed to Payment
 	// ==========================================
 	checkoutConfirm.addEventListener('click', function() {
 		if (!checkoutTermsAgree.checked) {
@@ -479,6 +488,97 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		}
 
+		openPaymentStep();
+	});
+
+	function openPaymentStep() {
+		// Mirror the price breakdown from the calculator onto the payment step.
+		paymentReceiptRows.innerHTML = receiptRows.innerHTML;
+		paymentGrandTotal.textContent = grandTotalTag.textContent;
+		paymentGrandTotal.setAttribute('data-raw', grandTotalTag.getAttribute('data-raw'));
+
+		renderPaymentMethodBox();
+
+		checkoutModal.style.display = 'none';
+		paymentModal.style.display = 'flex';
+	}
+
+	function renderPaymentMethodBox() {
+		const method = at_booking_obj.payment_method || 'cash';
+
+		if (method === 'upi') {
+			const upiId = at_booking_obj.upi_id || '';
+			const qrCode = at_booking_obj.upi_qr_code || '';
+
+			paymentMethodBox.innerHTML = `
+				<h5 style="margin:0 0 8px 0; font-size:12px; font-weight:600; color:#3c434a;">Pay via UPI</h5>
+				${qrCode ? `<img src="${qrCode}" alt="UPI QR Code" class="at-payment-qr-img" />` : ''}
+				${upiId ? `<p class="at-payment-upi-id"><strong>UPI ID:</strong> <span class="at-upi-id-value">${upiId}</span> <button type="button" class="at-upi-copy-btn" data-upi="${upiId}" title="Copy UPI ID"><span class="dashicons dashicons-clipboard"></span></button></p>` : ''}
+				<p style="margin:5px 0 0 0; font-size:11px; color:#666;">Scan the QR code or pay to the UPI ID above, then confirm your reservation below.</p>
+			`;
+		} else {
+			paymentMethodBox.innerHTML = `
+				<h5 style="margin:0 0 8px 0; font-size:12px; font-weight:600; color:#3c434a;">Pay via Cash</h5>
+				<p style="margin:0; font-size:11px; color:#666;">Please pay the total amount in cash at the time of reporting/pickup.</p>
+			`;
+		}
+	}
+
+	function copyToClipboard(text) {
+		if (navigator.clipboard && window.isSecureContext) {
+			return navigator.clipboard.writeText(text);
+		}
+		// Fallback for non-secure contexts / older browsers.
+		const textarea = document.createElement('textarea');
+		textarea.value = text;
+		textarea.style.position = 'fixed';
+		textarea.style.opacity = '0';
+		document.body.appendChild(textarea);
+		textarea.focus();
+		textarea.select();
+		try {
+			document.execCommand('copy');
+		} catch (err) {
+			// Ignore; nothing more we can do without Clipboard API support.
+		}
+		document.body.removeChild(textarea);
+		return Promise.resolve();
+	}
+
+	paymentMethodBox.addEventListener('click', function(e) {
+		const btn = e.target.closest('.at-upi-copy-btn');
+		if (!btn) return;
+
+		const upi = btn.getAttribute('data-upi');
+		copyToClipboard(upi).then(function() {
+			const original = btn.innerHTML;
+			btn.innerHTML = '<span class="dashicons dashicons-yes"></span>';
+			btn.classList.add('copied');
+			setTimeout(function() {
+				btn.innerHTML = original;
+				btn.classList.remove('copied');
+			}, 1500);
+		});
+	});
+
+	function closePaymentStep() {
+		paymentModal.style.display = 'none';
+	}
+
+	paymentBackBtn.addEventListener('click', function() {
+		closePaymentStep();
+		checkoutModal.style.display = 'flex';
+	});
+
+	paymentModalClose.addEventListener('click', function() {
+		closePaymentStep();
+		closeCheckout();
+	});
+
+	// ==========================================
+	// 6. Booking Form Submission (final confirmation on the Payment step)
+	// ==========================================
+	paymentConfirmBtn.addEventListener('click', function() {
 		const adults = parseInt(inputAdults.value) || 1;
 		const children = parseInt(inputChildren.value) || 0;
 		const total = grandTotalTag.getAttribute('data-raw');
@@ -504,9 +604,16 @@ document.addEventListener('DOMContentLoaded', function() {
 			fd.append('addons[]', addon);
 		});
 
-		checkoutModal.style.display = 'none';
-		datesLoading.style.display = 'flex';
-		datesLoading.innerHTML = '<span class="dashicons dashicons-update" style="animation: spin 2s linear infinite; margin-right: 8px;"></span> Creating your booking reservation...';
+		const originalConfirmBtnHtml = paymentConfirmBtn.innerHTML;
+		paymentConfirmBtn.disabled = true;
+		paymentBackBtn.disabled = true;
+		paymentConfirmBtn.innerHTML = '<span class="dashicons dashicons-update" style="animation: spin 2s linear infinite; margin-right: 6px;"></span> Processing...';
+
+		function restorePaymentButtons() {
+			paymentConfirmBtn.disabled = false;
+			paymentBackBtn.disabled = false;
+			paymentConfirmBtn.innerHTML = originalConfirmBtnHtml;
+		}
 
 		fetch(ajaxUrl, {
 			method: 'POST',
@@ -514,18 +621,17 @@ document.addEventListener('DOMContentLoaded', function() {
 		})
 			.then(res => res.json())
 			.then(data => {
-				datesLoading.style.display = 'none';
+				restorePaymentButtons();
 				if (data.success) {
+					paymentModal.style.display = 'none';
 					showSuccessReceipt(data.data);
 				} else {
 					alert('Booking failed: ' + data.data.message);
-					checkoutModal.style.display = 'flex';
 				}
 			})
 			.catch(err => {
+				restorePaymentButtons();
 				alert('Network error during checkout.');
-				datesLoading.style.display = 'none';
-				checkoutModal.style.display = 'flex';
 			});
 	});
 
@@ -537,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			<p><strong>Date</strong>: ${res.date}</p>
 			<p><strong>Seats Booked</strong>: ${res.seats}</p>
 			${res.pickup_point ? `<p><strong>Pickup Location</strong>: ${res.pickup_point}</p>` : ''}
-			<p style="border-top:1px solid #ddd; padding-top:8px; margin-top:8px; font-weight:bold; color:#137a7f; font-size:14px;"><strong>Amount Paid</strong>: ${currency} ${parseFloat(res.total).toFixed(2)}</p>
+			<p style="border-top:1px solid #ddd; padding-top:8px; margin:8px 0 0 0; font-weight:bold; color:#137a7f; font-size:14px;"><strong>Amount Paid</strong>: ${currency} ${parseFloat(res.total).toFixed(2)}</p>
 		`;
 		successModal.style.display = 'flex';
 	}

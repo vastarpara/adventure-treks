@@ -23,7 +23,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Currently active version of the plugin.
  */
-define( 'ADVENTURE_TREKS_VERSION', '1.0.0' );
+define( 'ADVENTURE_TREKS_VERSION', '1.0.2' );
 
 /**
  * Base directory path for the plugin.
