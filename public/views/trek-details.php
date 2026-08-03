@@ -137,7 +137,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div id="trek_itinerary_container">
 						<?php
 						if ( $default_city_id ) {
-							echo do_shortcode( '[trek_itinerary city_id="' . $default_city_id . '"]' );
+							echo do_shortcode( '[adventure_itinerary city_id="' . $default_city_id . '"]' );
 						} else {
 							echo '<p style="color:#666; font-style:italic;">' . esc_html__( 'Please select a departure city to load the itinerary.', 'adventure-treks' ) . '</p>';
 						}

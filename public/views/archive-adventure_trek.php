@@ -26,7 +26,7 @@ get_header();
 	</header>
 
 	<?php if ( have_posts() ) : ?>
-		<div class="at-trek-archive-grid at-trek-archive-cols-3">
+		<div class="at-trek-archive-grid" style="--at-archive-cols: 3;">
 			<?php
 			while ( have_posts() ) :
 				the_post();

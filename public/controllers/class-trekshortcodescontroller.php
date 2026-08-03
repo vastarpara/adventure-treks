@@ -22,9 +22,14 @@ class TrekShortcodesController {
 	 * Constructor.
 	 */
 	public function __construct() {
-		// Register Shortcodes.
+		// Register Shortcodes (adventure_ names are canonical; trek_ names kept as legacy aliases).
+		add_shortcode( 'adventure_details', array( $this, 'render_trek_details' ) );
 		add_shortcode( 'trek_details', array( $this, 'render_trek_details' ) );
+
+		add_shortcode( 'adventure_itinerary', array( $this, 'render_trek_itinerary' ) );
 		add_shortcode( 'trek_itinerary', array( $this, 'render_trek_itinerary' ) );
+
+		add_shortcode( 'adventure_list', array( $this, 'render_trek_archive' ) );
 		add_shortcode( 'trek_archive', array( $this, 'render_trek_archive' ) );
 
 		// Override single/archive templates for adventure_trek CPT.
@@ -99,7 +104,7 @@ class TrekShortcodesController {
 	/**
 	 * Build the HTML for one trek's archive/grid card (thumbnail, starting
 	 * price badge, meta row, optional excerpt, and a "View Details" link).
-	 * Shared by the [trek_archive] shortcode/widget view and the native
+	 * Shared by the [adventure_list] shortcode/widget view and the native
 	 * archive-adventure_trek.php template so both stay visually identical.
 	 *
 	 * Must be called from within a loop iteration (after the_post()) so
@@ -196,7 +201,11 @@ class TrekShortcodesController {
 			true
 		);
 
-		if ( is_singular( 'adventure_trek' ) || ( get_post() && has_shortcode( get_post()->post_content, 'trek_details' ) ) || ( get_post() && has_shortcode( get_post()->post_content, 'trek_itinerary' ) ) ) {
+		$at_post_content = get_post() ? get_post()->post_content : '';
+		if ( is_singular( 'adventure_trek' )
+			|| has_shortcode( $at_post_content, 'adventure_details' ) || has_shortcode( $at_post_content, 'trek_details' )
+			|| has_shortcode( $at_post_content, 'adventure_itinerary' ) || has_shortcode( $at_post_content, 'trek_itinerary' )
+		) {
 			wp_enqueue_style( 'at-public-details-css' );
 			wp_enqueue_script( 'at-public-details-js' );
 		}
@@ -209,13 +218,13 @@ class TrekShortcodesController {
 			ADVENTURE_TREKS_VERSION
 		);
 
-		if ( is_post_type_archive( 'adventure_trek' ) || ( get_post() && has_shortcode( get_post()->post_content, 'trek_archive' ) ) ) {
+		if ( is_post_type_archive( 'adventure_trek' ) || has_shortcode( $at_post_content, 'adventure_list' ) || has_shortcode( $at_post_content, 'trek_archive' ) ) {
 			wp_enqueue_style( 'at-public-archive-css' );
 		}
 	}
 
 	/**
-	 * Shortcode Renderer for [trek_details].
+	 * Shortcode Renderer for [adventure_details] (alias: [trek_details]).
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string
@@ -276,7 +285,7 @@ class TrekShortcodesController {
 	}
 
 	/**
-	 * Shortcode Renderer for [trek_archive]. Also used by the "Trek Archive Grid" Elementor widget.
+	 * Shortcode Renderer for [adventure_list] (alias: [trek_archive]). Also used by the "Trek Archive Grid" Elementor widget.
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string
@@ -286,6 +295,7 @@ class TrekShortcodesController {
 
 		$args = shortcode_atts(
 			array(
+				'include'        => '',
 				'posts_per_page' => 9,
 				'columns'        => 3,
 				'orderby'        => 'date',
@@ -295,32 +305,45 @@ class TrekShortcodesController {
 				'pagination'     => 'yes',
 			),
 			$atts,
-			'trek_archive'
+			'adventure_list'
 		);
 
+		$include_ids = array_filter( array_map( 'intval', explode( ',', $args['include'] ) ) );
+
 		$posts_per_page  = max( 1, intval( $args['posts_per_page'] ) );
-		$columns         = in_array( intval( $args['columns'] ), array( 2, 3, 4 ), true ) ? intval( $args['columns'] ) : 3;
+		$columns         = max( 1, min( 6, intval( $args['columns'] ) ) );
 		$orderby         = in_array( $args['orderby'], array( 'date', 'title', 'menu_order', 'rand' ), true ) ? $args['orderby'] : 'date';
 		$order           = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
 		$show_excerpt    = 'yes' === $args['show_excerpt'];
 		$show_price      = 'yes' === $args['show_price'];
-		$show_pagination = 'yes' === $args['pagination'];
+		$show_pagination = ! empty( $include_ids ) ? false : 'yes' === $args['pagination'];
 
 		// Dedicated query var (not core's `paged`) so this loop's pagination never
 		// collides with the host page's own main-query pagination.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$current_page = isset( $_GET['at_trek_page'] ) ? max( 1, absint( wp_unslash( $_GET['at_trek_page'] ) ) ) : 1;
 
-		$query = new \WP_Query(
-			array(
+		if ( ! empty( $include_ids ) ) {
+			// Manual selection: show exactly the chosen treks, in the order picked, no pagination.
+			$query_args = array(
+				'post_type'      => 'adventure_trek',
+				'post_status'    => 'publish',
+				'post__in'       => $include_ids,
+				'orderby'        => 'post__in',
+				'posts_per_page' => count( $include_ids ),
+			);
+		} else {
+			$query_args = array(
 				'post_type'      => 'adventure_trek',
 				'post_status'    => 'publish',
 				'posts_per_page' => $posts_per_page,
 				'paged'          => $current_page,
 				'orderby'        => $orderby,
 				'order'          => $order,
-			)
-		);
+			);
+		}
+
+		$query = new \WP_Query( $query_args );
 
 		ob_start();
 		$view_path = plugin_dir_path( __DIR__ ) . 'views/trek-archive.php';
@@ -332,7 +355,7 @@ class TrekShortcodesController {
 	}
 
 	/**
-	 * Shortcode Renderer for [trek_itinerary].
+	 * Shortcode Renderer for [adventure_itinerary] (alias: [trek_itinerary]).
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string

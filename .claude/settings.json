@@ -43,7 +43,12 @@
       "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\public\\\\views\\\\trek-archive.php\")",
       "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\includes\\\\elementor\\\\widgets\\\\class-trekdetailswidget.php\")",
       "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\includes\\\\elementor\\\\widgets\\\\class-trekbookingwidget.php\")",
-      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\public\\\\views\\\\archive-adventure_trek.php\")"
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\public\\\\views\\\\archive-adventure_trek.php\")",
+      "Bash(php -l \"d:\\\\wamp64\\\\www\\\\wp701\\\\wp-content\\\\plugins\\\\adventure-treks\\\\adventure-treks.php\")",
+      "Bash(wp --version)",
+      "Bash(find / -maxdepth 4 -iname \"wp-cli*.phar\" 2>/dev/null; which php; php -v | head -1)",
+      "Read(//d//**)",
+      "Bash(php \"C:\\\\Users\\\\TECHES~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--wamp64-www-wp701-wp-content-plugins-adventure-treks\\\\45aaad69-1b61-4875-ba45-3f2bdfd8b3e6\\\\scratchpad\\\\make-pot.php\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\Techeshta\\AppData\\Local\\Temp\\fz3temp-2"

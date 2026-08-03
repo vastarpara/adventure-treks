@@ -28,8 +28,8 @@ Whether you're running Himalayan treks, weekend hikes, or multi-day expeditions,
 * ✅ **Highlights & Things to Carry** — give travelers a clear checklist of trip highlights and packing essentials.
 * ❓ **FAQ & Policies** — built-in structured sections for frequently asked questions and cancellation/booking policies.
 * 🔌 **REST API Ready** — first-class REST endpoints to fetch treks, trek details, departure cities, and dates/availability for headless or app integrations.
-* 🎨 **Elementor Widgets** — drag-and-drop **Trek Details**, **Trek Booking**, and **Trek Archive Grid** (with pagination) widgets under a dedicated "Adventure Treks" category.
-* ✏️ **Shortcodes** — drop `[trek_details]`, `[trek_itinerary]`, `[trek_booking]`, and `[trek_archive]` anywhere to render trek content without touching code.
+* 🎨 **Elementor Widgets** — drag-and-drop **Adventure Details**, **Adventure Booking**, and **Adventure List** (with pagination) widgets under a dedicated "Adventure Treks" category.
+* ✏️ **Shortcodes** — drop `[adventure_details]`, `[adventure_itinerary]`, `[adventure_booking]`, and `[adventure_list]` anywhere to render trek content without touching code (legacy `trek_*` names still work).
 * 📄 **Native Archive & Single Templates** — a ready-to-use, paginated Trek archive page and a full single-trek layout that work out of the box in any theme or editor (Gutenberg, classic, or Elementor).
 * 🧭 **Day-wise Itinerary Builder** — plan and display detailed, day-by-day trip itineraries.
 * 💳 **Cash & UPI Payments** — a configurable Payment step (Cash or UPI with QR code + one-tap copy of the UPI ID) shown before booking confirmation.
@@ -50,43 +50,50 @@ Whether you're running Himalayan treks, weekend hikes, or multi-day expeditions,
 1. Upload the `adventure-treks` folder to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 3. Head to the new **Adventure Treks** menu to start adding treks, departure cities, dates, and pricing.
-4. Use the `[trek_details]`, `[trek_itinerary]`, `[trek_booking]`, and `[trek_archive]` shortcodes — or the Elementor widgets — to display treks anywhere on your site.
+4. Use the `[adventure_details]`, `[adventure_itinerary]`, `[adventure_booking]`, and `[adventure_list]` shortcodes — or the Elementor widgets — to display treks anywhere on your site.
 
 == Shortcodes ==
 
-= [trek_details] =
+Each shortcode below also accepts its original legacy tag name (shown in parentheses) for backward compatibility with content created before these shortcodes were renamed.
+
+= [adventure_details] (alias: [trek_details]) =
 
 Displays the full specs, highlights, itinerary, FAQ, policies, and gallery for a single trek.
 
-`[trek_details id="123"]`
+`[adventure_details id="123"]`
 
 * `id` — (optional) Trek post ID. Defaults to the current post when placed on a trek's own page.
 
-= [trek_booking] =
+= [adventure_booking] (alias: [trek_booking]) =
 
 Displays the AJAX booking widget (city/date selection, live pricing, checkout) for a single trek.
 
-`[trek_booking id="123"]`
+`[adventure_booking id="123"]`
 
 * `id` — (optional) Trek post ID. Defaults to the current post when placed on a trek's own page.
 
-= [trek_itinerary] =
+= [adventure_itinerary] (alias: [trek_itinerary]) =
 
 Displays the day-wise itinerary timeline for a departure city.
 
-`[trek_itinerary trek_id="123" city_id="4"]`
+`[adventure_itinerary trek_id="123" city_id="4"]`
 
 * `trek_id` — (optional) Trek post ID. Defaults to the current post.
 * `city_id` — (optional) Departure city ID. Defaults to the trek's first active city.
 
-= [trek_archive] =
+= [adventure_list] (alias: [trek_archive]) =
 
 Displays a paginated grid of treks (thumbnail, starting price, duration/difficulty/region, excerpt, and a "View Details" button).
 
-`[trek_archive posts_per_page="6" columns="3" orderby="date" order="DESC" show_excerpt="yes" show_price="yes" pagination="yes"]`
+`[adventure_list posts_per_page="6" columns="3" orderby="date" order="DESC" show_excerpt="yes" show_price="yes" pagination="yes"]`
 
+Or show a hand-picked set of treks instead of a query (matches the widget's "Manual Selection" mode — ignores `posts_per_page`/`orderby`/`order`/`pagination`, shown in the order listed):
+
+`[adventure_list include="12,45,7" columns="3" show_excerpt="yes" show_price="yes"]`
+
+* `include` — (optional) Comma-separated Trek post IDs to show, in that exact order. When set, `posts_per_page`, `orderby`, `order`, and `pagination` are ignored.
 * `posts_per_page` — (optional) Number of treks per page. Default `9`.
-* `columns` — (optional) Grid columns: `2`, `3`, or `4`. Default `3`.
+* `columns` — (optional) Number of grid columns (1–6). Default `3`.
 * `orderby` — (optional) `date`, `title`, `menu_order`, or `rand`. Default `date`.
 * `order` — (optional) `ASC` or `DESC`. Default `DESC`.
 * `show_excerpt` — (optional) `yes` or `no`. Default `yes`.
@@ -105,7 +112,7 @@ Yes, every departure date tracks total, booked, and available seats, and the fro
 
 = Does it work with Elementor? =
 
-Yes, dedicated **Trek Details** and **Trek Booking** widgets are available under the "Adventure Treks" category in Elementor.
+Yes, dedicated **Adventure Details**, **Adventure Booking**, and **Adventure List** widgets are available under the "Adventure Treks" category in Elementor.
 
 = Is there a REST API? =
 

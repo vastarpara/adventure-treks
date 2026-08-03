@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div class="at-trek-archive-wrapper">
 	<?php if ( $query->have_posts() ) : ?>
-		<div class="at-trek-archive-grid at-trek-archive-cols-<?php echo esc_attr( $columns ); ?>">
+		<div class="at-trek-archive-grid" style="--at-archive-cols: <?php echo esc_attr( $columns ); ?>;">
 			<?php
 			while ( $query->have_posts() ) :
 				$query->the_post();

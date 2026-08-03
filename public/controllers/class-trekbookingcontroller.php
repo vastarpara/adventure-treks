@@ -22,7 +22,8 @@ class TrekBookingController {
 	 * Constructor.
 	 */
 	public function __construct() {
-		// Register Shortcodes.
+		// Register Shortcodes (adventure_booking is canonical; trek_booking kept as a legacy alias).
+		add_shortcode( 'adventure_booking', array( $this, 'render_booking_widget' ) );
 		add_shortcode( 'trek_booking', array( $this, 'render_booking_widget' ) );
 
 		// Register AJAX actions (no privileges required for public visitors).
@@ -86,14 +87,17 @@ class TrekBookingController {
 			)
 		);
 
-		if ( is_singular( 'adventure_trek' ) || ( get_post() && has_shortcode( get_post()->post_content, 'trek_booking' ) ) ) {
+		$at_post_content = get_post() ? get_post()->post_content : '';
+		if ( is_singular( 'adventure_trek' )
+			|| has_shortcode( $at_post_content, 'adventure_booking' ) || has_shortcode( $at_post_content, 'trek_booking' )
+		) {
 			wp_enqueue_style( 'at-public-booking-css' );
 			wp_enqueue_script( 'at-public-booking-js' );
 		}
 	}
 
 	/**
-	 * Shortcode Renderer for [trek_booking].
+	 * Shortcode Renderer for [adventure_booking] (alias: [trek_booking]).
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string

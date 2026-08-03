@@ -7,27 +7,15 @@
 }
 
 .at-trek-archive-grid {
+	--at-archive-cols: 3;
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+	grid-template-columns: repeat(var(--at-archive-cols), 1fr);
 	gap: 24px;
 }
 
-.at-trek-archive-cols-2 {
-	grid-template-columns: repeat(2, 1fr);
-}
-
-.at-trek-archive-cols-3 {
-	grid-template-columns: repeat(3, 1fr);
-}
-
-.at-trek-archive-cols-4 {
-	grid-template-columns: repeat(4, 1fr);
-}
-
 @media (max-width: 900px) {
-	.at-trek-archive-cols-3,
-	.at-trek-archive-cols-4 {
-		grid-template-columns: repeat(2, 1fr);
+	.at-trek-archive-grid {
+		grid-template-columns: repeat(min(var(--at-archive-cols), 2), 1fr);
 	}
 }
 

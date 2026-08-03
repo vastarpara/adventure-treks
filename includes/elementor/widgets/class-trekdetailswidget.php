@@ -33,7 +33,7 @@ class TrekDetailsWidget extends \Elementor\Widget_Base {
 	 * @return string
 	 */
 	public function get_title() {
-		return esc_html__( 'Trek Details Panel', 'adventure-treks' );
+		return esc_html__( 'Adventure Details', 'adventure-treks' );
 	}
 
 	/**
@@ -117,7 +117,7 @@ class TrekDetailsWidget extends \Elementor\Widget_Base {
 		}
 
 		if ( $trek_id && get_post_type( $trek_id ) === 'adventure_trek' ) {
-			echo do_shortcode( '[trek_details id="' . $trek_id . '"]' );
+			echo do_shortcode( '[adventure_details id="' . $trek_id . '"]' );
 		} else {
 			echo '<p style="color:#666; font-style:italic;">' . esc_html__( 'Please select a valid Trek CPT or insert this widget into a Trek single post page.', 'adventure-treks' ) . '</p>';
 		}

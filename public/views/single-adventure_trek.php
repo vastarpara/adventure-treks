@@ -168,14 +168,14 @@ while ( have_posts() ) :
 			<?php endif; ?>
 
 			<!-- Trek Details Shortcode (specs, highlights, itinerary, FAQs, policies, gallery) -->
-			<?php echo do_shortcode( '[trek_details id="' . $trek_id . '"]' ); ?>
+			<?php echo do_shortcode( '[adventure_details id="' . $trek_id . '"]' ); ?>
 
 		</div>
 
 		<!-- SIDEBAR -->
 		<div class="at-single-sidebar">
 			<!-- Booking Widget Shortcode -->
-			<?php echo do_shortcode( '[trek_booking id="' . $trek_id . '"]' ); ?>
+			<?php echo do_shortcode( '[adventure_booking id="' . $trek_id . '"]' ); ?>
 		</div>
 
 	</div><!-- /.at-single-body -->

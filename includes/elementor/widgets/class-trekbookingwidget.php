@@ -33,7 +33,7 @@ class TrekBookingWidget extends \Elementor\Widget_Base {
 	 * @return string
 	 */
 	public function get_title() {
-		return esc_html__( 'Trek Booking Sidebar', 'adventure-treks' );
+		return esc_html__( 'Adventure Booking', 'adventure-treks' );
 	}
 
 	/**
@@ -117,7 +117,7 @@ class TrekBookingWidget extends \Elementor\Widget_Base {
 		}
 
 		if ( $trek_id && get_post_type( $trek_id ) === 'adventure_trek' ) {
-			echo do_shortcode( '[trek_booking id="' . $trek_id . '"]' );
+			echo do_shortcode( '[adventure_booking id="' . $trek_id . '"]' );
 		} else {
 			echo '<p style="color:#666; font-style:italic;">' . esc_html__( 'Please select a valid Trek CPT or insert this widget into a Trek single post page.', 'adventure-treks' ) . '</p>';
 		}
