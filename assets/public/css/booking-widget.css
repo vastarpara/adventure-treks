@@ -9,14 +9,17 @@
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 	padding: 25px;
 	max-width: 480px;
+	width: 100%;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	color: #333333;
 	margin: 20px auto;
 	box-sizing: border-box;
+	overflow-x: hidden;
 }
 
 .at-booking-widget-wrapper * {
 	box-sizing: border-box;
+	min-width: 0;
 }
 
 /* Header */
@@ -310,8 +313,10 @@
 
 .at-addon-checkbox-item {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: space-between;
 	align-items: center;
+	gap: 6px;
 	padding: 8px 10px;
 	background: #fafafa;
 	border: 1px solid #e5e5e5;
@@ -347,6 +352,51 @@
 	color: var(--at-primary-color, #137a7f);
 }
 
+/* Transportation Type options */
+.at-transport-options-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.at-transport-option-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 10px;
+	padding: 10px 12px;
+	background: #fafafa;
+	border: 1px solid #e5e5e5;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: border-color 0.2s, background 0.2s;
+}
+
+.at-transport-option-item:has(input:checked) {
+	border-color: var(--at-primary-color, #137a7f);
+	background: color-mix(in srgb, var(--at-primary-color, #137a7f) 6%, white);
+}
+
+.at-transport-option-item input[type="radio"] {
+	margin: 0;
+	flex-shrink: 0;
+}
+
+.at-transport-option-name {
+	flex-grow: 1;
+	font-size: 13px;
+	font-weight: 600;
+	color: #333;
+	overflow-wrap: break-word;
+}
+
+.at-transport-option-price {
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--at-primary-color, #137a7f);
+	flex-shrink: 0;
+}
+
 /* Receipt breakdown */
 .at-booking-receipt {
 	background: #f9f9f9;
@@ -367,10 +417,27 @@
 	padding-bottom: 10px;
 }
 
+/* Each line item is injected from JS as an inline-styled flex row (label + amount)
+   shared by both the widget and payment-modal receipts (same .at-receipt-rows class,
+   different IDs); these rules add the wrap/shrink behavior the inline styles don't
+   set, so a long label ("Adults Price (3 x ₹1599.00)") never forces the widget
+   wider than its box. */
+.at-receipt-rows > div {
+	flex-wrap: wrap;
+	row-gap: 2px;
+}
+
+.at-receipt-rows > div > span:first-child {
+	overflow-wrap: break-word;
+	word-break: break-word;
+}
+
 .at-receipt-total {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	flex-wrap: wrap;
+	gap: 4px;
 	font-size: 14px;
 	font-weight: 700;
 	color: #222;
@@ -652,10 +719,49 @@
 	line-height: 1.4;
 }
 
+.at-day-toggle-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: transparent !important;
+	border: none !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	padding: 0 0 15px !important;
+	margin: 0;
+	color: var(--at-primary-color, #137a7f) !important;
+	font-size: 12px;
+	font-weight: 700;
+	text-decoration: none !important;
+	text-transform: none;
+	cursor: pointer;
+}
+
+.at-day-toggle-btn:hover,
+.at-day-toggle-btn:focus {
+	background: transparent !important;
+	color: var(--at-primary-color, #137a7f) !important;
+	text-decoration: none !important;
+}
+
+.at-day-toggle-btn .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	transition: transform 0.2s ease;
+}
+
+.at-timeline-day-block.expanded .at-day-toggle-btn .dashicons {
+	transform: rotate(180deg);
+}
+
 .at-timeline-events {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.3s ease;
 }
 
 .at-timeline-event-card {
@@ -728,4 +834,157 @@
 	max-width: 100%;
 	height: auto;
 	border-radius: 4px;
+}
+
+/* Sticky Bottom Booking Bar */
+.at-sticky-booking-bar {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	background: #fff;
+	border-top: 1px solid #e5e5e5;
+	box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+	padding: 12px 24px;
+	padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+.at-sticky-bar-price {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 2px 6px;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.at-sticky-bar-label {
+	font-size: 13px;
+	font-weight: 600;
+	color: #555;
+	flex-shrink: 0;
+}
+
+.at-sticky-bar-amount {
+	font-size: 20px;
+	font-weight: 800;
+	color: var(--at-primary-color, #137a7f);
+	white-space: nowrap;
+}
+
+.at-sticky-bar-unit {
+	font-size: 12px;
+	color: #777;
+	white-space: nowrap;
+}
+
+.at-sticky-bar-cta {
+	flex-shrink: 0;
+	background: var(--at-primary-color, #137a7f);
+	color: #fff;
+	border: none;
+	font-weight: 700;
+	font-size: 14px;
+	padding: 12px 28px;
+	border-radius: 8px;
+	cursor: pointer;
+	box-shadow: 0 4px 12px rgba(19, 122, 127, 0.25);
+	transition: opacity 0.2s;
+	white-space: nowrap;
+}
+
+.at-sticky-bar-cta:hover {
+	opacity: 0.9;
+}
+
+/* ── Mobile responsive pass ─────────────────────────────────────── */
+@media (max-width: 600px) {
+	.at-booking-widget-wrapper {
+		padding: 18px;
+		margin: 12px auto;
+		border-radius: 10px;
+	}
+
+	.at-widget-header h3 {
+		font-size: 17px;
+	}
+
+	.at-city-pill-btn {
+		padding: 9px 14px;
+		font-size: 12px;
+	}
+
+	.at-dates-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.at-widget-details-grid {
+		grid-template-columns: repeat(3, 1fr);
+		gap: 6px;
+	}
+
+	.at-detail-card {
+		padding: 8px 5px;
+	}
+
+	.at-detail-label {
+		font-size: 9px;
+	}
+
+	.at-detail-value {
+		font-size: 10px;
+	}
+
+	.at-transport-option-name {
+		font-size: 12px;
+	}
+
+	.at-transport-option-price {
+		font-size: 11px;
+	}
+
+	.at-sticky-booking-bar {
+		padding: 10px 14px;
+		padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+	}
+	.at-sticky-bar-amount {
+		font-size: 17px;
+	}
+	.at-sticky-bar-label,
+	.at-sticky-bar-unit {
+		font-size: 11px;
+	}
+	.at-sticky-bar-cta {
+		padding: 11px 18px;
+		font-size: 13px;
+	}
+}
+
+/* Very narrow phones: stack the sticky bar's price above a full-width CTA rather
+   than risk the two ever competing for the same line. */
+@media (max-width: 360px) {
+	.at-sticky-booking-bar {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 8px;
+	}
+	.at-sticky-bar-price {
+		justify-content: center;
+	}
+	.at-sticky-bar-cta {
+		width: 100%;
+	}
+
+	.at-dates-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.at-widget-details-grid {
+		grid-template-columns: 1fr;
+	}
 }

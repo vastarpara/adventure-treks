@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	// Widget Sections
 	const cityPills = document.getElementById('at_widget_city_pills');
+	const transportSection = document.getElementById('at_widget_transport_section');
+	const transportList = document.getElementById('at_widget_transport_list');
 	const dateSection = document.getElementById('at_widget_date_section');
 	const datesGrid = document.getElementById('at_widget_dates_grid');
 	const datesLoading = document.getElementById('at_widget_dates_loading');
@@ -69,10 +71,32 @@ document.addEventListener('DOMContentLoaded', function() {
 	const successClose = document.getElementById('at_success_close_btn');
 	const successReceiptBody = document.getElementById('at_success_receipt_body');
 
+	// Sticky Bottom Booking Bar
+	const stickyBar = document.getElementById('at_sticky_booking_bar');
+	const stickyBarAmount = document.getElementById('at_sticky_bar_amount');
+	const stickyBarUnit = document.getElementById('at_sticky_bar_unit');
+	const stickyBarCta = document.getElementById('at_sticky_bar_cta');
+
 	// Internal State
 	let selectedCityId = null;
 	let selectedDateId = null;
 	let dateDetails = null; // Holds the currently loaded AJAX date specs
+	let selectedTransport = null; // { name, price } — currently chosen Transportation Type
+	let stickyBarPriceKnown = false; // True once a real price has been computed at least once
+
+	// URL ?date= sync: read once on load (consumed by the first renderDates() call),
+	// and kept updated afterwards on every date selection so the page stays shareable/bookmarkable.
+	let pendingUrlDate = new URLSearchParams(window.location.search).get('date');
+
+	function updateUrlDate(dateStr) {
+		const url = new URL(window.location.href);
+		if (dateStr) {
+			url.searchParams.set('date', dateStr);
+		} else {
+			url.searchParams.delete('date');
+		}
+		window.history.replaceState({}, '', url);
+	}
 
 	// ==========================================
 	// 1. Step 1: Click City Pill
@@ -89,15 +113,205 @@ document.addEventListener('DOMContentLoaded', function() {
 			selectedCityId = parseInt(button.getAttribute('data-id'));
 			selectedDateId = null;
 			dateDetails = null;
+			selectedTransport = null;
 
 			// Close panels
+			if (transportSection) transportSection.style.display = 'none';
 			dateSection.style.display = 'none';
 			detailsSection.style.display = 'none';
 			if (detailsLoading) detailsLoading.style.display = 'none';
 
-			// Load dates
+			// Load transportation options and dates in parallel.
+			fetchTransportOptions();
 			fetchDates();
 		});
+
+		// Auto-select the first available city on load so the widget never sits empty;
+		// the user can still freely pick a different one.
+		const firstCityBtn = cityPills.querySelector('.at-city-pill-btn');
+		if (firstCityBtn) {
+			firstCityBtn.click();
+		}
+	}
+
+	// ==========================================
+	// 1a. Step 2: Transportation Type (loaded right after City selection)
+	// ==========================================
+	function fetchTransportOptions() {
+		if (!selectedCityId || !transportSection || !transportList) return;
+
+		const url = `${ajaxUrl}?action=at_get_transport_options&city_id=${selectedCityId}&nonce=${nonce}`;
+
+		fetch(url)
+			.then(res => res.json())
+			.then(data => {
+				const payload = data.success ? data.data : {};
+				const options = Array.isArray(payload.options) ? payload.options : [];
+				renderTransportOptions(options, parseFloat(payload.adult_price) || 0, parseFloat(payload.offer_price) || 0);
+			});
+	}
+
+	// ==========================================
+	// Sticky Bottom Booking Bar
+	// ==========================================
+	function isBookingModalOpen() {
+		return (checkoutModal && checkoutModal.style.display === 'flex')
+			|| (paymentModal && paymentModal.style.display === 'flex')
+			|| (successModal && successModal.style.display === 'flex');
+	}
+
+	// Single source of truth for whether the bar should currently be on screen:
+	// a real price must be known, and no checkout/payment/success modal (which
+	// already has its own form fields and CTA) may be open underneath it.
+	let baseBodyPaddingBottom = null; // Theme's own body padding, captured once, so we add to it rather than clobber it.
+	function refreshStickyBar() {
+		if (!stickyBar) return;
+
+		if (baseBodyPaddingBottom === null) {
+			baseBodyPaddingBottom = parseFloat(window.getComputedStyle(document.body).paddingBottom) || 0;
+		}
+
+		if (stickyBarPriceKnown && !isBookingModalOpen()) {
+			stickyBar.style.display = 'flex';
+			document.body.style.paddingBottom = (baseBodyPaddingBottom + stickyBar.offsetHeight) + 'px';
+		} else {
+			stickyBar.style.display = 'none';
+			document.body.style.paddingBottom = baseBodyPaddingBottom + 'px';
+		}
+	}
+
+	// Shows the actual grand total the customer will pay, so it visibly moves the
+	// instant participant count, transport, add-ons, etc. change — a per-person
+	// average would often show the same number after a quantity change whenever no
+	// group discount applies, which reads as "stuck"/broken even though it wasn't.
+	// For a single traveller it reads as "/ Person" per the original spec; for more
+	// than one it switches to "for N people" so the total is never ambiguous.
+	function updateStickyBar(totalPrice, totalPax) {
+		if (!stickyBarAmount) return;
+		stickyBarAmount.textContent = `${currency}${totalPrice.toFixed(2)}`;
+		if (stickyBarUnit) {
+			stickyBarUnit.textContent = totalPax > 1
+				? `for ${totalPax} people`
+				: '/ Person';
+		}
+		stickyBarPriceKnown = true;
+		refreshStickyBar();
+	}
+
+	if (stickyBarCta) {
+		stickyBarCta.addEventListener('click', function() {
+			if (dateDetails && checkoutBtn) {
+				checkoutBtn.click();
+			} else if (root) {
+				root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		});
+	}
+
+	window.addEventListener('resize', refreshStickyBar);
+
+	// Watch the checkout/payment/success modals directly (rather than hooking every
+	// individual open/close call site) so the bar reliably hides the instant any of
+	// them opens — it must never sit on top of the checkout form's fields — and
+	// reappears the instant they close.
+	if ('MutationObserver' in window) {
+		const modalObserver = new MutationObserver(refreshStickyBar);
+		[checkoutModal, paymentModal, successModal].forEach(function(modal) {
+			if (modal) modalObserver.observe(modal, { attributes: true, attributeFilter: ['style'] });
+		});
+	}
+
+	// Keep the "Per Person Rate" card (and child rate) in sync with the customer's
+	// Transportation Type choice: its surcharge is folded directly into the shown
+	// per-person price rather than appearing as a separate line, so this must be
+	// re-run whenever the transport selection changes, not just on date load.
+	function updatePriceTag() {
+		if (!dateDetails) return;
+
+		const transportPrice = selectedTransport ? selectedTransport.price : 0;
+
+		const adultBase = parseFloat(dateDetails.offer_price) > 0 ? parseFloat(dateDetails.offer_price) : parseFloat(dateDetails.adult_price);
+		priceTag.textContent = `${currency} ${(adultBase + transportPrice).toFixed(2)}`;
+
+		if (parseFloat(dateDetails.offer_price) > 0 && parseFloat(dateDetails.adult_price) > 0) {
+			priceCross.textContent = `${currency} ${(parseFloat(dateDetails.adult_price) + transportPrice).toFixed(2)}`;
+			priceCross.style.display = 'inline';
+		} else {
+			priceCross.style.display = 'none';
+		}
+
+		// Child Price details
+		if (parseFloat(dateDetails.child_price) > 0) {
+			childPriceTag.textContent = `Child Rate: ${currency} ${(parseFloat(dateDetails.child_price) + transportPrice).toFixed(2)}`;
+			childPriceTag.style.display = 'block';
+			childRow.style.display = 'flex';
+		} else {
+			childPriceTag.style.display = 'none';
+			childRow.style.display = 'none';
+			inputChildren.value = 0; // Reset
+		}
+	}
+
+	// Keep the "Transport Type" detail card (Step 4) in sync with the customer's
+	// actual radio choice from Step 2, instead of the city's static description text.
+	function updateTransportDisplay() {
+		if (!textTransport) return;
+		if (selectedTransport) {
+			textTransport.textContent = selectedTransport.name;
+		} else if (dateDetails) {
+			textTransport.textContent = dateDetails.transport_type || 'Self';
+		}
+	}
+
+	function renderTransportOptions(options, cityAdultPrice, cityOfferPrice) {
+		if (!transportSection || !transportList) return;
+
+		if (!options.length) {
+			// Nothing configured for this city — skip the step entirely.
+			transportSection.style.display = 'none';
+			transportList.innerHTML = '';
+			selectedTransport = null;
+			updateTransportDisplay();
+			updatePriceTag();
+			return;
+		}
+
+		transportSection.style.display = 'block';
+		transportList.innerHTML = '';
+
+		// A ₹0.00 additional price (e.g. "Non AC Train") reads as broken/free, so show the
+		// resulting per-person price instead: the offer price, or the adult price if no
+		// offer price is set.
+		const basePriceForZero = cityOfferPrice > 0 ? cityOfferPrice : cityAdultPrice;
+
+		options.forEach((opt, idx) => {
+			const price = parseFloat(opt.price) || 0;
+			const priceLabel = price > 0
+				? '+' + currency + price.toFixed(2)
+				: currency + basePriceForZero.toFixed(2);
+			const label = document.createElement('label');
+			label.className = 'at-transport-option-item';
+
+			label.innerHTML = `
+				<input type="radio" name="at_widget_transport" value="${opt.name}" data-price="${price}" ${idx === 0 ? 'checked' : ''} />
+				<span class="at-transport-option-name">${opt.name}</span>
+				<span class="at-transport-option-price">${priceLabel}</span>
+			`;
+
+			label.querySelector('input').addEventListener('change', function() {
+				selectedTransport = { name: opt.name, price: price };
+				updateTransportDisplay();
+				updatePriceTag();
+				calculateTotal();
+			});
+
+			transportList.appendChild(label);
+		});
+
+		// Auto-select the first option; the user can still change it.
+		selectedTransport = { name: options[0].name, price: parseFloat(options[0].price) || 0 };
+		updateTransportDisplay();
+		updatePriceTag();
 	}
 
 	function fetchDates() {
@@ -121,31 +335,43 @@ document.addEventListener('DOMContentLoaded', function() {
 			});
 	}
 
+	// Resolve the date-picker badge purely from the admin-selected status,
+	// so "Few Seats" never leaks the exact count and "Seat Count" always shows it.
+	function resolveDateBadge(d) {
+		const seats = parseInt(d.available_seats) || 0;
+
+		if (d.status === 'sold_out' || seats <= 0) {
+			return { cls: 'sold', text: 'Sold Out', soldOut: true };
+		}
+		if (d.status === 'few_seats') {
+			return { cls: 'few', text: 'Few Seats', soldOut: false };
+		}
+		if (d.status === 'seat_count') {
+			return { cls: 'few', text: `${seats} left`, soldOut: false };
+		}
+		return { cls: 'open', text: 'Seats open', soldOut: false };
+	}
+
 	function renderDates(dates) {
 		datesGrid.innerHTML = '';
+		let urlMatchBtn = null;
+		let firstAvailableBtn = null;
+
 		dates.forEach(d => {
 			const btn = document.createElement('button');
 			btn.type = 'button';
 			btn.className = 'at-date-select-btn';
 			btn.setAttribute('data-id', d.id);
 
-			// Check sold out
-			const isSoldOut = d.status === 'sold_out' || parseInt(d.available_seats) <= 0;
+			const badge = resolveDateBadge(d);
+			const isSoldOut = badge.soldOut;
 			if (isSoldOut) {
 				btn.classList.add('sold-out');
 				btn.disabled = true;
 			}
 
-			// Resolve badge class
-			let badgeClass = 'open';
-			let badgeText = 'Seats open';
-			if (isSoldOut) {
-				badgeClass = 'sold';
-				badgeText = 'Sold Out';
-			} else if (d.status === 'few_seats' || parseInt(d.available_seats) <= 3) {
-				badgeClass = 'few';
-				badgeText = `${d.available_seats} left`;
-			}
+			const badgeClass = badge.cls;
+			const badgeText = badge.text;
 
 			btn.innerHTML = `
 				<span class="at-date-val">${d.formatted_date}</span>
@@ -156,13 +382,27 @@ document.addEventListener('DOMContentLoaded', function() {
 				if (isSoldOut) return;
 				datesGrid.querySelectorAll('.at-date-select-btn').forEach(b => b.classList.remove('active'));
 				btn.classList.add('active');
-				
+
 				selectedDateId = parseInt(d.id);
+				updateUrlDate(d.departure_date);
 				fetchBookingDetails();
 			});
 
+			if (!isSoldOut) {
+				if (!firstAvailableBtn) firstAvailableBtn = btn;
+				if (pendingUrlDate && d.departure_date === pendingUrlDate) urlMatchBtn = btn;
+			}
+
 			datesGrid.appendChild(btn);
 		});
+
+		// Auto-select: honor a shared/bookmarked ?date= on the very first render,
+		// otherwise fall back to the first available date. The user can still change it.
+		const autoBtn = urlMatchBtn || firstAvailableBtn;
+		pendingUrlDate = null;
+		if (autoBtn) {
+			autoBtn.click();
+		}
 	}
 
 	// ==========================================
@@ -196,40 +436,30 @@ document.addEventListener('DOMContentLoaded', function() {
 	function configureDetailsPanel() {
 		if (!dateDetails) return;
 
-		// 1. Configure Seats
-		let seatsMsg = `${dateDetails.available_seats} Seats`;
-		if (dateDetails.available_seats <= 3) {
-			seatsMsg = `<span style="color:#b32d2e; font-weight:700;">Only ${dateDetails.available_seats} Left!</span>`;
-		} else if (dateDetails.available_seats <= 8) {
+		// 1. Configure Seats — driven by the admin-selected departure date status.
+		const availSeats = parseInt(dateDetails.available_seats) || 0;
+		let seatsMsg;
+		if (dateDetails.status === 'sold_out' || availSeats <= 0) {
+			seatsMsg = `<span style="color:#b32d2e; font-weight:700;">Sold Out</span>`;
+		} else if (dateDetails.status === 'few_seats') {
 			seatsMsg = `<span style="color:#d68100; font-weight:700;">Few Seats Left</span>`;
+		} else if (dateDetails.status === 'seat_count') {
+			seatsMsg = availSeats <= 3
+				? `<span style="color:#b32d2e; font-weight:700;">Only ${availSeats} Left!</span>`
+				: `${availSeats} Seats`;
+		} else {
+			seatsMsg = `<span style="color:#385723; font-weight:700;">Seats Open</span>`;
 		}
 		textAvail.innerHTML = seatsMsg;
 
-		// 2. Transport & Reporting
-		textTransport.textContent = dateDetails.transport_type || 'Self';
+		// 2. Transport & Reporting — prefer the customer's Step 2 selection,
+		// falling back to the city's default transport description if no
+		// Transportation Options are configured for this city.
+		updateTransportDisplay();
 		textReporting.textContent = dateDetails.reporting_time || 'N/A';
 
-		// 3. Price Display
-		const price = parseFloat(dateDetails.offer_price) > 0 ? dateDetails.offer_price : dateDetails.adult_price;
-		priceTag.textContent = `${currency} ${parseFloat(price).toFixed(2)}`;
-
-		if (parseFloat(dateDetails.offer_price) > 0 && parseFloat(dateDetails.adult_price) > 0) {
-			priceCross.textContent = `${currency} ${parseFloat(dateDetails.adult_price).toFixed(2)}`;
-			priceCross.style.display = 'inline';
-		} else {
-			priceCross.style.display = 'none';
-		}
-
-		// Child Price details
-		if (parseFloat(dateDetails.child_price) > 0) {
-			childPriceTag.textContent = `Child Rate: ${currency} ${parseFloat(dateDetails.child_price).toFixed(2)}`;
-			childPriceTag.style.display = 'block';
-			childRow.style.display = 'flex';
-		} else {
-			childPriceTag.style.display = 'none';
-			childRow.style.display = 'none';
-			inputChildren.value = 0; // Reset
-		}
+		// 3. Price Display (includes the selected Transportation Type's surcharge)
+		updatePriceTag();
 
 		// 4. Add-ons List
 		if (dateDetails.optional_addons && dateDetails.optional_addons.length > 0) {
@@ -318,12 +548,18 @@ document.addEventListener('DOMContentLoaded', function() {
 		const children = parseInt(inputChildren.value) || 0;
 		const totalPax = adults + children;
 
+		// The selected Transportation Type's surcharge is folded directly into the
+		// per-person rate below rather than shown as its own breakdown line.
+		const transportPrice = selectedTransport ? selectedTransport.price : 0;
+
 		// 1. Adults price
-		const rateAdult = parseFloat(dateDetails.offer_price) > 0 ? parseFloat(dateDetails.offer_price) : parseFloat(dateDetails.adult_price);
+		const rateAdultBase = parseFloat(dateDetails.offer_price) > 0 ? parseFloat(dateDetails.offer_price) : parseFloat(dateDetails.adult_price);
+		const rateAdult = rateAdultBase + transportPrice;
 		const priceAdultsSum = adults * rateAdult;
 
 		// 2. Children price
-		const rateChild = parseFloat(dateDetails.child_price);
+		const rateChildBase = parseFloat(dateDetails.child_price) || 0;
+		const rateChild = rateChildBase > 0 ? rateChildBase + transportPrice : 0;
 		const priceChildrenSum = children * rateChild;
 
 		let subtotal = priceAdultsSum + priceChildrenSum;
@@ -405,6 +641,10 @@ document.addEventListener('DOMContentLoaded', function() {
 		receiptRows.innerHTML = markup;
 		grandTotalTag.textContent = `${currency} ${subtotal.toFixed(2)}`;
 		grandTotalTag.setAttribute('data-raw', subtotal);
+
+		// Sticky bottom bar mirrors this total on every price-affecting change
+		// (city, date, transport, pax, add-ons — calculateTotal() already runs on all of them).
+		updateStickyBar(subtotal, totalPax);
 	}
 
 	// ==========================================
@@ -428,6 +668,10 @@ document.addEventListener('DOMContentLoaded', function() {
 			});
 
 			pickupSelect.required = true;
+
+			// Auto-select the first pickup point; the user can still change it.
+			pickupSelect.selectedIndex = 1;
+			pickupSelect.dispatchEvent(new Event('change'));
 		} else {
 			pickupField.style.display = 'none';
 			pickupSelect.innerHTML = '';
@@ -598,6 +842,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		fd.append('num_adults', adults);
 		fd.append('num_children', children);
 		fd.append('total_price', total);
+		fd.append('transport_name', selectedTransport ? selectedTransport.name : '');
+		fd.append('transport_price', selectedTransport ? selectedTransport.price : 0);
 		fd.append('nonce', nonce);
 
 		chosenAddons.forEach(addon => {
@@ -643,6 +889,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			<p><strong>Date</strong>: ${res.date}</p>
 			<p><strong>Seats Booked</strong>: ${res.seats}</p>
 			${res.pickup_point ? `<p><strong>Pickup Location</strong>: ${res.pickup_point}</p>` : ''}
+			${res.transport_name ? `<p><strong>Transportation</strong>: ${res.transport_name}${parseFloat(res.transport_price) > 0 ? ' (+' + currency + parseFloat(res.transport_price).toFixed(2) + ')' : ''}</p>` : ''}
 			<p style="border-top:1px solid #ddd; padding-top:8px; margin:8px 0 0 0; font-weight:bold; color:#137a7f; font-size:14px;"><strong>Amount Paid</strong>: ${currency} ${parseFloat(res.total).toFixed(2)}</p>
 		`;
 		successModal.style.display = 'flex';

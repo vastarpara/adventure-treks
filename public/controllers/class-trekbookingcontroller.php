@@ -30,6 +30,9 @@ class TrekBookingController {
 		add_action( 'wp_ajax_at_get_booking_dates', array( $this, 'ajax_get_dates' ) );
 		add_action( 'wp_ajax_nopriv_at_get_booking_dates', array( $this, 'ajax_get_dates' ) );
 
+		add_action( 'wp_ajax_at_get_transport_options', array( $this, 'ajax_get_transport_options' ) );
+		add_action( 'wp_ajax_nopriv_at_get_transport_options', array( $this, 'ajax_get_transport_options' ) );
+
 		add_action( 'wp_ajax_at_get_booking_details', array( $this, 'ajax_get_booking_details' ) );
 		add_action( 'wp_ajax_nopriv_at_get_booking_details', array( $this, 'ajax_get_booking_details' ) );
 
@@ -180,6 +183,48 @@ class TrekBookingController {
 	}
 
 	/**
+	 * AJAX: Get the selectable Transportation Options for a departure city
+	 * (Non AC Train, 3AC Train, Flight, etc.), shown right after city selection.
+	 */
+	public function ajax_get_transport_options() {
+		check_ajax_referer( 'at_booking_nonce_action', 'nonce' );
+
+		$city_id = isset( $_GET['city_id'] ) ? intval( $_GET['city_id'] ) : 0;
+		if ( ! $city_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid City', 'adventure-treks' ) ) );
+		}
+
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$pricing = $wpdb->get_row(
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			$wpdb->prepare( "SELECT transport_options, adult_price, offer_price FROM {$wpdb->prefix}at_pricing WHERE city_id = %d AND date_id = 0", $city_id ),
+			ARRAY_A
+		);
+
+		if ( $pricing ) {
+			$options     = ! empty( $pricing['transport_options'] ) ? json_decode( $pricing['transport_options'], true ) : array();
+			$adult_price = floatval( $pricing['adult_price'] );
+			$offer_price = floatval( $pricing['offer_price'] );
+		} else {
+			// No pricing row configured yet — fall back to the city's own default pricing.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			$city        = $wpdb->get_row( $wpdb->prepare( "SELECT base_price, offer_price FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $city_id ) );
+			$options     = array();
+			$adult_price = $city ? floatval( $city->base_price ) : 0.00;
+			$offer_price = $city ? floatval( $city->offer_price ) : 0.00;
+		}
+
+		wp_send_json_success(
+			array(
+				'options'     => is_array( $options ) ? $options : array(),
+				'adult_price' => $adult_price,
+				'offer_price' => $offer_price,
+			)
+		);
+	}
+
+	/**
 	 * AJAX: Get complete parameters (price overrides, seats availability, pickup list, transport, itinerary HTML) for a selected date.
 	 */
 	public function ajax_get_booking_details() {
@@ -206,9 +251,13 @@ class TrekBookingController {
 			wp_send_json_error( array( 'message' => __( 'City not found', 'adventure-treks' ) ) );
 		}
 
-		// 2. Fetch date availability
+		// 2. Fetch date availability, status and the actual calendar date
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$avail = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_avail WHERE date_id = %d", $date_id ), ARRAY_A );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$date_row           = $wpdb->get_row( $wpdb->prepare( "SELECT status, departure_date FROM $table_dates WHERE id = %d", $date_id ), ARRAY_A );
+		$date_status        = $date_row ? $date_row['status'] : 'open';
+		$departure_date_val = $date_row ? $date_row['departure_date'] : '';
 
 		// 3. Fetch pricing: look for date override, otherwise load default city rule
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -222,14 +271,15 @@ class TrekBookingController {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$pickups = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_pickups WHERE city_id = %d ORDER BY menu_order ASC", $city_id ), ARRAY_A );
 
-		// 5. Generate formatted itinerary HTML for this city
-		$itinerary_html = $this->generate_itinerary_html( $city_id );
+		// 5. Generate formatted itinerary HTML for this city, dated against the selected departure.
+		$itinerary_html = $this->generate_itinerary_html( $city_id, $departure_date_val );
 
 		// Format output array.
 		$details = array(
 			'transport_type'  => $city['transport_type'],
 			'reporting_time'  => $city['reporting_time'],
 			'google_map_link' => $city['google_map_link'],
+			'status'          => $date_status ? $date_status : 'open',
 			'total_seats'     => $avail ? intval( $avail['total_seats'] ) : 0,
 			'booked_seats'    => $avail ? intval( $avail['booked_seats'] ) : 0,
 			'available_seats' => $avail ? intval( $avail['available_seats'] ) : 0,
@@ -263,6 +313,9 @@ class TrekBookingController {
 		$num_adults   = isset( $_POST['num_adults'] ) ? intval( wp_unslash( $_POST['num_adults'] ) ) : 1;
 		$num_children = isset( $_POST['num_children'] ) ? intval( wp_unslash( $_POST['num_children'] ) ) : 0;
 		$pickup_point = isset( $_POST['pickup_point'] ) ? sanitize_text_field( wp_unslash( $_POST['pickup_point'] ) ) : '';
+
+		$transport_name  = isset( $_POST['transport_name'] ) ? sanitize_text_field( wp_unslash( $_POST['transport_name'] ) ) : '';
+		$transport_price = isset( $_POST['transport_price'] ) ? floatval( wp_unslash( $_POST['transport_price'] ) ) : 0.00;
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$raw_addons  = isset( $_POST['addons'] ) ? wp_unslash( $_POST['addons'] ) : array();
@@ -334,12 +387,14 @@ class TrekBookingController {
 				'seats'          => $seats_requested,
 				'num_adults'     => $num_adults,
 				'num_children'   => $num_children,
-				'pickup_point'   => $pickup_point,
-				'addons'         => wp_json_encode( $addons ),
-				'total_amount'   => $total_price,
-				'status'         => 'pending',
-				'payment_status' => 'pending',
-				'created_at'     => current_time( 'mysql' ),
+				'pickup_point'    => $pickup_point,
+				'addons'          => wp_json_encode( $addons ),
+				'transport_type'  => $transport_name,
+				'transport_price' => $transport_price,
+				'total_amount'    => $total_price,
+				'status'          => 'pending',
+				'payment_status'  => 'pending',
+				'created_at'      => current_time( 'mysql' ),
 			),
 			array(
 				'%d',
@@ -353,6 +408,8 @@ class TrekBookingController {
 				'%d',
 				'%s',
 				'%s',
+				'%s',
+				'%f',
 				'%f',
 				'%s',
 				'%s',
@@ -397,6 +454,10 @@ class TrekBookingController {
 			array(
 				'label' => __( 'Pickup Point', 'adventure-treks' ),
 				'value' => $pickup_point,
+			),
+			array(
+				'label' => __( 'Transportation Type', 'adventure-treks' ),
+				'value' => $transport_name ? $transport_name . ( $transport_price > 0 ? ' (+' . $currency . ' ' . number_format( $transport_price, 2 ) . ')' : '' ) : '',
 			),
 			array(
 				'label' => __( 'Add-ons', 'adventure-treks' ),
@@ -452,14 +513,16 @@ class TrekBookingController {
 		// Return booking summary receipt.
 		wp_send_json_success(
 			array(
-				'message'      => 'Booking request received and pending confirmation!',
-				'trek_title'   => $trek_title,
-				'city_name'    => $city_name,
-				'date'         => $date_formatted,
-				'seats'        => $seats_requested,
-				'total'        => $total_price,
-				'cust_name'    => $cust_name,
-				'pickup_point' => $pickup_point,
+				'message'         => 'Booking request received and pending confirmation!',
+				'trek_title'      => $trek_title,
+				'city_name'       => $city_name,
+				'date'            => $date_formatted,
+				'seats'           => $seats_requested,
+				'total'           => $total_price,
+				'cust_name'       => $cust_name,
+				'pickup_point'    => $pickup_point,
+				'transport_name'  => $transport_name,
+				'transport_price' => $transport_price,
 			)
 		);
 	}
@@ -467,13 +530,17 @@ class TrekBookingController {
 	/**
 	 * Helper: Generate Itinerary layout HTML for a city.
 	 *
-	 * @param int $city_id The departure city ID.
+	 * @param int    $city_id        The departure city ID.
+	 * @param string $departure_date Optional selected departure date (Y-m-d). When given, each
+	 *                               day badge shows its actual calendar date instead of just "Day N".
 	 * @return string
 	 */
-	private function generate_itinerary_html( $city_id ) {
+	private function generate_itinerary_html( $city_id, $departure_date = '' ) {
 		global $wpdb;
 		$table_days  = $wpdb->prefix . 'at_itineraries';
 		$table_items = $wpdb->prefix . 'at_itinerary_items';
+
+		$has_valid_date = (bool) preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $departure_date );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$days = $wpdb->get_results(
@@ -494,10 +561,18 @@ class TrekBookingController {
 				$wpdb->prepare( "SELECT * FROM $table_items WHERE itinerary_id = %d ORDER BY menu_order ASC", $day_id )
 			);
 
+			if ( $has_valid_date ) {
+				$calendar_date = gmdate( 'd M Y', strtotime( $departure_date . ' +' . intval( $day->day_number ) . ' days' ) );
+				/* translators: 1: Day number, 2: Calendar date */
+				$badge_text = sprintf( esc_html__( 'Day %1$d — %2$s', 'adventure-treks' ), intval( $day->day_number ), $calendar_date );
+			} else {
+				/* translators: %d: Day number */
+				$badge_text = sprintf( esc_html__( 'Day %d', 'adventure-treks' ), intval( $day->day_number ) );
+			}
+
 			$html .= '<div class="at-timeline-day-block">';
 			$html .= '  <div class="at-timeline-day-header">';
-			/* translators: %d: Day number */
-			$html .= '     <span class="at-timeline-day-badge">' . sprintf( esc_html__( 'Day %d', 'adventure-treks' ), intval( $day->day_number ) ) . '</span>';
+			$html .= '     <span class="at-timeline-day-badge">' . $badge_text . '</span>';
 			$html .= '     <h4 class="at-timeline-day-title">' . esc_html( $day->title ) . '</h4>';
 			$html .= '  </div>';
 			if ( ! empty( $day->description ) ) {
@@ -505,6 +580,11 @@ class TrekBookingController {
 			}
 
 			if ( ! empty( $items ) ) {
+				$html .= '  <button type="button" class="at-day-toggle-btn" data-label-more="' . esc_attr__( 'Show More', 'adventure-treks' ) . '" data-label-less="' . esc_attr__( 'Show Less', 'adventure-treks' ) . '">';
+				$html .= '     <span class="at-toggle-label">' . esc_html__( 'Show More', 'adventure-treks' ) . '</span>';
+				$html .= '     <span class="dashicons dashicons-arrow-down-alt2"></span>';
+				$html .= '  </button>';
+
 				$html .= '  <div class="at-timeline-events">';
 				foreach ( $items as $item ) {
 					$img_html   = $item->image_url ? '<div class="at-event-media"><img src="' . esc_url( $item->image_url ) . '" /></div>' : '';

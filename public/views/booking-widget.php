@@ -37,9 +37,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 	</div>
 
-	<!-- Step 2: Select Date (Hidden initially until City is selected) -->
+	<!-- Step 2: Select Transportation Type (Hidden initially until City is selected) -->
+	<div class="at-widget-section" id="at_widget_transport_section" style="display: none;">
+		<h4 class="at-section-title"><span class="at-step-badge">2</span> <?php esc_html_e( 'Select Transportation Type', 'adventure-treks' ); ?></h4>
+		<div class="at-transport-options-list" id="at_widget_transport_list">
+			<!-- Populated via AJAX -->
+		</div>
+	</div>
+
+	<!-- Step 3: Select Date (Hidden initially until City is selected) -->
 	<div class="at-widget-section" id="at_widget_date_section" style="display: none;">
-		<h4 class="at-section-title"><span class="at-step-badge">2</span> <?php esc_html_e( 'Select Departure Date', 'adventure-treks' ); ?></h4>
+		<h4 class="at-section-title"><span class="at-step-badge">3</span> <?php esc_html_e( 'Select Departure Date', 'adventure-treks' ); ?></h4>
 		<div class="at-loading-indicator" id="at_widget_dates_loading" style="display:none; padding: 15px 0; align-items: center; color: var(--at-primary-color, #137a7f); font-weight: 600;">
 			<span class="dashicons dashicons-update" style="animation: spin 2s linear infinite; margin-right: 8px;"></span> <?php esc_html_e( 'Finding scheduled slots...', 'adventure-treks' ); ?>
 		</div>
@@ -56,7 +64,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<!-- Step 3: Details Panel & Booking Calculator (Hidden until Date is selected) -->
 	<div class="at-widget-section" id="at_widget_details_section" style="display: none;">
-		<h4 class="at-section-title"><span class="at-step-badge">3</span> <?php esc_html_e( 'Configure Booking Details', 'adventure-treks' ); ?></h4>
+		<h4 class="at-section-title"><span class="at-step-badge">4</span> <?php esc_html_e( 'Configure Booking Details', 'adventure-treks' ); ?></h4>
 		
 		<!-- Availability Badge & Transports Grid -->
 		<div class="at-widget-details-grid">
@@ -231,4 +239,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 	</div>
 
+</div>
+
+<!-- Sticky Bottom Booking Bar (mobile + desktop) -->
+<div class="at-sticky-booking-bar" id="at_sticky_booking_bar" style="display: none;">
+	<div class="at-sticky-bar-price">
+		<span class="at-sticky-bar-label"><?php esc_html_e( 'Total', 'adventure-treks' ); ?>:</span>
+		<span class="at-sticky-bar-amount" id="at_sticky_bar_amount">--</span>
+		<span class="at-sticky-bar-unit" id="at_sticky_bar_unit">/ <?php esc_html_e( 'Person', 'adventure-treks' ); ?></span>
+	</div>
+	<button type="button" class="at-sticky-bar-cta" id="at_sticky_bar_cta">
+		<?php esc_html_e( 'Book Now', 'adventure-treks' ); ?>
+	</button>
 </div>

@@ -91,25 +91,27 @@ class TrekPricingController {
 			);
 
 			$pricing = array(
-				'id'              => 0,
-				'city_id'         => $city_id,
-				'date_id'         => 0,
-				'trek_id'         => $city ? intval( $city->trek_id ) : 0,
-				'adult_price'     => $city ? floatval( $city->base_price ) : 0.00,
-				'child_price'     => 0.00,
-				'offer_price'     => $city ? floatval( $city->offer_price ) : 0.00,
-				'group_discount'  => '[]',
-				'extra_charges'   => '[]',
-				'optional_addons' => '[]',
+				'id'                => 0,
+				'city_id'           => $city_id,
+				'date_id'           => 0,
+				'trek_id'           => $city ? intval( $city->trek_id ) : 0,
+				'adult_price'       => $city ? floatval( $city->base_price ) : 0.00,
+				'child_price'       => 0.00,
+				'offer_price'       => $city ? floatval( $city->offer_price ) : 0.00,
+				'group_discount'    => '[]',
+				'extra_charges'     => '[]',
+				'optional_addons'   => '[]',
+				'transport_options' => '[]',
 			);
 		} else {
-			$pricing['id']              = intval( $pricing['id'] );
-			$pricing['adult_price']     = floatval( $pricing['adult_price'] );
-			$pricing['child_price']     = floatval( $pricing['child_price'] );
-			$pricing['offer_price']     = floatval( $pricing['offer_price'] );
-			$pricing['group_discount']  = ! empty( $pricing['group_discount'] ) ? json_decode( $pricing['group_discount'], true ) : array();
-			$pricing['extra_charges']   = ! empty( $pricing['extra_charges'] ) ? json_decode( $pricing['extra_charges'], true ) : array();
-			$pricing['optional_addons'] = ! empty( $pricing['optional_addons'] ) ? json_decode( $pricing['optional_addons'], true ) : array();
+			$pricing['id']                = intval( $pricing['id'] );
+			$pricing['adult_price']       = floatval( $pricing['adult_price'] );
+			$pricing['child_price']       = floatval( $pricing['child_price'] );
+			$pricing['offer_price']       = floatval( $pricing['offer_price'] );
+			$pricing['group_discount']    = ! empty( $pricing['group_discount'] ) ? json_decode( $pricing['group_discount'], true ) : array();
+			$pricing['extra_charges']     = ! empty( $pricing['extra_charges'] ) ? json_decode( $pricing['extra_charges'], true ) : array();
+			$pricing['optional_addons']   = ! empty( $pricing['optional_addons'] ) ? json_decode( $pricing['optional_addons'], true ) : array();
+			$pricing['transport_options'] = ! empty( $pricing['transport_options'] ) ? json_decode( $pricing['transport_options'], true ) : array();
 		}
 
 		wp_send_json_success( $pricing );
@@ -147,6 +149,8 @@ class TrekPricingController {
 		$extra_charges_input = isset( $_POST['extra_charges'] ) ? wp_unslash( $_POST['extra_charges'] ) : array();
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$optional_addons_input = isset( $_POST['optional_addons'] ) ? wp_unslash( $_POST['optional_addons'] ) : array();
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$transport_options_input = isset( $_POST['transport_options'] ) ? wp_unslash( $_POST['transport_options'] ) : array();
 
 		// Sanitize Group Discounts.
 		$group_discount_data = array();
@@ -191,6 +195,19 @@ class TrekPricingController {
 			}
 		}
 
+		// Sanitize Transportation Options. Price may be 0 (e.g. a "Non AC Train" default option).
+		$transport_options_data = array();
+		if ( is_array( $transport_options_input ) ) {
+			foreach ( $transport_options_input as $option ) {
+				if ( ! empty( $option['name'] ) ) {
+					$transport_options_data[] = array(
+						'name'  => sanitize_text_field( $option['name'] ),
+						'price' => floatval( $option['price'] ),
+					);
+				}
+			}
+		}
+
 		$table_name = $wpdb->prefix . 'at_pricing';
 
 		// Check if record exists.
@@ -201,15 +218,16 @@ class TrekPricingController {
 		);
 
 		$db_data = array(
-			'city_id'         => $city_id,
-			'date_id'         => 0, // Default city pricing.
-			'trek_id'         => $trek_id,
-			'adult_price'     => $adult_price,
-			'child_price'     => $child_price,
-			'offer_price'     => $offer_price,
-			'group_discount'  => wp_json_encode( $group_discount_data ),
-			'extra_charges'   => wp_json_encode( $extra_charges_data ),
-			'optional_addons' => wp_json_encode( $optional_addons_data ),
+			'city_id'           => $city_id,
+			'date_id'           => 0, // Default city pricing.
+			'trek_id'           => $trek_id,
+			'adult_price'       => $adult_price,
+			'child_price'       => $child_price,
+			'offer_price'       => $offer_price,
+			'group_discount'    => wp_json_encode( $group_discount_data ),
+			'extra_charges'     => wp_json_encode( $extra_charges_data ),
+			'optional_addons'   => wp_json_encode( $optional_addons_data ),
+			'transport_options' => wp_json_encode( $transport_options_data ),
 		);
 
 		if ( $exists ) {
@@ -218,7 +236,7 @@ class TrekPricingController {
 				$table_name,
 				$db_data,
 				array( 'id' => $exists ),
-				array( '%d', '%d', '%d', '%f', '%f', '%f', '%s', '%s', '%s' ),
+				array( '%d', '%d', '%d', '%f', '%f', '%f', '%s', '%s', '%s', '%s' ),
 				array( '%d' )
 			);
 		} else {
@@ -226,7 +244,7 @@ class TrekPricingController {
 			$wpdb->insert(
 				$table_name,
 				$db_data,
-				array( '%d', '%d', '%d', '%f', '%f', '%f', '%s', '%s', '%s' )
+				array( '%d', '%d', '%d', '%f', '%f', '%f', '%s', '%s', '%s', '%s' )
 			);
 		}
 

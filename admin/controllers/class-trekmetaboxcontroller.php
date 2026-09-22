@@ -109,6 +109,7 @@ class TrekMetaBoxController {
 				'age_limit'       => '',
 				'group_size'      => '',
 				'highlights'      => '',
+				'exclusions'      => '',
 				'things_to_carry' => '',
 				'faq'             => '',
 				'policies'        => '',
@@ -126,8 +127,6 @@ class TrekMetaBoxController {
 		$policies         = array_merge(
 			array(
 				'cancellation' => '',
-				'refund'       => '',
-				'medical'      => '',
 				'terms'        => '',
 			),
 			is_array( $policies_decoded ) ? $policies_decoded : array()
@@ -177,8 +176,9 @@ class TrekMetaBoxController {
 		$age_limit     = isset( $_POST['at_age_limit'] ) ? sanitize_text_field( wp_unslash( $_POST['at_age_limit'] ) ) : '';
 		$group_size    = isset( $_POST['at_group_size'] ) ? sanitize_text_field( wp_unslash( $_POST['at_group_size'] ) ) : '';
 
-		// Highlights and carry list (saved as newline separated in form, serialized/processed cleanly).
+		// Highlights, exclusions and carry list (saved as newline separated in form, serialized/processed cleanly).
 		$highlights      = isset( $_POST['at_highlights'] ) ? sanitize_textarea_field( wp_unslash( $_POST['at_highlights'] ) ) : '';
+		$exclusions      = isset( $_POST['at_exclusions'] ) ? sanitize_textarea_field( wp_unslash( $_POST['at_exclusions'] ) ) : '';
 		$things_to_carry = isset( $_POST['at_things_to_carry'] ) ? sanitize_textarea_field( wp_unslash( $_POST['at_things_to_carry'] ) ) : '';
 		$gallery         = isset( $_POST['at_gallery'] ) ? sanitize_text_field( wp_unslash( $_POST['at_gallery'] ) ) : '';
 
@@ -201,8 +201,6 @@ class TrekMetaBoxController {
 		// Sanitize Policies.
 		$policies_data = array(
 			'cancellation' => isset( $_POST['at_policy_cancellation'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_cancellation'] ) ) : '',
-			'refund'       => isset( $_POST['at_policy_refund'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_refund'] ) ) : '',
-			'medical'      => isset( $_POST['at_policy_medical'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_medical'] ) ) : '',
 			'terms'        => isset( $_POST['at_policy_terms'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_terms'] ) ) : '',
 		);
 		$policies      = wp_json_encode( $policies_data );
@@ -223,6 +221,7 @@ class TrekMetaBoxController {
 			'age_limit'       => $age_limit,
 			'group_size'      => $group_size,
 			'highlights'      => $highlights,
+			'exclusions'      => $exclusions,
 			'things_to_carry' => $things_to_carry,
 			'faq'             => $faq,
 			'policies'        => $policies,
@@ -235,7 +234,7 @@ class TrekMetaBoxController {
 				$table_name,
 				$db_data,
 				array( 'post_id' => $post_id ),
-				array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
+				array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
 				array( '%d' )
 			);
 		} else {
@@ -243,7 +242,7 @@ class TrekMetaBoxController {
 			$wpdb->insert(
 				$table_name,
 				$db_data,
-				array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
+				array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
 			);
 		}
 

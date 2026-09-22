@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', function () {
 	const dateSelect        = document.getElementById('at_b_date');
 	const pickupRow         = document.getElementById('at_b_pickup_row');
 	const pickupSelect      = document.getElementById('at_b_pickup');
+	const transportRow      = document.getElementById('at_b_transport_row');
+	const transportSelect   = document.getElementById('at_b_transport');
+	const transportPriceInput = document.getElementById('at_b_transport_price');
 	const addonsRow         = document.getElementById('at_b_addons_row');
 	const addonsContainer   = document.getElementById('at_b_addons_container');
 	const adultsInput       = document.getElementById('at_b_adults');
@@ -41,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	if (trekSelect && citySelect && dateSelect) {
 		let currentPricing = null; // Holds the last fetched date/city pricing payload.
+		let currentTransportPrice = 0; // Additional price of the currently selected Transportation Type.
 		let lastValidAdults = adultsInput ? (parseInt(adultsInput.value, 10) || 1) : 1;
 		let lastValidChildren = childrenInput ? (parseInt(childrenInput.value, 10) || 0) : 0;
 
@@ -53,6 +57,16 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 			if (pickupRow) {
 				pickupRow.style.display = 'none';
+			}
+			if (transportSelect) {
+				transportSelect.innerHTML = '<option value="">-- Select Transportation Type --</option>';
+			}
+			if (transportRow) {
+				transportRow.style.display = 'none';
+			}
+			currentTransportPrice = 0;
+			if (transportPriceInput) {
+				transportPriceInput.value = '0.00';
 			}
 			resetAddonsAndPricing();
 
@@ -74,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				});
 
 				if (citySelect.value) {
-					loadDatesAndPickups(citySelect.value, dateSelect.getAttribute('data-selected'), pickupSelect ? pickupSelect.getAttribute('data-selected') : '');
+					loadDatesAndPickups(citySelect.value, dateSelect.getAttribute('data-selected'), pickupSelect ? pickupSelect.getAttribute('data-selected') : '', transportSelect ? transportSelect.getAttribute('data-selected') : '');
 				}
 			});
 		}
@@ -92,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 		}
 
-		function loadDatesAndPickups(cityId, preselectDateId, preselectPickup) {
+		function loadDatesAndPickups(cityId, preselectDateId, preselectPickup, preselectTransport) {
 			dateSelect.innerHTML = '<option value="">-- Loading dates... --</option>';
 			resetAddonsAndPricing();
 
@@ -147,6 +161,47 @@ document.addEventListener('DOMContentLoaded', function () {
 					if (pickupRow) {
 						pickupRow.style.display = '';
 					}
+				});
+			}
+
+			if (transportSelect) {
+				transportSelect.innerHTML = '<option value="">-- Loading transportation options... --</option>';
+				ajaxGet('at_get_transport_options', at_bookings_obj.public_pricing_nonce, { city_id: cityId }, function (payload) {
+					const options = (payload && Array.isArray(payload.options)) ? payload.options : [];
+
+					currentTransportPrice = 0;
+					if (transportPriceInput) {
+						transportPriceInput.value = '0.00';
+					}
+
+					if (!options.length) {
+						transportSelect.innerHTML = '<option value="">-- Select Transportation Type --</option>';
+						if (transportRow) {
+							transportRow.style.display = 'none';
+						}
+						return;
+					}
+
+					transportSelect.innerHTML = '';
+					options.forEach(function (option, idx) {
+						const opt = document.createElement('option');
+						const price = parseFloat(option.price) || 0;
+						opt.value = option.name;
+						opt.setAttribute('data-price', price);
+						opt.textContent = option.name + (price > 0 ? ' (+' + at_bookings_obj.currency + price.toFixed(2) + ')' : '');
+						if (preselectTransport ? preselectTransport === option.name : 0 === idx) {
+							opt.selected = true;
+							currentTransportPrice = price;
+						}
+						transportSelect.appendChild(opt);
+					});
+					if (transportPriceInput) {
+						transportPriceInput.value = currentTransportPrice.toFixed(2);
+					}
+					if (transportRow) {
+						transportRow.style.display = '';
+					}
+					calculateTotal();
 				});
 			}
 		}
@@ -298,6 +353,13 @@ document.addEventListener('DOMContentLoaded', function () {
 				subtotal += amt;
 			});
 
+			// Selected Transportation Type (added per person, on top of everything else).
+			if (transportSelect && transportSelect.value && currentTransportPrice > 0) {
+				const transportAmt = totalPax * currentTransportPrice;
+				markup += '<div style="display:flex; justify-content:space-between;"><span>' + transportSelect.value + ' (' + totalPax + ' x ' + currency + currentTransportPrice.toFixed(2) + ')</span><span>+' + currency + transportAmt.toFixed(2) + '</span></div>';
+				subtotal += transportAmt;
+			}
+
 			markup += '<div style="display:flex; justify-content:space-between; font-weight:700; border-top:1px solid #dcdcde; margin-top:6px; padding-top:6px;"><span>Total</span><span>' + currency + subtotal.toFixed(2) + '</span></div>';
 
 			breakdownEl.innerHTML = markup;
@@ -367,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		});
 
 		citySelect.addEventListener('change', function () {
-			loadDatesAndPickups(citySelect.value, '', '');
+			loadDatesAndPickups(citySelect.value, '', '', '');
 		});
 
 		dateSelect.addEventListener('change', function () {
@@ -378,15 +440,27 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 		});
 
+		if (transportSelect) {
+			transportSelect.addEventListener('change', function () {
+				const selectedOpt = transportSelect.options[transportSelect.selectedIndex];
+				currentTransportPrice = selectedOpt ? (parseFloat(selectedOpt.getAttribute('data-price')) || 0) : 0;
+				if (transportPriceInput) {
+					transportPriceInput.value = currentTransportPrice.toFixed(2);
+				}
+				calculateTotal();
+			});
+		}
+
 		// Bootstrap for Edit mode: pre-fill cascading selects using the stored values.
 		const initialCityId  = citySelect.getAttribute('data-selected');
 		const initialDateId  = dateSelect.getAttribute('data-selected');
 		const initialPickup  = pickupSelect ? pickupSelect.getAttribute('data-selected') : '';
+		const initialTransport = transportSelect ? transportSelect.getAttribute('data-selected') : '';
 
 		if (trekSelect.value) {
 			loadCities(trekSelect.value, initialCityId);
 			if (initialCityId) {
-				loadDatesAndPickups(initialCityId, initialDateId, initialPickup);
+				loadDatesAndPickups(initialCityId, initialDateId, initialPickup, initialTransport);
 			}
 		}
 	}
@@ -440,6 +514,7 @@ document.addEventListener('DOMContentLoaded', function () {
 						['Departure City', data.city_name],
 						['Travel Date', data.departure_date],
 						['Pickup Point', data.pickup_point || '-'],
+						['Transportation Type', data.transport_type ? data.transport_type + (parseFloat(data.transport_price) > 0 ? ' (+' + data.currency + ' ' + parseFloat(data.transport_price).toFixed(2) + ')' : '') : '-'],
 						['Adults', data.num_adults],
 						['Children', data.num_children],
 						['Total Seats', data.seats],

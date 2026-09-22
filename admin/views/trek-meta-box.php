@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<ul class="at-meta-tabs-nav">
 		<li class="active"><a href="#at-tab-general"><?php esc_html_e( 'General Info', 'adventure-treks' ); ?></a></li>
 		<li><a href="#at-tab-gallery"><?php esc_html_e( 'Gallery', 'adventure-treks' ); ?></a></li>
-		<li><a href="#at-tab-highlights"><?php esc_html_e( 'Highlights & Packing', 'adventure-treks' ); ?></a></li>
+		<li><a href="#at-tab-highlights"><?php esc_html_e( 'Inclusions, Exclusions & Packing', 'adventure-treks' ); ?></a></li>
 		<li><a href="#at-tab-faq"><?php esc_html_e( 'FAQ Repeater', 'adventure-treks' ); ?></a></li>
 		<li><a href="#at-tab-policies"><?php esc_html_e( 'Policies', 'adventure-treks' ); ?></a></li>
 	</ul>
@@ -104,9 +104,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div id="at-tab-highlights" class="at-meta-tab-panel">
 			<table class="form-table">
 				<tr>
-					<th><label for="at_highlights"><?php esc_html_e( 'Key Highlights (One per line)', 'adventure-treks' ); ?></label></th>
+					<th><label for="at_highlights"><?php esc_html_e( 'Inclusions / Key Highlights (One per line)', 'adventure-treks' ); ?></label></th>
 					<td>
 						<textarea name="at_highlights" id="at_highlights" rows="8" class="large-text" placeholder="<?php esc_attr_e( "Trek through lush green pine valleys\nExperience camping under starry sky\nStunning views of Mt. Trishul", 'adventure-treks' ); ?>"><?php echo esc_textarea( $trek['highlights'] ); ?></textarea>
+						<p class="description"><?php esc_html_e( 'Shown on the front-end as "Inclusions", with a green checkmark next to each line.', 'adventure-treks' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th><label for="at_exclusions"><?php esc_html_e( 'Exclusions (One per line)', 'adventure-treks' ); ?></label></th>
+					<td>
+						<textarea name="at_exclusions" id="at_exclusions" rows="8" class="large-text" placeholder="<?php esc_attr_e( "Personal trekking gear/equipment rental\nTravel insurance\nMeals not mentioned in the itinerary\nAny costs due to natural calamities or delays", 'adventure-treks' ); ?>"><?php echo esc_textarea( $trek['exclusions'] ); ?></textarea>
+						<p class="description"><?php esc_html_e( 'Shown next to Inclusions on the front-end, with a red cross next to each line.', 'adventure-treks' ); ?></p>
 					</td>
 				</tr>
 				<tr>
@@ -145,25 +153,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<tr>
 					<th><label for="at_policy_cancellation"><?php esc_html_e( 'Cancellation Policy', 'adventure-treks' ); ?></label></th>
 					<td>
-						<textarea name="at_policy_cancellation" id="at_policy_cancellation" rows="4" class="large-text"><?php echo esc_textarea( $policies['cancellation'] ); ?></textarea>
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_policy_refund"><?php esc_html_e( 'Refund Policy', 'adventure-treks' ); ?></label></th>
-					<td>
-						<textarea name="at_policy_refund" id="at_policy_refund" rows="4" class="large-text"><?php echo esc_textarea( $policies['refund'] ); ?></textarea>
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_policy_medical"><?php esc_html_e( 'Medical Disclaimer', 'adventure-treks' ); ?></label></th>
-					<td>
-						<textarea name="at_policy_medical" id="at_policy_medical" rows="4" class="large-text"><?php echo esc_textarea( $policies['medical'] ); ?></textarea>
+						<?php
+						wp_editor(
+							$policies['cancellation'],
+							'at_policy_cancellation',
+							array(
+								'textarea_name' => 'at_policy_cancellation',
+								'textarea_rows' => 8,
+								'media_buttons' => false,
+								'teeny'         => true,
+							)
+						);
+						?>
+						<p class="description"><?php esc_html_e( 'Shown to visitors in a popup after the "Things to Carry" section.', 'adventure-treks' ); ?></p>
 					</td>
 				</tr>
 				<tr>
 					<th><label for="at_policy_terms"><?php esc_html_e( 'Terms & Conditions', 'adventure-treks' ); ?></label></th>
 					<td>
-						<textarea name="at_policy_terms" id="at_policy_terms" rows="4" class="large-text"><?php echo esc_textarea( $policies['terms'] ); ?></textarea>
+						<?php
+						wp_editor(
+							$policies['terms'],
+							'at_policy_terms',
+							array(
+								'textarea_name' => 'at_policy_terms',
+								'textarea_rows' => 8,
+								'media_buttons' => false,
+								'teeny'         => true,
+							)
+						);
+						?>
+						<p class="description"><?php esc_html_e( 'Shown to visitors in a popup after the "Things to Carry" section.', 'adventure-treks' ); ?></p>
 					</td>
 				</tr>
 			</table>

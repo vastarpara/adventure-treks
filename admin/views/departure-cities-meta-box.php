@@ -188,10 +188,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<select id="at_form_date_status" name="status">
 							<option value="" disabled selected><?php esc_html_e( '-- Select Status --', 'adventure-treks' ); ?></option>
 							<option value="open"><?php esc_html_e( 'Open (Available)', 'adventure-treks' ); ?></option>
-							<option value="few_seats"><?php esc_html_e( 'Few Seats Remaining', 'adventure-treks' ); ?></option>
+							<option value="seat_count"><?php esc_html_e( 'Seat Count (Show Remaining Seats)', 'adventure-treks' ); ?></option>
+							<option value="few_seats"><?php esc_html_e( 'Few Seats Remaining (Hide Exact Count)', 'adventure-treks' ); ?></option>
 							<option value="sold_out"><?php esc_html_e( 'Sold Out', 'adventure-treks' ); ?></option>
 							<option value="cancelled"><?php esc_html_e( 'Cancelled', 'adventure-treks' ); ?></option>
 						</select>
+						<span class="description"><?php esc_html_e( 'Controls how availability is shown on the front-end. Total/Booked Seats above still manage the actual count.', 'adventure-treks' ); ?></span>
 					</div>
 
 					<div class="at-form-row">
@@ -429,6 +431,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 					<div id="at_optional_addons_list" style="margin-bottom: 20px;">
 						<!-- Add-ons list -->
+					</div>
+
+					<!-- Transportation Options Repeater -->
+					<div style="display:flex; justify-content:space-between; align-items:center; font-weight: bold; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 15px; color: #23282d; margin-top:20px;">
+						<span><?php esc_html_e( 'Transportation Options', 'adventure-treks' ); ?></span>
+						<button type="button" class="button button-small" id="at_add_transport_option_btn">+ <?php esc_html_e( 'Add Transportation Option', 'adventure-treks' ); ?></button>
+					</div>
+					<p class="description" style="margin: -10px 0 12px;"><?php esc_html_e( 'Shown to visitors as a single choice right after they pick this city. The additional price is added per person on top of the base fare.', 'adventure-treks' ); ?></p>
+					<div id="at_transport_options_list" style="margin-bottom: 20px;">
+						<!-- Transport options list -->
 					</div>
 
 				</div>

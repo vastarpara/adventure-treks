@@ -100,6 +100,15 @@ $at_currency = get_option( 'at_currency_symbol', '₹' );
 						</select>
 					</td>
 				</tr>
+				<tr id="at_b_transport_row" style="display:none;">
+					<th scope="row"><label for="at_b_transport"><?php esc_html_e( 'Transportation Type', 'adventure-treks' ); ?></label></th>
+					<td>
+						<select name="transport_type" id="at_b_transport" class="regular-text" data-selected="<?php echo esc_attr( $at_is_edit ? $booking->transport_type : '' ); ?>">
+							<option value=""><?php esc_html_e( '-- Select Transportation Type --', 'adventure-treks' ); ?></option>
+						</select>
+						<input type="hidden" name="transport_price" id="at_b_transport_price" value="<?php echo esc_attr( $at_is_edit ? $booking->transport_price : '0.00' ); ?>" />
+					</td>
+				</tr>
 				<tr id="at_b_addons_row" style="display:none;">
 					<th scope="row"><?php esc_html_e( 'Add-ons', 'adventure-treks' ); ?></th>
 					<td>

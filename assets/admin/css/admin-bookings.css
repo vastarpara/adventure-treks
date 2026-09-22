@@ -20,6 +20,13 @@
 	padding: 20px 0;
 }
 
+/* Bookings list table columns. */
+.wp-list-table .column-city_name {
+	width: 160px;
+	white-space: normal;
+	word-break: break-word;
+}
+
 /* Add/Edit Booking form. */
 .at-required {
 	color: #d63638;

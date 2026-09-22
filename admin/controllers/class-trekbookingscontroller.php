@@ -227,6 +227,8 @@ class TrekBookingsController {
 		$num_adults   = isset( $_POST['num_adults'] ) ? absint( wp_unslash( $_POST['num_adults'] ) ) : 0;
 		$num_children = isset( $_POST['num_children'] ) ? absint( wp_unslash( $_POST['num_children'] ) ) : 0;
 		$pickup_point = isset( $_POST['pickup_point'] ) ? sanitize_text_field( wp_unslash( $_POST['pickup_point'] ) ) : '';
+		$transport_type  = isset( $_POST['transport_type'] ) ? sanitize_text_field( wp_unslash( $_POST['transport_type'] ) ) : '';
+		$transport_price = isset( $_POST['transport_price'] ) ? floatval( wp_unslash( $_POST['transport_price'] ) ) : 0.00;
 		$total_amount   = isset( $_POST['total_amount'] ) ? floatval( wp_unslash( $_POST['total_amount'] ) ) : 0.00;
 		$status         = isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : 'pending';
 		$payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : 'pending';
@@ -299,22 +301,24 @@ class TrekBookingsController {
 		}
 
 		$data = array(
-			'trek_id'        => $trek_id,
-			'city_id'        => $city_id,
-			'date_id'        => $date_id,
-			'cust_name'      => $cust_name,
-			'cust_email'     => $cust_email,
-			'cust_phone'     => $cust_phone,
-			'seats'          => $seats,
-			'num_adults'     => $num_adults,
-			'num_children'   => $num_children,
-			'pickup_point'   => $pickup_point,
-			'addons'         => $addons,
-			'total_amount'   => $total_amount,
-			'status'         => $status,
-			'payment_status' => $payment_status,
+			'trek_id'         => $trek_id,
+			'city_id'         => $city_id,
+			'date_id'         => $date_id,
+			'cust_name'       => $cust_name,
+			'cust_email'      => $cust_email,
+			'cust_phone'      => $cust_phone,
+			'seats'           => $seats,
+			'num_adults'      => $num_adults,
+			'num_children'    => $num_children,
+			'pickup_point'    => $pickup_point,
+			'addons'          => $addons,
+			'transport_type'  => $transport_type,
+			'transport_price' => $transport_price,
+			'total_amount'    => $total_amount,
+			'status'          => $status,
+			'payment_status'  => $payment_status,
 		);
-		$format = array( '%d', '%d', '%d', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%f', '%s', '%s' );
+		$format = array( '%d', '%d', '%d', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%f', '%f', '%s', '%s' );
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery
 		if ( $booking_id ) {
@@ -342,7 +346,7 @@ class TrekBookingsController {
 
 		// Notify the customer when a new booking is created from admin, or when an existing booking's status changes.
 		if ( ! $old_booking || $old_booking->status !== $status ) {
-			$this->send_status_update_email( $booking_id, $trek_id, $city_id, $date_id, $cust_name, $cust_email, $seats, $num_adults, $num_children, $pickup_point, $total_amount, $status );
+			$this->send_status_update_email( $booking_id, $trek_id, $city_id, $date_id, $cust_name, $cust_email, $seats, $num_adults, $num_children, $pickup_point, $transport_type, $transport_price, $total_amount, $status );
 		}
 
 		$redirect_args['at_saved'] = 1;
@@ -362,12 +366,14 @@ class TrekBookingsController {
 	 * @param int    $seats        Total seats booked.
 	 * @param int    $num_adults   Adult count.
 	 * @param int    $num_children Children count.
-	 * @param string $pickup_point Pickup point label, if any.
-	 * @param float  $total_amount Booking total amount.
-	 * @param string $status       New status: pending, confirmed, or cancelled.
+	 * @param string $pickup_point    Pickup point label, if any.
+	 * @param string $transport_type  Selected Transportation Type label, if any.
+	 * @param float  $transport_price Additional price of the selected Transportation Type.
+	 * @param float  $total_amount    Booking total amount.
+	 * @param string $status          New status: pending, confirmed, or cancelled.
 	 * @return void
 	 */
-	private function send_status_update_email( $booking_id, $trek_id, $city_id, $date_id, $cust_name, $cust_email, $seats, $num_adults, $num_children, $pickup_point, $total_amount, $status ) {
+	private function send_status_update_email( $booking_id, $trek_id, $city_id, $date_id, $cust_name, $cust_email, $seats, $num_adults, $num_children, $pickup_point, $transport_type, $transport_price, $total_amount, $status ) {
 		if ( empty( $cust_email ) ) {
 			return;
 		}
@@ -425,6 +431,10 @@ class TrekBookingsController {
 			array(
 				'label' => __( 'Pickup Point', 'adventure-treks' ),
 				'value' => $pickup_point,
+			),
+			array(
+				'label' => __( 'Transportation Type', 'adventure-treks' ),
+				'value' => $transport_type ? $transport_type . ( $transport_price > 0 ? ' (+' . $currency . ' ' . number_format( $transport_price, 2 ) . ')' : '' ) : '',
 			),
 			array(
 				'label' => __( 'Total Amount', 'adventure-treks' ),

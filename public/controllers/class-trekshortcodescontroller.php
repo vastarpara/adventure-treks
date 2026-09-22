@@ -271,10 +271,28 @@ class TrekShortcodesController {
 
 		$default_city_id = ! empty( $cities ) ? intval( $cities[0]->id ) : 0;
 
+		// Resolve a default departure date for the initial itinerary render: honor
+		// ?date= from a shared/bookmarked URL, otherwise fall back to the first
+		// upcoming scheduled date for the default city.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$requested_date         = isset( $_GET['date'] ) ? sanitize_text_field( wp_unslash( $_GET['date'] ) ) : '';
+		$default_departure_date = '';
+		if ( $requested_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $requested_date ) ) {
+			$default_departure_date = $requested_date;
+		} elseif ( $default_city_id ) {
+			$table_dates = $wpdb->prefix . 'at_departure_dates';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			$default_departure_date = (string) $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT departure_date FROM $table_dates WHERE city_id = %d AND status NOT IN ( 'cancelled', 'sold_out' ) AND departure_date >= CURDATE() ORDER BY departure_date ASC LIMIT 1",
+					$default_city_id
+				)
+			);
+		}
+
 		// Decode lists.
 		$faq_items = ! empty( $trek['faq'] ) ? json_decode( $trek['faq'], true ) : array();
 		$policies  = ! empty( $trek['policies'] ) ? json_decode( $trek['policies'], true ) : array();
-		$gallery   = ! empty( $trek['gallery'] ) ? explode( ',', $trek['gallery'] ) : array();
 
 		ob_start();
 		$view_path = plugin_dir_path( __DIR__ ) . 'views/trek-details.php';
@@ -367,12 +385,15 @@ class TrekShortcodesController {
 			array(
 				'city_id' => 0,
 				'trek_id' => get_the_ID(),
+				'date'    => '',
 			),
 			$atts
 		);
 
-		$city_id = intval( $args['city_id'] );
-		$trek_id = intval( $args['trek_id'] );
+		$city_id        = intval( $args['city_id'] );
+		$trek_id        = intval( $args['trek_id'] );
+		$departure_date = (string) $args['date'];
+		$has_valid_date = (bool) preg_match( '/^\d{4}-\d{2}-\d{2}$/', $departure_date );
 
 		global $wpdb;
 
@@ -421,8 +442,14 @@ class TrekShortcodesController {
 					<div class="at-timeline-day-header">
 						<span class="at-timeline-day-badge">
 							<?php
-							/* translators: %d: Day number */
-							printf( esc_html__( 'Day %d', 'adventure-treks' ), intval( $day->day_number ) );
+							if ( $has_valid_date ) {
+								$calendar_date = gmdate( 'd M Y', strtotime( $departure_date . ' +' . intval( $day->day_number ) . ' days' ) );
+								/* translators: 1: Day number, 2: Calendar date */
+								printf( esc_html__( 'Day %1$d — %2$s', 'adventure-treks' ), intval( $day->day_number ), esc_html( $calendar_date ) );
+							} else {
+								/* translators: %d: Day number */
+								printf( esc_html__( 'Day %d', 'adventure-treks' ), intval( $day->day_number ) );
+							}
 							?>
 						</span>
 						<h4 class="at-timeline-day-title"><?php echo esc_html( $day->title ); ?></h4>
@@ -432,6 +459,11 @@ class TrekShortcodesController {
 					<?php endif; ?>
 
 					<?php if ( ! empty( $items ) ) : ?>
+						<button type="button" class="at-day-toggle-btn" data-label-more="<?php echo esc_attr__( 'Show More', 'adventure-treks' ); ?>" data-label-less="<?php echo esc_attr__( 'Show Less', 'adventure-treks' ); ?>">
+							<span class="at-toggle-label"><?php esc_html_e( 'Show More', 'adventure-treks' ); ?></span>
+							<span class="dashicons dashicons-arrow-down-alt2"></span>
+						</button>
+
 						<div class="at-timeline-events">
 							<?php
 							foreach ( $items as $item ) :
