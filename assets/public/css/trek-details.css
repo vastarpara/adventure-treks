@@ -30,7 +30,12 @@
 
 @media (max-width: 480px) {
 	.at-specs-header-grid {
-		grid-template-columns: 1fr;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px;
+	}
+	.at-spec-item {
+		padding: 12px 10px;
+		min-width: 0;
 	}
 }
 
@@ -80,21 +85,15 @@
 }
 
 /* Tabs */
-/* The whole card (nav + heading + content) sticks as one block, the same
-   way .at-single-sidebar does — not just the nav — so switching tabs and
-   reading a section happens without the tab bar ever scrolling out of view.
-   `overflow: hidden` used to live here to clip the corners, but an
-   `overflow: hidden` ancestor makes itself the sticky element's scroll
-   container, which silently breaks `position: sticky`. Corners are rounded
-   on the nav/content instead so the wrapper can stay overflow:visible. */
+/* Only the tab bar sticks (bounded by this wrapper). Making the whole card
+   sticky let it slide over the Quick Links card that follows it in the same
+   container. No overflow on the wrapper, or sticky would break. */
 .at-details-tabs-wrapper {
 	border: 1px solid #e0e0e0;
 	border-radius: 8px;
 	background: #ffffff;
 	margin-bottom: 40px;
 	box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-	position: sticky;
-	top: var(--at-header-offset, 0px);
 }
 
 .at-details-tabs-nav {
@@ -107,13 +106,24 @@
 	border-radius: 8px 8px 0 0;
 	overflow-x: auto;
 	overflow-y: hidden;
-	-ms-overflow-style: none;  /* IE and Edge */
-	scrollbar-width: none;  /* Firefox */
+	position: sticky;
+	top: var(--at-header-offset, 0px);
+	z-index: 5;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: thin;  /* Firefox */
+	scrollbar-color: var(--at-primary-color, #137a7f) #eef0f2;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
+/* Visible thin scrollbar so users can tell the tabs scroll sideways. */
 .at-details-tabs-nav::-webkit-scrollbar {
-	display: none;
+	height: 6px;
+}
+.at-details-tabs-nav::-webkit-scrollbar-track {
+	background: #eef0f2;
+}
+.at-details-tabs-nav::-webkit-scrollbar-thumb {
+	background: var(--at-primary-color, #137a7f);
+	border-radius: 3px;
 }
 
 .at-details-tabs-nav li {

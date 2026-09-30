@@ -742,6 +742,13 @@
 	background: transparent !important;
 	color: var(--at-primary-color, #137a7f) !important;
 	text-decoration: none !important;
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+.at-day-toggle-btn:focus:not(:focus-visible) {
+	outline: none !important;
+	box-shadow: none !important;
 }
 
 .at-day-toggle-btn .dashicons {

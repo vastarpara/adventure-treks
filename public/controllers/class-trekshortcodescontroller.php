@@ -65,17 +65,9 @@ class TrekShortcodesController {
 			get_header();
 			return;
 		}
-		?>
-		<!DOCTYPE html>
-		<html <?php language_attributes(); ?>>
-		<head>
-		<meta charset="<?php bloginfo( 'charset' ); ?>">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-				<?php wp_head(); ?>
-		</head>
-		<body <?php body_class(); ?>>
-		<?php
-		wp_body_open();
+		// Buffer the body: block parts (e.g. Navigation) enqueue their scripts/modules
+		// while rendering, so wp_head() must run after them (like block templates do).
+		ob_start();
 		echo '<div class="wp-site-blocks">';
 		block_template_part( 'header' );
 	}
@@ -92,6 +84,19 @@ class TrekShortcodesController {
 		}
 		block_template_part( 'footer' );
 		echo '</div>';
+		$body = ob_get_clean();
+		?>
+		<!DOCTYPE html>
+		<html <?php language_attributes(); ?>>
+		<head>
+		<meta charset="<?php bloginfo( 'charset' ); ?>">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<?php wp_head(); ?>
+		</head>
+		<body <?php body_class(); ?>>
+		<?php
+		wp_body_open();
+		echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- already-rendered template output.
 		wp_footer();
 		echo '</body></html>';
 	}

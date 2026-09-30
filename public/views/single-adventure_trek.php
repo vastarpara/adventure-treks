@@ -364,17 +364,28 @@ while ( have_posts() ) :
 	align-items: flex-start;
 }
 @media (max-width: 900px) {
-	.at-single-body { grid-template-columns: 1fr; }
-	.at-single-sidebar { order: -1; }
+	.at-single-body { grid-template-columns: minmax(0, 1fr); }
+	/* Stacked layout: a sticky sidebar would pin over the content below it. */
+	.at-single-sidebar { order: -1; position: static; }
+	/* Match the width of the content cards below instead of a centred 480px box. */
+	.at-single-sidebar .at-booking-widget-wrapper { max-width: none; margin: 0 0 24px; }
 }
 
-/* Main content */
-.at-single-main {}
-
-/* Sidebar sticky */
+/* Main content — min-width:0 lets wide children (tabs, tables) shrink/scroll instead of stretching the grid. */
+.at-single-main,
 .at-single-sidebar {
-	position: sticky;
-	top: calc(var(--at-header-offset, 0px) + 30px);
+	min-width: 0;
+}
+@media (max-width: 600px) {
+	.at-section-card { padding: 20px 16px; }
+}
+
+/* Sidebar sticky (side-by-side layout only) */
+@media (min-width: 901px) {
+	.at-single-sidebar {
+		position: sticky;
+		top: calc(var(--at-header-offset, 0px) + 30px);
+	}
 }
 
 /* Section Cards */
