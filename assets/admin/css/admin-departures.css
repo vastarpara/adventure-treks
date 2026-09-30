@@ -146,6 +146,16 @@
 	gap: 15px;
 }
 
+/* Cities table: fixed layout squeezed the name column to a few px. */
+.at-cities-list-wrapper {
+	overflow-x: auto;
+}
+
+#at_cities_table {
+	table-layout: fixed;
+	width: 100%;
+}
+
 /* Reordering classes */
 .at-row-drag-handle {
 	cursor: move;

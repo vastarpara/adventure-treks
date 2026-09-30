@@ -15,12 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-get_header();
+\AdventureTreks\Public\Controllers\TrekShortcodesController::render_header();
 
 // Ensure we have the post.
 if ( ! have_posts() ) {
 	echo '<p style="padding:40px;text-align:center;">' . esc_html__( 'Trek not found.', 'adventure-treks' ) . '</p>';
-	get_footer();
+	\AdventureTreks\Public\Controllers\TrekShortcodesController::render_footer();
 	return;
 }
 
@@ -644,4 +644,4 @@ while ( have_posts() ) :
 	<?php
 endwhile;
 
-get_footer();
+\AdventureTreks\Public\Controllers\TrekShortcodesController::render_footer();

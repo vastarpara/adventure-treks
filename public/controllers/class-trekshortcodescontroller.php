@@ -54,6 +54,49 @@ class TrekShortcodesController {
 	}
 
 	/**
+	 * Output the site header. Block themes have no header.php, so calling
+	 * get_header() there triggers a deprecation notice; render the document
+	 * head and the block header template part instead.
+	 *
+	 * @return void
+	 */
+	public static function render_header() {
+		if ( ! wp_is_block_theme() ) {
+			get_header();
+			return;
+		}
+		?>
+		<!DOCTYPE html>
+		<html <?php language_attributes(); ?>>
+		<head>
+		<meta charset="<?php bloginfo( 'charset' ); ?>">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+				<?php wp_head(); ?>
+		</head>
+		<body <?php body_class(); ?>>
+		<?php
+		wp_body_open();
+		echo '<div class="wp-site-blocks">';
+		block_template_part( 'header' );
+	}
+
+	/**
+	 * Output the site footer (counterpart of render_header()).
+	 *
+	 * @return void
+	 */
+	public static function render_footer() {
+		if ( ! wp_is_block_theme() ) {
+			get_footer();
+			return;
+		}
+		block_template_part( 'footer' );
+		echo '</div>';
+		wp_footer();
+		echo '</body></html>';
+	}
+
+	/**
 	 * Load plugin's single-adventure_trek.php template for CPT single pages.
 	 *
 	 * Priority order: child theme → parent theme → plugin fallback.

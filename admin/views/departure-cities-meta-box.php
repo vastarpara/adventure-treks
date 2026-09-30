@@ -31,14 +31,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<table class="wp-list-table widefat fixed striped posts" id="at_cities_table">
 			<thead>
 				<tr>
-					<th class="column-order" style="width: 40px;"></th>
-					<th class="column-name"><?php esc_html_e( 'City Name', 'adventure-treks' ); ?></th>
-					<th class="column-price" style="width: 120px;"><?php esc_html_e( 'Base Price', 'adventure-treks' ); ?></th>
-					<th class="column-offer" style="width: 120px;"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></th>
-					<th class="column-transport" style="width: 150px;"><?php esc_html_e( 'Transport', 'adventure-treks' ); ?></th>
-					<th class="column-deadline" style="width: 120px;"><?php esc_html_e( 'Deadline (Days)', 'adventure-treks' ); ?></th>
-					<th class="column-status" style="width: 100px;"><?php esc_html_e( 'Status', 'adventure-treks' ); ?></th>
-					<th class="column-actions" style="width: 280px; text-align: right;"><?php esc_html_e( 'Actions', 'adventure-treks' ); ?></th>
+					<th class="column-order" style="width: 30px;"></th>
+					<th class="column-name" style="width: 120px;"><?php esc_html_e( 'City Name', 'adventure-treks' ); ?></th>
+					<th class="column-price" style="width: 90px;"><?php esc_html_e( 'Base Price', 'adventure-treks' ); ?></th>
+					<th class="column-offer" style="width: 90px;"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></th>
+					<th class="column-transport" style="width: 130px;"><?php esc_html_e( 'Transport', 'adventure-treks' ); ?></th>
+					<th class="column-deadline" style="width: 110px;"><?php esc_html_e( 'Deadline (Days)', 'adventure-treks' ); ?></th>
+					<th class="column-status" style="width: 90px;"><?php esc_html_e( 'Status', 'adventure-treks' ); ?></th>
+					<th class="column-actions" style="text-align: right;"><?php esc_html_e( 'Actions', 'adventure-treks' ); ?></th>
 				</tr>
 			</thead>
 			<tbody id="at_cities_tbody">

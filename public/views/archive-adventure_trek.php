@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-get_header();
+\AdventureTreks\Public\Controllers\TrekShortcodesController::render_header();
 ?>
 
 <div class="at-trek-archive-wrapper" style="max-width:1200px; margin:30px auto; padding:0 20px;">
@@ -53,4 +53,4 @@ get_header();
 </div>
 
 <?php
-get_footer();
+\AdventureTreks\Public\Controllers\TrekShortcodesController::render_footer();
