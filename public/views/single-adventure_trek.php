@@ -35,6 +35,23 @@ while ( have_posts() ) :
 	$at_trek_row     = $wpdb->get_row( $wpdb->prepare( "SELECT gallery, duration FROM {$wpdb->prefix}at_treks WHERE post_id = %d", $trek_id ), ARRAY_A );
 	$at_gallery_raw  = $at_trek_row ? $at_trek_row['gallery'] : '';
 	$at_trek_duration = $at_trek_row ? $at_trek_row['duration'] : '';
+
+	// "From" price: the cheapest active departure city (offer price when set, else base price).
+	$at_currency    = get_option( 'at_currency_symbol', '₹' );
+	$at_from_price  = 0;
+	$at_from_strike = 0;
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+	$at_price_rows  = $wpdb->get_results( $wpdb->prepare( "SELECT base_price, offer_price FROM {$wpdb->prefix}at_departure_cities WHERE trek_id = %d AND status = 'active'", $trek_id ), ARRAY_A );
+	foreach ( (array) $at_price_rows as $at_price_row ) {
+		$at_base  = floatval( $at_price_row['base_price'] );
+		$at_offer = floatval( $at_price_row['offer_price'] );
+		$at_eff   = ( $at_offer > 0 && $at_offer < $at_base ) ? $at_offer : $at_base;
+		if ( $at_eff > 0 && ( 0 === $at_from_price || $at_eff < $at_from_price ) ) {
+			$at_from_price  = $at_eff;
+			$at_from_strike = $at_eff < $at_base ? $at_base : 0;
+		}
+	}
+
 	$at_gallery_ids  = ! empty( $at_gallery_raw ) ? array_filter( array_map( 'intval', explode( ',', $at_gallery_raw ) ) ) : array();
 
 	$at_hero_images = array();
@@ -319,6 +336,30 @@ while ( have_posts() ) :
 	margin: 0;
 	line-height: 1.6;
 }
+.at-hero-from-price {
+	display: flex;
+	align-items: baseline;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 12px;
+}
+.at-hero-from-label,
+.at-hero-from-unit {
+	font-size: 13px;
+	color: #6b7280;
+	font-weight: 600;
+}
+.at-hero-from-strike {
+	font-size: 14px;
+	color: #9ca3af;
+	text-decoration: line-through;
+}
+.at-hero-from-amount {
+	font-size: 24px;
+	font-weight: 800;
+	color: var(--at-primary-color, #137a7f);
+	line-height: 1;
+}
 .at-hero-share-btn {
 	flex-shrink: 0;
 	display: flex !important;
@@ -518,6 +559,16 @@ while ( have_posts() ) :
 					<h1><?php the_title(); ?></h1>
 					<?php if ( has_excerpt() ) : ?>
 						<p class="at-hero-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
+					<?php endif; ?>
+					<?php if ( $at_from_price > 0 ) : ?>
+						<div class="at-hero-from-price">
+							<span class="at-hero-from-label"><?php esc_html_e( 'From', 'adventure-treks' ); ?></span>
+							<?php if ( $at_from_strike > 0 ) : ?>
+								<span class="at-hero-from-strike"><?php echo esc_html( $at_currency . number_format( $at_from_strike, 0 ) ); ?></span>
+							<?php endif; ?>
+							<span class="at-hero-from-amount"><?php echo esc_html( $at_currency . number_format( $at_from_price, 0 ) ); ?></span>
+							<span class="at-hero-from-unit"><?php esc_html_e( '/ person', 'adventure-treks' ); ?></span>
+						</div>
 					<?php endif; ?>
 				</div>
 				<button type="button" class="at-hero-share-btn" id="at_hero_share_btn" data-share-url="<?php echo esc_url( get_permalink( $trek_id ) ); ?>" data-share-title="<?php echo esc_attr( get_the_title() ); ?>">

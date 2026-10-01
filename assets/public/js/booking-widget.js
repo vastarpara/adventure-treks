@@ -279,16 +279,14 @@ document.addEventListener('DOMContentLoaded', function() {
 		transportSection.style.display = 'block';
 		transportList.innerHTML = '';
 
-		// A ₹0.00 additional price (e.g. "Non AC Train") reads as broken/free, so show the
-		// resulting per-person price instead: the offer price, or the adult price if no
-		// offer price is set.
-		const basePriceForZero = cityOfferPrice > 0 ? cityOfferPrice : cityAdultPrice;
-
+		// Every option is shown as its extra cost on top of the base price (the full
+		// per-person price is in the rate box below). Mixing a full price on one
+		// option with "+extra" on another was confusing, so a ₹0 option reads "Included".
 		options.forEach((opt, idx) => {
 			const price = parseFloat(opt.price) || 0;
 			const priceLabel = price > 0
 				? '+' + currency + price.toFixed(2)
-				: currency + basePriceForZero.toFixed(2);
+				: 'Included';
 			const label = document.createElement('label');
 			label.className = 'at-transport-option-item';
 
