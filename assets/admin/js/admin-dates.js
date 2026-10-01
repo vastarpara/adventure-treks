@@ -169,12 +169,21 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 
+	// Disable past days in the picker. When editing, an already-saved past date stays valid.
+	function setMinDate(isNew, currentValue) {
+		const fld = document.getElementById('at_form_departure_date');
+		const d = new Date();
+		const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+		fld.min = (!isNew && currentValue && currentValue < today) ? currentValue : today;
+	}
+
 	addDateBtn.addEventListener('click', function(e) {
 		e.preventDefault();
 		dateFormTitle.textContent = 'Add Departure Date';
 		clearDateForm();
 		document.getElementById('at_form_date_id').value = '';
 		document.getElementById('at_form_date_city_id').value = activeCityId;
+		setMinDate(true);
 		dateFormModal.style.display = 'flex';
 	});
 
@@ -195,6 +204,12 @@ document.addEventListener('DOMContentLoaded', function() {
 		const dateFld = document.getElementById('at_form_departure_date');
 		if (!dateFld.value.trim()) {
 			at_admin_toast('Departure Date is required');
+			dateFld.focus();
+			return;
+		}
+		// Past dates are blocked for new/changed dates (an existing date may keep its value).
+		if (dateFld.min && dateFld.value < dateFld.min) {
+			at_admin_toast('Departure Date cannot be in the past');
 			dateFld.focus();
 			return;
 		}
@@ -256,6 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			document.getElementById('at_form_date_id').value = dateObj.id;
 			document.getElementById('at_form_date_city_id').value = dateObj.city_id;
 			document.getElementById('at_form_departure_date').value = dateObj.departure_date;
+			setMinDate(false, dateObj.departure_date);
 			document.getElementById('at_form_date_total_seats').value = dateObj.total_seats;
 			document.getElementById('at_form_date_booked_seats').value = dateObj.booked_seats;
 			document.getElementById('at_form_date_status').value = dateObj.status;

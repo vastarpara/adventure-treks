@@ -262,9 +262,18 @@ class TrekBookingController {
 		// 3. Fetch pricing: look for date override, otherwise load default city rule
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$pricing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_pricing WHERE city_id = %d AND date_id = %d", $city_id, $date_id ), ARRAY_A );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$default_pricing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_pricing WHERE city_id = %d AND date_id = 0", $city_id ), ARRAY_A );
 		if ( ! $pricing ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$pricing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_pricing WHERE city_id = %d AND date_id = 0", $city_id ), ARRAY_A );
+			$pricing = $default_pricing;
+		} elseif ( $default_pricing ) {
+			// A date override only carries prices; add-ons, extra charges and group
+			// discounts are configured per city, so inherit them when the date has none.
+			foreach ( array( 'group_discount', 'extra_charges', 'optional_addons', 'transport_options' ) as $field ) {
+				if ( empty( $pricing[ $field ] ) || '[]' === $pricing[ $field ] ) {
+					$pricing[ $field ] = $default_pricing[ $field ];
+				}
+			}
 		}
 
 		// 4. Fetch pickup list

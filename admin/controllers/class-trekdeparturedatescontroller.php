@@ -181,6 +181,15 @@ class TrekDepartureDatesController {
 		$table_avail = $wpdb->prefix . 'at_availability';
 		$table_price = $wpdb->prefix . 'at_pricing';
 
+		// Past dates can't be newly set; an existing date may keep its current value when edited.
+		if ( $departure_date < current_time( 'Y-m-d' ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			$current_date = $id ? $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM $table_dates WHERE id = %d", $id ) ) : '';
+			if ( $current_date !== $departure_date ) {
+				wp_send_json_error( array( 'message' => __( 'Departure date cannot be in the past', 'adventure-treks' ) ) );
+			}
+		}
+
 		$date_data = array(
 			'city_id'        => $city_id,
 			'trek_id'        => $trek_id,

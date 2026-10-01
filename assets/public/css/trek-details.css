@@ -106,7 +106,6 @@
 	border-radius: 8px 8px 0 0;
 	overflow-x: auto;
 	overflow-y: hidden;
-	position: sticky;
 	top: var(--at-header-offset, 0px);
 	z-index: 5;
 	-webkit-overflow-scrolling: touch;
