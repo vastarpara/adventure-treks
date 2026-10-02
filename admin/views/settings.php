@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<h2 class="nav-tab-wrapper">
 		<a href="#" class="nav-tab nav-tab-active" data-at-tab="general"><?php esc_html_e( 'General', 'adventure-treks' ); ?></a>
+		<a href="#" class="nav-tab" data-at-tab="currency"><?php esc_html_e( 'Currency', 'adventure-treks' ); ?></a>
 		<a href="#" class="nav-tab" data-at-tab="payment"><?php esc_html_e( 'Payment', 'adventure-treks' ); ?></a>
 		<a href="#" class="nav-tab" data-at-tab="email"><?php esc_html_e( 'Email', 'adventure-treks' ); ?></a>
 	</h2>
@@ -47,25 +48,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<button type="button" class="button" id="at_site_logo_remove_btn" <?php echo $adventure_treks_logo_url ? '' : 'style="display:none;"'; ?>><?php esc_html_e( 'Remove', 'adventure-treks' ); ?></button>
 							</p>
 							<p class="description"><?php esc_html_e( 'Shown in the header of booking confirmation and status update emails.', 'adventure-treks' ); ?></p>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row">
-							<label for="at_currency_symbol"><?php esc_html_e( 'Currency Symbol', 'adventure-treks' ); ?></label>
-						</th>
-						<td>
-							<?php
-							$adventure_treks_current_currency = get_option( 'at_currency_symbol', '₹' );
-							$adventure_treks_currencies       = \AdventureTreks\Admin\Controllers\AdminController::get_currencies();
-							?>
-							<select name="at_currency_symbol" id="at_currency_symbol">
-								<?php foreach ( $adventure_treks_currencies as $adventure_treks_symbol => $adventure_treks_label ) : ?>
-									<option value="<?php echo esc_attr( $adventure_treks_symbol ); ?>" <?php selected( $adventure_treks_current_currency, $adventure_treks_symbol ); ?>>
-										<?php echo esc_html( $adventure_treks_label ); ?>
-									</option>
-								<?php endforeach; ?>
-							</select>
-							<p class="description"><?php esc_html_e( 'The currency symbol shown alongside trek prices.', 'adventure-treks' ); ?></p>
 						</td>
 					</tr>
 					<tr>
@@ -102,6 +84,85 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</th>
 						<td>
 							<input type="text" name="at_secondary_color" id="at_secondary_color" class="at-color-picker" value="<?php echo esc_attr( get_option( 'at_secondary_color', '#0f6165' ) ); ?>" data-default-color="#0f6165" />
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div id="at-settings-tab-currency" class="at-settings-tab" style="display:none;">
+			<h2><?php esc_html_e( 'Currency options', 'adventure-treks' ); ?></h2>
+			<p><?php esc_html_e( 'The following options affect how prices are displayed on the frontend, in booking emails and in the admin bookings screens.', 'adventure-treks' ); ?></p>
+			<?php
+			$adventure_treks_current_currency = get_option( 'at_currency_symbol', '₹' );
+			$adventure_treks_currencies       = \AdventureTreks\Admin\Controllers\AdminController::get_currencies();
+			$adventure_treks_positions        = \AdventureTreks\Admin\Controllers\AdminController::get_currency_positions();
+			$adventure_treks_price_fmt        = \AdventureTreks\Admin\Controllers\AdminController::get_price_format();
+			?>
+			<table class="form-table" role="presentation">
+				<tbody>
+					<tr>
+						<th scope="row">
+							<label for="at_currency_symbol"><?php esc_html_e( 'Currency', 'adventure-treks' ); ?></label>
+						</th>
+						<td>
+							<select name="at_currency_symbol" id="at_currency_symbol">
+								<?php foreach ( $adventure_treks_currencies as $adventure_treks_symbol => $adventure_treks_label ) : ?>
+									<option value="<?php echo esc_attr( $adventure_treks_symbol ); ?>" <?php selected( $adventure_treks_current_currency, $adventure_treks_symbol ); ?>>
+										<?php echo esc_html( $adventure_treks_label ); ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+							<p class="description"><?php esc_html_e( 'The currency symbol shown alongside trek prices.', 'adventure-treks' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label for="at_currency_position"><?php esc_html_e( 'Currency position', 'adventure-treks' ); ?></label>
+						</th>
+						<td>
+							<select name="at_currency_position" id="at_currency_position">
+								<?php foreach ( $adventure_treks_positions as $adventure_treks_pos_key => $adventure_treks_pos_label ) : ?>
+									<option value="<?php echo esc_attr( $adventure_treks_pos_key ); ?>" <?php selected( $adventure_treks_price_fmt['position'], $adventure_treks_pos_key ); ?>>
+										<?php echo esc_html( $adventure_treks_pos_label ); ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+							<p class="description"><?php esc_html_e( 'Where the currency symbol appears relative to the amount.', 'adventure-treks' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label for="at_thousand_separator"><?php esc_html_e( 'Thousand separator', 'adventure-treks' ); ?></label>
+						</th>
+						<td>
+							<input name="at_thousand_separator" type="text" id="at_thousand_separator" value="<?php echo esc_attr( $adventure_treks_price_fmt['thousand'] ); ?>" maxlength="1" class="small-text" />
+							<p class="description"><?php esc_html_e( 'Separates thousands, e.g. 11,499. Leave empty for none.', 'adventure-treks' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label for="at_decimal_separator"><?php esc_html_e( 'Decimal separator', 'adventure-treks' ); ?></label>
+						</th>
+						<td>
+							<input name="at_decimal_separator" type="text" id="at_decimal_separator" value="<?php echo esc_attr( $adventure_treks_price_fmt['decimal'] ); ?>" maxlength="1" class="small-text" />
+							<p class="description"><?php esc_html_e( 'Separates the decimal part, e.g. 11,499.00. Cannot be empty.', 'adventure-treks' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<label for="at_price_decimals"><?php esc_html_e( 'Number of decimals', 'adventure-treks' ); ?></label>
+						</th>
+						<td>
+							<input name="at_price_decimals" type="number" id="at_price_decimals" value="<?php echo esc_attr( $adventure_treks_price_fmt['decimals'] ); ?>" min="0" max="4" step="1" class="small-text" />
+							<p class="description"><?php esc_html_e( 'How many digits to show after the decimal point (0 - 4).', 'adventure-treks' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Preview', 'adventure-treks' ); ?></th>
+						<td>
+							<strong id="at_currency_preview"><?php echo esc_html( \AdventureTreks\Admin\Controllers\AdminController::format_price( 1234567.891 ) ); ?></strong>
+							<p class="description"><?php esc_html_e( 'Updates as you change the options above. Save to apply.', 'adventure-treks' ); ?></p>
 						</td>
 					</tr>
 				</tbody>

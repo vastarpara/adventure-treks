@@ -103,7 +103,7 @@
 }
 
 .at-trek-archive-title a:hover {
-	color: var(--at-primary-color, #137a7f);
+	color: var(--at-secondary-color, #0f6165);
 }
 
 .at-trek-archive-meta {
@@ -185,8 +185,8 @@
 }
 
 .at-trek-archive-pagination a.page-numbers:hover {
-	border-color: var(--at-primary-color, #137a7f);
-	color: var(--at-primary-color, #137a7f);
+	border-color: var(--at-secondary-color, #0f6165);
+	color: var(--at-secondary-color, #0f6165);
 }
 
 .at-trek-archive-pagination .page-numbers.current {

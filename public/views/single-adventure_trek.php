@@ -186,7 +186,7 @@ while ( have_posts() ) :
 .at-mosaic-viewall-btn:hover,
 .at-mosaic-viewall-btn:focus {
 	background: #f6f7f7 !important;
-	color: #222 !important;
+	color: var(--at-secondary-color, #0f6165) !important;
 	text-decoration: none;
 }
 /* Mobile: a 5-panel mosaic doesn't fit a narrow screen, so collapse to just the
@@ -378,6 +378,7 @@ while ( have_posts() ) :
 .at-hero-share-btn:hover,
 .at-hero-share-btn:focus {
 	background: #f6f7f7 !important;
+	color: var(--at-secondary-color, #0f6165) !important;
 	text-decoration: none !important;
 }
 .at-hero-share-btn .dashicons {
@@ -406,9 +407,40 @@ while ( have_posts() ) :
 @media (max-width: 900px) {
 	.at-single-body { grid-template-columns: minmax(0, 1fr); }
 	/* Stacked layout: a sticky sidebar would pin over the content below it. */
-	.at-single-sidebar { order: -1; position: static; }
-	/* Match the width of the content cards below instead of a centred 480px box. */
-	.at-single-sidebar .at-booking-widget-wrapper { max-width: none; margin: 0 0 24px; }
+	.at-single-sidebar { position: static; }
+	/* Mobile reading order: title, about, then the booking steps, then the rest of
+	   the trek details (specs, itinerary, FAQs...). .at-single-main dissolves into the
+	   flex column so its children and the sidebar can be interleaved. */
+	.at-single-body { display: flex; flex-direction: column; gap: 0; }
+	.at-single-main { display: contents; }
+	.at-single-main > * { order: 4; }
+	.at-single-main > *,
+	.at-single-sidebar { min-width: 0; max-width: 100%; box-sizing: border-box; }
+	.at-single-main > .at-hero-heading-card { order: 1; }
+	.at-single-main > .at-about-card { order: 2; }
+	.at-single-sidebar { order: 3; }
+	.at-hero-heading-card,
+	.at-about-card { margin-bottom: 16px; }
+	/* Each booking step is its own rounded card instead of one big box. */
+	.at-single-sidebar .at-booking-widget-wrapper {
+		max-width: none;
+		margin: 0;
+		padding: 0;
+		background: transparent;
+		border: 0;
+		box-shadow: none;
+		overflow: visible;
+	}
+	.at-single-sidebar .at-widget-header,
+	.at-single-sidebar .at-widget-section {
+		background: #fff;
+		border: 1px solid #e5e7eb;
+		border-radius: 12px;
+		box-shadow: 0 2px 8px rgba(0,0,0,.05);
+		padding: 20px 16px;
+		margin: 0 0 16px;
+	}
+	.at-single-sidebar .at-widget-header h3 { margin: 0 0 4px; }
 }
 
 /* Main content — min-width:0 lets wide children (tabs, tables) shrink/scroll instead of stretching the grid. */
@@ -492,7 +524,7 @@ while ( have_posts() ) :
 .at-show-more-btn:hover,
 .at-show-more-btn:focus {
 	background: transparent !important;
-	color: var(--at-primary-color, #137a7f) !important;
+	color: var(--at-secondary-color, #0f6165) !important;
 	outline: none !important;
 	box-shadow: none !important;
 }
@@ -609,7 +641,7 @@ while ( have_posts() ) :
 			</div>
 
 			<?php if ( get_the_content() ) : ?>
-			<div class="at-section-card">
+			<div class="at-section-card at-about-card">
 				<h2><span class="dashicons dashicons-text-page"></span><?php esc_html_e( 'About This Trek', 'adventure-treks' ); ?></h2>
 				<?php
 				// Plain-text teaser: first 250 characters, then the full formatted content on demand.

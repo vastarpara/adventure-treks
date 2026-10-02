@@ -39,6 +39,10 @@ if ( get_option( 'at_remove_data_on_uninstall' ) ) {
 	// Delete plugin options (if any are saved in options table).
 	delete_option( 'adventure_treks_version' );
 	delete_option( 'at_currency_symbol' );
+	delete_option( 'at_currency_position' );
+	delete_option( 'at_thousand_separator' );
+	delete_option( 'at_decimal_separator' );
+	delete_option( 'at_price_decimals' );
 	delete_option( 'at_booking_email' );
 	delete_option( 'at_enable_schema' );
 	delete_option( 'at_remove_data_on_uninstall' );

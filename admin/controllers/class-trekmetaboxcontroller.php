@@ -70,7 +70,7 @@ class TrekMetaBoxController {
 			'at-admin-meta-box-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-meta-box.js',
 			array(),
-			ADVENTURE_TREKS_VERSION,
+			ADVENTURE_TREKS_VERSION . '.' . filemtime( ADVENTURE_TREKS_PATH . 'assets/admin/js/admin-meta-box.js' ),
 			true
 		);
 	}
@@ -166,15 +166,22 @@ class TrekMetaBoxController {
 		$table_name = $wpdb->prefix . 'at_treks';
 
 		// Sanitize standard text inputs.
+		// Short spec fields are plain labels (e.g. "5 Days / 4 Nights"): letters, numbers, spaces and / - , . only
+		// (plus "+" for the age limit, as in "10+ years"). Anything else, such as !@#$%^&*()=, is stripped.
+		$at_plain = static function ( $key, $allow_plus = false ) {
+			$value = isset( $_POST[ $key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by the caller.
+			$regex = $allow_plus ? '/[^\p{L}\p{N}\s\/\-,.+]/u' : '/[^\p{L}\p{N}\s\/\-,.]/u';
+			return trim( (string) preg_replace( $regex, '', $value ) );
+		};
 		$difficulty    = isset( $_POST['at_difficulty'] ) ? sanitize_text_field( wp_unslash( $_POST['at_difficulty'] ) ) : '';
-		$duration      = isset( $_POST['at_duration'] ) ? sanitize_text_field( wp_unslash( $_POST['at_duration'] ) ) : '';
-		$altitude      = isset( $_POST['at_altitude'] ) ? sanitize_text_field( wp_unslash( $_POST['at_altitude'] ) ) : '';
-		$region        = isset( $_POST['at_region'] ) ? sanitize_text_field( wp_unslash( $_POST['at_region'] ) ) : '';
-		$season        = isset( $_POST['at_season'] ) ? sanitize_text_field( wp_unslash( $_POST['at_season'] ) ) : '';
-		$distance      = isset( $_POST['at_distance'] ) ? sanitize_text_field( wp_unslash( $_POST['at_distance'] ) ) : '';
+		$duration      = $at_plain( 'at_duration' );
+		$altitude      = $at_plain( 'at_altitude' );
+		$region        = $at_plain( 'at_region' );
+		$season        = $at_plain( 'at_season' );
+		$distance      = $at_plain( 'at_distance' );
 		$fitness_level = isset( $_POST['at_fitness_level'] ) ? sanitize_text_field( wp_unslash( $_POST['at_fitness_level'] ) ) : '';
-		$age_limit     = isset( $_POST['at_age_limit'] ) ? sanitize_text_field( wp_unslash( $_POST['at_age_limit'] ) ) : '';
-		$group_size    = isset( $_POST['at_group_size'] ) ? sanitize_text_field( wp_unslash( $_POST['at_group_size'] ) ) : '';
+		$age_limit     = $at_plain( 'at_age_limit', true );
+		$group_size    = $at_plain( 'at_group_size' );
 
 		// Highlights, exclusions and carry list (saved as newline separated in form, serialized/processed cleanly).
 		$highlights      = isset( $_POST['at_highlights'] ) ? sanitize_textarea_field( wp_unslash( $_POST['at_highlights'] ) ) : '';

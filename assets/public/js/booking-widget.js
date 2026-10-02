@@ -10,7 +10,23 @@ document.addEventListener('DOMContentLoaded', function() {
 	const trekId = root.getAttribute('data-trek-id');
 	const ajaxUrl = at_booking_obj.ajax_url;
 	const nonce = at_booking_obj.nonce;
-	const currency = at_booking_obj.currency_symbol;
+
+	// Price formatting driven by Settings > Currency (symbol, position, separators, decimals).
+	const at_price_format = at_booking_obj.price_format || { symbol: at_booking_obj.currency_symbol || at_booking_obj.currency || '', position: 'left', thousand: ',', decimal: '.', decimals: 2 };
+	function atFormatPrice(amount) {
+		const fmt = at_price_format;
+		const value = Math.abs(parseFloat(amount) || 0).toFixed(fmt.decimals);
+		const parts = value.split('.');
+		parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, fmt.thousand);
+		const number = parts.join(fmt.decimals > 0 ? fmt.decimal : '');
+		const sign = (parseFloat(amount) || 0) < 0 ? '-' : '';
+		switch (fmt.position) {
+			case 'right': return sign + number + fmt.symbol;
+			case 'left_space': return sign + fmt.symbol + ' ' + number;
+			case 'right_space': return sign + number + ' ' + fmt.symbol;
+			default: return sign + fmt.symbol + number;
+		}
+	}
 
 	// Widget Sections
 	const cityPills = document.getElementById('at_widget_city_pills');
@@ -188,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	// than one it switches to "for N people" so the total is never ambiguous.
 	function updateStickyBar(totalPrice, totalPax) {
 		if (!stickyBarAmount) return;
-		stickyBarAmount.textContent = `${currency}${totalPrice.toFixed(2)}`;
+		stickyBarAmount.textContent = `${atFormatPrice(totalPrice)}`;
 		if (stickyBarUnit) {
 			stickyBarUnit.textContent = totalPax > 1
 				? `for ${totalPax} people`
@@ -231,10 +247,10 @@ document.addEventListener('DOMContentLoaded', function() {
 		const transportPrice = selectedTransport ? selectedTransport.price : 0;
 
 		const adultBase = parseFloat(dateDetails.offer_price) > 0 ? parseFloat(dateDetails.offer_price) : parseFloat(dateDetails.adult_price);
-		priceTag.textContent = `${currency} ${(adultBase + transportPrice).toFixed(2)}`;
+		priceTag.textContent = `${atFormatPrice((adultBase + transportPrice))}`;
 
 		if (parseFloat(dateDetails.offer_price) > 0 && parseFloat(dateDetails.adult_price) > 0) {
-			priceCross.textContent = `${currency} ${(parseFloat(dateDetails.adult_price) + transportPrice).toFixed(2)}`;
+			priceCross.textContent = `${atFormatPrice((parseFloat(dateDetails.adult_price) + transportPrice))}`;
 			priceCross.style.display = 'inline';
 		} else {
 			priceCross.style.display = 'none';
@@ -242,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		// Child Price details
 		if (parseFloat(dateDetails.child_price) > 0) {
-			childPriceTag.textContent = `Child Rate: ${currency} ${(parseFloat(dateDetails.child_price) + transportPrice).toFixed(2)}`;
+			childPriceTag.textContent = `Child Rate: ${atFormatPrice((parseFloat(dateDetails.child_price) + transportPrice))}`;
 			childPriceTag.style.display = 'block';
 			childRow.style.display = 'flex';
 		} else {
@@ -285,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		options.forEach((opt, idx) => {
 			const price = parseFloat(opt.price) || 0;
 			const priceLabel = price > 0
-				? '+' + currency + price.toFixed(2)
+				? '+' + atFormatPrice(price)
 				: 'Included';
 			const label = document.createElement('label');
 			label.className = 'at-transport-option-item';
@@ -478,7 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
 							${descHTML}
 						</div>
 					</label>
-					<span class="at-addon-price-label">+${currency}${parseFloat(addon.price).toFixed(2)}${scopeLabel}</span>
+					<span class="at-addon-price-label">+${atFormatPrice(parseFloat(addon.price))}${scopeLabel}</span>
 				`;
 
 				div.querySelector('input').addEventListener('change', calculateTotal);
@@ -563,9 +579,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		let subtotal = priceAdultsSum + priceChildrenSum;
 		let markup = '';
 
-		markup += `<div style="display:flex; justify-content:space-between;"><span>Adults Price (${adults} x ${currency}${rateAdult.toFixed(2)})</span><span>${currency}${priceAdultsSum.toFixed(2)}</span></div>`;
+		markup += `<div style="display:flex; justify-content:space-between;"><span>Adults Price (${adults} x ${atFormatPrice(rateAdult)})</span><span>${atFormatPrice(priceAdultsSum)}</span></div>`;
 		if (children > 0 && rateChild > 0) {
-			markup += `<div style="display:flex; justify-content:space-between;"><span>Children Price (${children} x ${currency}${rateChild.toFixed(2)})</span><span>${currency}${priceChildrenSum.toFixed(2)}</span></div>`;
+			markup += `<div style="display:flex; justify-content:space-between;"><span>Children Price (${children} x ${atFormatPrice(rateChild)})</span><span>${atFormatPrice(priceChildrenSum)}</span></div>`;
 		}
 
 		// 3. Group Discounts
@@ -584,10 +600,10 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (bestRule) {
 				if (bestRule.type === 'percent') {
 					discountSum = subtotal * (parseFloat(bestRule.value) / 100);
-					markup += `<div style="display:flex; justify-content:space-between; color:#385723;"><span>Group Discount (${bestRule.min_seats}+ Pax: ${bestRule.value}%)</span><span>-${currency}${discountSum.toFixed(2)}</span></div>`;
+					markup += `<div style="display:flex; justify-content:space-between; color:#385723;"><span>Group Discount (${bestRule.min_seats}+ Pax: ${bestRule.value}%)</span><span>-${atFormatPrice(discountSum)}</span></div>`;
 				} else {
 					discountSum = parseFloat(bestRule.value); // Flat deduction
-					markup += `<div style="display:flex; justify-content:space-between; color:#385723;"><span>Group Discount Flat (${bestRule.min_seats}+ Pax)</span><span>-${currency}${discountSum.toFixed(2)}</span></div>`;
+					markup += `<div style="display:flex; justify-content:space-between; color:#385723;"><span>Group Discount Flat (${bestRule.min_seats}+ Pax)</span><span>-${atFormatPrice(discountSum)}</span></div>`;
 				}
 				subtotal -= discountSum;
 			}
@@ -609,10 +625,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 			if (type === 'person') {
 				amt = totalPax * price;
-				markup += `<div style="display:flex; justify-content:space-between;"><span>${name} (${totalPax} x ${currency}${price.toFixed(2)})</span><span>+${currency}${amt.toFixed(2)}</span></div>`;
+				markup += `<div style="display:flex; justify-content:space-between;"><span>${name} (${totalPax} x ${atFormatPrice(price)})</span><span>+${atFormatPrice(amt)}</span></div>`;
 			} else {
 				amt = price;
-				markup += `<div style="display:flex; justify-content:space-between;"><span>${name} (Flat)</span><span>+${currency}${amt.toFixed(2)}</span></div>`;
+				markup += `<div style="display:flex; justify-content:space-between;"><span>${name} (Flat)</span><span>+${atFormatPrice(amt)}</span></div>`;
 			}
 			addonsSum += amt;
 		});
@@ -625,10 +641,10 @@ document.addEventListener('DOMContentLoaded', function() {
 				let amt = 0;
 				if (charge.type === 'person') {
 					amt = totalPax * parseFloat(charge.price);
-					markup += `<div style="display:flex; justify-content:space-between;"><span>${charge.name} (${totalPax} x ${currency}${parseFloat(charge.price).toFixed(2)})</span><span>+${currency}${amt.toFixed(2)}</span></div>`;
+					markup += `<div style="display:flex; justify-content:space-between;"><span>${charge.name} (${totalPax} x ${atFormatPrice(parseFloat(charge.price))})</span><span>+${atFormatPrice(amt)}</span></div>`;
 				} else {
 					amt = parseFloat(charge.price);
-					markup += `<div style="display:flex; justify-content:space-between;"><span>${charge.name} (Flat)</span><span>+${currency}${amt.toFixed(2)}</span></div>`;
+					markup += `<div style="display:flex; justify-content:space-between;"><span>${charge.name} (Flat)</span><span>+${atFormatPrice(amt)}</span></div>`;
 				}
 				extraSum += amt;
 			});
@@ -637,7 +653,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		// Set totals
 		receiptRows.innerHTML = markup;
-		grandTotalTag.textContent = `${currency} ${subtotal.toFixed(2)}`;
+		grandTotalTag.textContent = `${atFormatPrice(subtotal)}`;
 		grandTotalTag.setAttribute('data-raw', subtotal);
 
 		// Sticky bottom bar mirrors this total on every price-affecting change
@@ -887,8 +903,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			<p><strong>Date</strong>: ${res.date}</p>
 			<p><strong>Seats Booked</strong>: ${res.seats}</p>
 			${res.pickup_point ? `<p><strong>Pickup Location</strong>: ${res.pickup_point}</p>` : ''}
-			${res.transport_name ? `<p><strong>Transportation</strong>: ${res.transport_name}${parseFloat(res.transport_price) > 0 ? ' (+' + currency + parseFloat(res.transport_price).toFixed(2) + ')' : ''}</p>` : ''}
-			<p style="border-top:1px solid #ddd; padding-top:8px; margin:8px 0 0 0; font-weight:bold; color:#137a7f; font-size:14px;"><strong>Amount Paid</strong>: ${currency} ${parseFloat(res.total).toFixed(2)}</p>
+			${res.transport_name ? `<p><strong>Transportation</strong>: ${res.transport_name}${parseFloat(res.transport_price) > 0 ? ' (+' + atFormatPrice(res.transport_price) + ')' : ''}</p>` : ''}
+			<p style="border-top:1px solid #ddd; padding-top:8px; margin:8px 0 0 0; font-weight:bold; color:#137a7f; font-size:14px;"><strong>Amount Paid</strong>: ${atFormatPrice(parseFloat(res.total))}</p>
 		`;
 		successModal.style.display = 'flex';
 	}

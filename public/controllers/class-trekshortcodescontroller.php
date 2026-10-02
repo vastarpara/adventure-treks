@@ -166,7 +166,6 @@ class TrekShortcodesController {
 	public static function get_trek_archive_card_html( $trek_id, $show_excerpt = true, $show_price = true ) {
 		global $wpdb;
 
-		$at_currency = get_option( 'at_currency_symbol', '₹' );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$at_trek_meta = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}at_treks WHERE post_id = %d", $trek_id ), ARRAY_A );
@@ -196,7 +195,7 @@ class TrekShortcodesController {
 				<?php endif; ?>
 				<?php if ( $show_price && $at_start_price > 0 ) : ?>
 					<span class="at-trek-archive-price-badge">
-						<?php esc_html_e( 'From', 'adventure-treks' ); ?> <?php echo esc_html( $at_currency . number_format( $at_start_price, 0 ) ); ?>
+						<?php esc_html_e( 'From', 'adventure-treks' ); ?> <?php echo esc_html( \AdventureTreks\Admin\Controllers\AdminController::format_price( $at_start_price ) ); ?>
 					</span>
 				<?php endif; ?>
 			</a>

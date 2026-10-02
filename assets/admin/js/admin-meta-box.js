@@ -202,3 +202,23 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 });
+
+// ==========================================
+// Plain-text spec fields (Duration, Altitude, Region, ...): strip special characters
+// such as !@#$%^&*()= as the user types or pastes. "+" stays allowed on Age Limit only.
+// The server applies the same rule on save.
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
+	document.querySelectorAll('input[data-at-plain-text]').forEach(function(input) {
+		const allowPlus = input.getAttribute('data-at-plain-text') === 'plus';
+		const disallowed = allowPlus ? /[^\p{L}\p{N}\s\/\-,.+]/gu : /[^\p{L}\p{N}\s\/\-,.]/gu;
+		input.addEventListener('input', function() {
+			const cleaned = input.value.replace(disallowed, '');
+			if (cleaned !== input.value) {
+				const caret = input.selectionStart - (input.value.length - cleaned.length);
+				input.value = cleaned;
+				input.setSelectionRange(Math.max(caret, 0), Math.max(caret, 0));
+			}
+		});
+	});
+});

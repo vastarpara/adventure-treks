@@ -146,6 +146,9 @@
 	background: #ffffff;
 	color: var(--at-primary-color, #137a7f);
 }
+.at-details-tabs-nav a:hover {
+	color: var(--at-secondary-color, #0f6165);
+}
 
 .at-details-tabs-nav li.active a {
 	border-bottom: 2px solid var(--at-primary-color, #137a7f);
@@ -271,7 +274,7 @@
 
 .at-accordion-trigger:hover {
 	background: #f5f5f5;
-	color: var(--at-primary-color, #137a7f);
+	color: var(--at-secondary-color, #0f6165);
 }
 
 .at-accordion-trigger span.dashicons {
@@ -353,8 +356,8 @@
 
 .at-quicklink-btn:hover,
 .at-quicklink-btn:focus {
-	border-color: var(--at-primary-color, #137a7f) !important;
-	color: var(--at-primary-color, #137a7f) !important;
+	border-color: var(--at-secondary-color, #0f6165) !important;
+	color: var(--at-secondary-color, #0f6165) !important;
 	background: #fff !important;
 	text-decoration: none !important;
 }
@@ -462,6 +465,34 @@
 }
 
 .at-policy-modal-body p:last-child {
+	margin-bottom: 0;
+}
+
+/* Lists inside policy popups: the theme's list reset left bullets floating far from their text. */
+.at-policy-modal-body ul,
+.at-policy-modal-body ol {
+	margin: 0 0 12px;
+	padding: 0 0 0 20px;
+}
+
+.at-policy-modal-body ul {
+	list-style: disc outside;
+}
+
+.at-policy-modal-body ol {
+	list-style: decimal outside;
+}
+
+.at-policy-modal-body li {
+	margin: 0 0 6px;
+	padding: 0;
+	text-indent: 0;
+	line-height: 1.7;
+}
+
+.at-policy-modal-body li:last-child,
+.at-policy-modal-body ul:last-child,
+.at-policy-modal-body ol:last-child {
 	margin-bottom: 0;
 }
 

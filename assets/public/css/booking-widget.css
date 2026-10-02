@@ -96,9 +96,11 @@
 	outline: none;
 }
 
-.at-city-pill-btn:hover {
-	background: #efefef;
-	border-color: #bbbbbb;
+.at-city-pill-btn:hover,
+.at-city-pill-btn.active:hover {
+	background: var(--at-secondary-color, #0f6165);
+	border-color: var(--at-secondary-color, #0f6165);
+	color: #fff;
 }
 
 .at-city-pill-btn.active {
@@ -139,7 +141,7 @@
 }
 
 .at-date-select-btn:hover {
-	border-color: var(--at-primary-color, #137a7f);
+	border-color: var(--at-secondary-color, #0f6165);
 	background: #fafafa;
 }
 
@@ -284,6 +286,7 @@
 
 .at-counter-btn:hover {
 	background: #efefef;
+	color: var(--at-secondary-color, #0f6165);
 }
 
 .at-pax-counter input {
@@ -624,6 +627,8 @@
 
 .at-modal-btn.cancel:hover {
 	background: #fafafa;
+	color: var(--at-secondary-color, #0f6165);
+	border-color: var(--at-secondary-color, #0f6165);
 }
 
 .at-modal-btn.confirm {
@@ -676,13 +681,43 @@
 .at-frontend-itinerary-timeline {
 	position: relative;
 	margin: 20px 0;
-	padding-left: 20px;
-	border-left: 2px solid #eaeaea;
+	padding-left: 32px;
 }
 
 .at-timeline-day-block {
 	position: relative;
 	margin-bottom: 30px;
+}
+
+/* Day marker: a filled dot on the timeline, centred on the day badge/title row. */
+.at-timeline-day-block::after {
+	content: "";
+	position: absolute;
+	left: -32px;
+	top: 3px;
+	width: 14px;
+	height: 14px;
+	box-sizing: border-box;
+	border: 3px solid #fff;
+	border-radius: 50%;
+	background: var(--at-primary-color, #137a7f);
+	box-shadow: 0 0 0 2px var(--at-primary-color, #137a7f);
+	z-index: 1;
+}
+
+/* Connector from this day's dot down to the next one (none after the last day). */
+.at-timeline-day-block::before {
+	content: "";
+	position: absolute;
+	left: -26px;
+	top: 10px;
+	bottom: -30px;
+	width: 2px;
+	background: #d6e4e5;
+}
+
+.at-timeline-day-block:last-child::before {
+	display: none;
 }
 
 .at-timeline-day-block:last-child {
@@ -740,7 +775,7 @@
 .at-day-toggle-btn:hover,
 .at-day-toggle-btn:focus {
 	background: transparent !important;
-	color: var(--at-primary-color, #137a7f) !important;
+	color: var(--at-secondary-color, #0f6165) !important;
 	text-decoration: none !important;
 	outline: none !important;
 	box-shadow: none !important;
@@ -778,8 +813,13 @@
 }
 
 .at-event-icon-wrapper {
+	/* Fixed size that never shrinks: a wide event photo used to squeeze this flex item into an oval. */
+	flex: 0 0 24px;
 	width: 24px;
 	height: 24px;
+	min-width: 24px;
+	box-sizing: border-box;
+	align-self: flex-start;
 	background: color-mix(in srgb, var(--at-primary-color, #137a7f) 8%, white);
 	border: 1px solid var(--at-primary-color, #137a7f);
 	border-radius: 50%;
@@ -796,7 +836,8 @@
 }
 
 .at-event-content-box {
-	flex-grow: 1;
+	flex: 1 1 auto;
+	min-width: 0;
 	background: #fafafa;
 	border: 1px solid #eaeaea;
 	border-radius: 6px;
@@ -838,6 +879,7 @@
 }
 
 .at-event-media img {
+	display: block;
 	max-width: 100%;
 	height: auto;
 	border-radius: 4px;
@@ -906,7 +948,7 @@
 }
 
 .at-sticky-bar-cta:hover {
-	opacity: 0.9;
+	background: var(--at-secondary-color, #0f6165);
 }
 
 /* ── Mobile responsive pass ─────────────────────────────────────── */

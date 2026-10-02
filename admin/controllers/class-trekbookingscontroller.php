@@ -127,7 +127,7 @@ class TrekBookingsController {
 			'at-admin-bookings-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-bookings.js',
 			array(),
-			ADVENTURE_TREKS_VERSION,
+			ADVENTURE_TREKS_VERSION . '.' . filemtime( ADVENTURE_TREKS_PATH . 'assets/admin/js/admin-bookings.js' ),
 			true
 		);
 
@@ -141,6 +141,7 @@ class TrekBookingsController {
 				'dates_nonce'          => wp_create_nonce( 'at_dates_nonce_action' ),
 				'public_pricing_nonce' => wp_create_nonce( 'at_booking_nonce_action' ),
 				'currency'             => get_option( 'at_currency_symbol', '₹' ),
+				'price_format'         => \AdventureTreks\Admin\Controllers\AdminController::get_price_format(),
 			)
 		);
 	}
@@ -387,7 +388,6 @@ class TrekBookingsController {
 		$date_val       = $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $date_id ) );
 		$date_formatted = $date_val ? gmdate( 'd M Y', strtotime( $date_val ) ) : '';
 
-		$currency = get_option( 'at_currency_symbol', '₹' );
 
 		$status_labels = array(
 			'pending'   => __( 'Pending Confirmation', 'adventure-treks' ),
@@ -434,11 +434,11 @@ class TrekBookingsController {
 			),
 			array(
 				'label' => __( 'Transportation Type', 'adventure-treks' ),
-				'value' => $transport_type ? $transport_type . ( $transport_price > 0 ? ' (+' . $currency . ' ' . number_format( $transport_price, 2 ) . ')' : '' ) : '',
+				'value' => $transport_type ? $transport_type . ( $transport_price > 0 ? ' (+' . \AdventureTreks\Admin\Controllers\AdminController::format_price( $transport_price ) . ')' : '' ) : '',
 			),
 			array(
 				'label' => __( 'Total Amount', 'adventure-treks' ),
-				'value' => $currency . ' ' . number_format( (float) $total_amount, 2 ),
+				'value' => \AdventureTreks\Admin\Controllers\AdminController::format_price( (float) $total_amount ),
 			),
 			array(
 				'label' => __( 'Status', 'adventure-treks' ),

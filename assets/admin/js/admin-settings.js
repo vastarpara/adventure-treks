@@ -170,3 +170,43 @@ if (typeof jQuery !== 'undefined') {
 		}
 	});
 }
+
+// ==========================================
+// Currency tab: live preview of the price format.
+// ==========================================
+document.addEventListener('DOMContentLoaded', function () {
+	'use strict';
+
+	const preview = document.getElementById('at_currency_preview');
+	const symbolEl = document.getElementById('at_currency_symbol');
+	const positionEl = document.getElementById('at_currency_position');
+	const thousandEl = document.getElementById('at_thousand_separator');
+	const decimalEl = document.getElementById('at_decimal_separator');
+	const decimalsEl = document.getElementById('at_price_decimals');
+	if (!preview || !symbolEl || !positionEl || !thousandEl || !decimalEl || !decimalsEl) {
+		return;
+	}
+
+	const SAMPLE = 1234567.891;
+
+	function render() {
+		const decimals = Math.max(0, Math.min(4, parseInt(decimalsEl.value, 10) || 0));
+		const parts = SAMPLE.toFixed(decimals).split('.');
+		parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandEl.value.slice(0, 1));
+		const number = parts.join(decimals > 0 ? decimalEl.value.slice(0, 1) : '');
+		const symbol = symbolEl.value;
+
+		switch (positionEl.value) {
+			case 'right': preview.textContent = number + symbol; break;
+			case 'left_space': preview.textContent = symbol + ' ' + number; break;
+			case 'right_space': preview.textContent = number + ' ' + symbol; break;
+			default: preview.textContent = symbol + number;
+		}
+	}
+
+	[symbolEl, positionEl, thousandEl, decimalEl, decimalsEl].forEach(function (el) {
+		el.addEventListener('input', render);
+		el.addEventListener('change', render);
+	});
+	render();
+});

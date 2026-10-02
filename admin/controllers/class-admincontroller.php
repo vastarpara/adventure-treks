@@ -66,7 +66,7 @@ class AdminController {
 			'at-admin-settings-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-settings.js',
 			array( 'wp-color-picker' ),
-			ADVENTURE_TREKS_VERSION,
+			ADVENTURE_TREKS_VERSION . '.' . filemtime( ADVENTURE_TREKS_PATH . 'assets/admin/js/admin-settings.js' ),
 			true
 		);
 	}
@@ -100,6 +100,46 @@ class AdminController {
 				'type'              => 'string',
 				'sanitize_callback' => array( $this, 'sanitize_currency_symbol' ),
 				'default'           => '₹',
+			)
+		);
+
+		register_setting(
+			'adventure_treks_settings_group',
+			'at_currency_position',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( $this, 'sanitize_currency_position' ),
+				'default'           => 'left',
+			)
+		);
+
+		register_setting(
+			'adventure_treks_settings_group',
+			'at_thousand_separator',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( $this, 'sanitize_separator' ),
+				'default'           => ',',
+			)
+		);
+
+		register_setting(
+			'adventure_treks_settings_group',
+			'at_decimal_separator',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( $this, 'sanitize_decimal_separator' ),
+				'default'           => '.',
+			)
+		);
+
+		register_setting(
+			'adventure_treks_settings_group',
+			'at_price_decimals',
+			array(
+				'type'              => 'integer',
+				'sanitize_callback' => array( $this, 'sanitize_price_decimals' ),
+				'default'           => 2,
 			)
 		);
 
@@ -242,6 +282,110 @@ class AdminController {
 			'฿'   => __( '฿ (Thai Baht)', 'adventure-treks' ),
 			'Rp'  => __( 'Rp (Indonesian Rupiah)', 'adventure-treks' ),
 		);
+	}
+
+	/**
+	 * Allowed positions of the currency symbol relative to the amount.
+	 *
+	 * @return array
+	 */
+	public static function get_currency_positions() {
+		return array(
+			'left'        => __( 'Left (₹99.99)', 'adventure-treks' ),
+			'right'       => __( 'Right (99.99₹)', 'adventure-treks' ),
+			'left_space'  => __( 'Left with space (₹ 99.99)', 'adventure-treks' ),
+			'right_space' => __( 'Right with space (99.99 ₹)', 'adventure-treks' ),
+		);
+	}
+
+	/**
+	 * Currency display options saved on the Currency settings tab.
+	 *
+	 * @return array{symbol:string,position:string,thousand:string,decimal:string,decimals:int}
+	 */
+	public static function get_price_format() {
+		$position = get_option( 'at_currency_position', 'left' );
+		if ( ! array_key_exists( $position, self::get_currency_positions() ) ) {
+			$position = 'left';
+		}
+
+		return array(
+			'symbol'   => get_option( 'at_currency_symbol', '₹' ),
+			'position' => $position,
+			'thousand' => (string) get_option( 'at_thousand_separator', ',' ),
+			'decimal'  => (string) ( get_option( 'at_decimal_separator', '.' ) ?: '.' ),
+			'decimals' => max( 0, min( 4, (int) get_option( 'at_price_decimals', 2 ) ) ),
+		);
+	}
+
+	/**
+	 * Format an amount using the Currency settings (symbol, position, separators, decimals).
+	 *
+	 * @param float|string $amount Amount to format.
+	 * @return string Plain text, not escaped.
+	 */
+	public static function format_price( $amount ) {
+		$fmt    = self::get_price_format();
+		$number = number_format( abs( (float) $amount ), $fmt['decimals'], $fmt['decimal'], $fmt['thousand'] );
+		$sign   = (float) $amount < 0 ? '-' : '';
+
+		switch ( $fmt['position'] ) {
+			case 'right':
+				return $sign . $number . $fmt['symbol'];
+			case 'left_space':
+				return $sign . $fmt['symbol'] . ' ' . $number;
+			case 'right_space':
+				return $sign . $number . ' ' . $fmt['symbol'];
+			default:
+				return $sign . $fmt['symbol'] . $number;
+		}
+	}
+
+	/**
+	 * Sanitize currency position.
+	 *
+	 * @param string $input Input position key.
+	 * @return string
+	 */
+	public function sanitize_currency_position( $input ) {
+		$input = sanitize_text_field( $input );
+
+		return array_key_exists( $input, self::get_currency_positions() ) ? $input : 'left';
+	}
+
+	/**
+	 * Sanitize a thousand / decimal separator (a single non-alphanumeric character, or empty).
+	 *
+	 * @param string $input Input separator.
+	 * @return string
+	 */
+	public function sanitize_separator( $input ) {
+		$input = (string) $input;
+		$input = '' === $input ? '' : mb_substr( $input, 0, 1 );
+
+		return preg_match( '/^[\p{L}\p{N}]$/u', $input ) ? '' : $input;
+	}
+
+	/**
+	 * Sanitize the decimal separator: like the thousand separator, but it can never be empty.
+	 *
+	 * @param string $input Input separator.
+	 * @return string
+	 */
+	public function sanitize_decimal_separator( $input ) {
+		$separator = $this->sanitize_separator( $input );
+
+		return '' === $separator ? '.' : $separator;
+	}
+
+	/**
+	 * Sanitize number of decimals (0 - 4).
+	 *
+	 * @param mixed $input Input value.
+	 * @return int
+	 */
+	public function sanitize_price_decimals( $input ) {
+		return max( 0, min( 4, (int) $input ) );
 	}
 
 	/**

@@ -244,9 +244,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				</div>
 				${imgHTML}
 				<div style="display:flex; flex-direction:column; gap:5px; align-self:stretch; justify-content:space-between; align-items:flex-end;">
-					<div style="display:flex; gap:8px;">
-						<a href="#" class="at-activity-edit" data-id="${item.id}" style="font-size:11px; text-decoration:none; color:#2271b1;">Edit</a>
-						<a href="#" class="at-activity-delete" data-id="${item.id}" style="font-size:11px; text-decoration:none; color:#b32d2e;">Delete</a>
+					<div style="display:flex; gap:4px;">
+						<a href="#" class="at-activity-edit" data-id="${item.id}" title="Edit" aria-label="Edit" style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:4px; text-decoration:none; color:#2271b1;"><span class="dashicons dashicons-edit" style="font-size:16px; width:16px; height:16px;"></span></a>
+						<a href="#" class="at-activity-delete" data-id="${item.id}" title="Delete" aria-label="Delete" style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:4px; text-decoration:none; color:#b32d2e;"><span class="dashicons dashicons-trash" style="font-size:16px; width:16px; height:16px;"></span></a>
 					</div>
 				</div>
 			`;

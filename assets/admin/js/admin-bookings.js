@@ -4,6 +4,23 @@
  * on the bookings list table.
  */
 document.addEventListener('DOMContentLoaded', function () {
+
+	// Price formatting driven by Settings > Currency (symbol, position, separators, decimals).
+	const at_price_format = at_bookings_obj.price_format || { symbol: at_bookings_obj.currency_symbol || at_bookings_obj.currency || '', position: 'left', thousand: ',', decimal: '.', decimals: 2 };
+	function atFormatPrice(amount) {
+		const fmt = at_price_format;
+		const value = Math.abs(parseFloat(amount) || 0).toFixed(fmt.decimals);
+		const parts = value.split('.');
+		parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, fmt.thousand);
+		const number = parts.join(fmt.decimals > 0 ? fmt.decimal : '');
+		const sign = (parseFloat(amount) || 0) < 0 ? '-' : '';
+		switch (fmt.position) {
+			case 'right': return sign + number + fmt.symbol;
+			case 'left_space': return sign + fmt.symbol + ' ' + number;
+			case 'right_space': return sign + number + ' ' + fmt.symbol;
+			default: return sign + fmt.symbol + number;
+		}
+	}
 	'use strict';
 
 	if (typeof at_bookings_obj === 'undefined') {
@@ -188,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function () {
 						const price = parseFloat(option.price) || 0;
 						opt.value = option.name;
 						opt.setAttribute('data-price', price);
-						opt.textContent = option.name + (price > 0 ? ' (+' + at_bookings_obj.currency + price.toFixed(2) + ')' : '');
+						opt.textContent = option.name + (price > 0 ? ' (+' + atFormatPrice(price) + ')' : '');
 						if (preselectTransport ? preselectTransport === option.name : 0 === idx) {
 							opt.selected = true;
 							currentTransportPrice = price;
@@ -262,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					checkbox.addEventListener('change', calculateTotal);
 
 					const priceText = document.createTextNode(
-						' ' + addon.name + ' (' + at_bookings_obj.currency + ' ' + parseFloat(addon.price).toFixed(2) +
+						' ' + addon.name + ' (' + atFormatPrice(parseFloat(addon.price)) +
 						(addon.type === 'person' ? ' / person' : ' flat') + ')'
 					);
 
@@ -283,7 +300,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			const adults = parseInt(adultsInput.value, 10) || 0;
 			const children = parseInt(childrenInput.value, 10) || 0;
 			const totalPax = adults + children;
-			const currency = at_bookings_obj.currency;
 
 			const rateAdult = parseFloat(currentPricing.offer_price) > 0 ? parseFloat(currentPricing.offer_price) : parseFloat(currentPricing.adult_price);
 			const priceAdultsSum = adults * rateAdult;
@@ -294,9 +310,9 @@ document.addEventListener('DOMContentLoaded', function () {
 			let subtotal = priceAdultsSum + priceChildrenSum;
 			let markup = '';
 
-			markup += '<div style="display:flex; justify-content:space-between;"><span>Adults (' + adults + ' x ' + currency + rateAdult.toFixed(2) + ')</span><span>' + currency + priceAdultsSum.toFixed(2) + '</span></div>';
+			markup += '<div style="display:flex; justify-content:space-between;"><span>Adults (' + adults + ' x ' + atFormatPrice(rateAdult) + ')</span><span>' + atFormatPrice(priceAdultsSum) + '</span></div>';
 			if (children > 0 && rateChild > 0) {
-				markup += '<div style="display:flex; justify-content:space-between;"><span>Children (' + children + ' x ' + currency + rateChild.toFixed(2) + ')</span><span>' + currency + priceChildrenSum.toFixed(2) + '</span></div>';
+				markup += '<div style="display:flex; justify-content:space-between;"><span>Children (' + children + ' x ' + atFormatPrice(rateChild) + ')</span><span>' + atFormatPrice(priceChildrenSum) + '</span></div>';
 			}
 
 			// Group discount: pick the rule with the highest min_seats that totalPax still qualifies for.
@@ -313,10 +329,10 @@ document.addEventListener('DOMContentLoaded', function () {
 					let discountSum = 0;
 					if (bestRule.type === 'percent') {
 						discountSum = subtotal * (parseFloat(bestRule.value) / 100);
-						markup += '<div style="display:flex; justify-content:space-between; color:#385723;"><span>Group Discount (' + bestRule.min_seats + '+ Pax: ' + bestRule.value + '%)</span><span>-' + currency + discountSum.toFixed(2) + '</span></div>';
+						markup += '<div style="display:flex; justify-content:space-between; color:#385723;"><span>Group Discount (' + bestRule.min_seats + '+ Pax: ' + bestRule.value + '%)</span><span>-' + atFormatPrice(discountSum) + '</span></div>';
 					} else {
 						discountSum = parseFloat(bestRule.value) || 0;
-						markup += '<div style="display:flex; justify-content:space-between; color:#385723;"><span>Group Discount Flat (' + bestRule.min_seats + '+ Pax)</span><span>-' + currency + discountSum.toFixed(2) + '</span></div>';
+						markup += '<div style="display:flex; justify-content:space-between; color:#385723;"><span>Group Discount Flat (' + bestRule.min_seats + '+ Pax)</span><span>-' + atFormatPrice(discountSum) + '</span></div>';
 					}
 					subtotal -= discountSum;
 				}
@@ -328,10 +344,10 @@ document.addEventListener('DOMContentLoaded', function () {
 					let amt = 0;
 					if (charge.type === 'person') {
 						amt = totalPax * parseFloat(charge.price);
-						markup += '<div style="display:flex; justify-content:space-between;"><span>' + charge.name + ' (' + totalPax + ' x ' + currency + parseFloat(charge.price).toFixed(2) + ')</span><span>+' + currency + amt.toFixed(2) + '</span></div>';
+						markup += '<div style="display:flex; justify-content:space-between;"><span>' + charge.name + ' (' + totalPax + ' x ' + atFormatPrice(parseFloat(charge.price)) + ')</span><span>+' + atFormatPrice(amt) + '</span></div>';
 					} else {
 						amt = parseFloat(charge.price) || 0;
-						markup += '<div style="display:flex; justify-content:space-between;"><span>' + charge.name + ' (Flat)</span><span>+' + currency + amt.toFixed(2) + '</span></div>';
+						markup += '<div style="display:flex; justify-content:space-between;"><span>' + charge.name + ' (Flat)</span><span>+' + atFormatPrice(amt) + '</span></div>';
 					}
 					subtotal += amt;
 				});
@@ -345,10 +361,10 @@ document.addEventListener('DOMContentLoaded', function () {
 				let amt = 0;
 				if (type === 'person') {
 					amt = totalPax * price;
-					markup += '<div style="display:flex; justify-content:space-between;"><span>' + chk.value + ' (' + totalPax + ' x ' + currency + price.toFixed(2) + ')</span><span>+' + currency + amt.toFixed(2) + '</span></div>';
+					markup += '<div style="display:flex; justify-content:space-between;"><span>' + chk.value + ' (' + totalPax + ' x ' + atFormatPrice(price) + ')</span><span>+' + atFormatPrice(amt) + '</span></div>';
 				} else {
 					amt = price;
-					markup += '<div style="display:flex; justify-content:space-between;"><span>' + chk.value + ' (Flat)</span><span>+' + currency + amt.toFixed(2) + '</span></div>';
+					markup += '<div style="display:flex; justify-content:space-between;"><span>' + chk.value + ' (Flat)</span><span>+' + atFormatPrice(amt) + '</span></div>';
 				}
 				subtotal += amt;
 			});
@@ -356,11 +372,11 @@ document.addEventListener('DOMContentLoaded', function () {
 			// Selected Transportation Type (added per person, on top of everything else).
 			if (transportSelect && transportSelect.value && currentTransportPrice > 0) {
 				const transportAmt = totalPax * currentTransportPrice;
-				markup += '<div style="display:flex; justify-content:space-between;"><span>' + transportSelect.value + ' (' + totalPax + ' x ' + currency + currentTransportPrice.toFixed(2) + ')</span><span>+' + currency + transportAmt.toFixed(2) + '</span></div>';
+				markup += '<div style="display:flex; justify-content:space-between;"><span>' + transportSelect.value + ' (' + totalPax + ' x ' + atFormatPrice(currentTransportPrice) + ')</span><span>+' + atFormatPrice(transportAmt) + '</span></div>';
 				subtotal += transportAmt;
 			}
 
-			markup += '<div style="display:flex; justify-content:space-between; font-weight:700; border-top:1px solid #dcdcde; margin-top:6px; padding-top:6px;"><span>Total</span><span>' + currency + subtotal.toFixed(2) + '</span></div>';
+			markup += '<div style="display:flex; justify-content:space-between; font-weight:700; border-top:1px solid #dcdcde; margin-top:6px; padding-top:6px;"><span>Total</span><span>' + atFormatPrice(subtotal) + '</span></div>';
 
 			breakdownEl.innerHTML = markup;
 			if (amountInput) {
@@ -514,12 +530,12 @@ document.addEventListener('DOMContentLoaded', function () {
 						['Departure City', data.city_name],
 						['Travel Date', data.departure_date],
 						['Pickup Point', data.pickup_point || '-'],
-						['Transportation Type', data.transport_type ? data.transport_type + (parseFloat(data.transport_price) > 0 ? ' (+' + data.currency + ' ' + parseFloat(data.transport_price).toFixed(2) + ')' : '') : '-'],
+						['Transportation Type', data.transport_type ? data.transport_type + (parseFloat(data.transport_price) > 0 ? ' (+' + atFormatPrice(parseFloat(data.transport_price)) + ')' : '') : '-'],
 						['Adults', data.num_adults],
 						['Children', data.num_children],
 						['Total Seats', data.seats],
 						['Add-ons', addonsText],
-						['Total Amount', data.currency + ' ' + data.total_amount],
+						['Total Amount', atFormatPrice(data.total_amount)],
 						['Status', data.status],
 						['Payment Status', data.payment_status],
 						['Booked On', data.created_at],

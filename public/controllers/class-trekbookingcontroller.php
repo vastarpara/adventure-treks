@@ -64,7 +64,7 @@ class TrekBookingController {
 			'at-public-booking-css',
 			ADVENTURE_TREKS_URL . 'assets/public/css/booking-widget.css',
 			array( 'dashicons' ),
-			ADVENTURE_TREKS_VERSION
+			ADVENTURE_TREKS_VERSION . '.' . filemtime( ADVENTURE_TREKS_PATH . 'assets/public/css/booking-widget.css' )
 		);
 
 		// Public JavaScripts.
@@ -84,6 +84,7 @@ class TrekBookingController {
 				'ajax_url'        => admin_url( 'admin-ajax.php' ),
 				'nonce'           => wp_create_nonce( 'at_booking_nonce_action' ),
 				'currency_symbol' => get_option( 'at_currency_symbol', '₹' ),
+				'price_format'    => \AdventureTreks\Admin\Controllers\AdminController::get_price_format(),
 				'payment_method'  => get_option( 'at_payment_method', 'cash' ),
 				'upi_id'          => get_option( 'at_upi_id', '' ),
 				'upi_qr_code'     => get_option( 'at_upi_qr_code', '' ),
@@ -436,7 +437,6 @@ class TrekBookingController {
 		$date_val       = $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $date_id ) );
 		$date_formatted = gmdate( 'd M Y', strtotime( $date_val ) );
 
-		$currency = get_option( 'at_currency_symbol', '₹' );
 
 		$details_rows = array(
 			array(
@@ -466,7 +466,7 @@ class TrekBookingController {
 			),
 			array(
 				'label' => __( 'Transportation Type', 'adventure-treks' ),
-				'value' => $transport_name ? $transport_name . ( $transport_price > 0 ? ' (+' . $currency . ' ' . number_format( $transport_price, 2 ) . ')' : '' ) : '',
+				'value' => $transport_name ? $transport_name . ( $transport_price > 0 ? ' (+' . \AdventureTreks\Admin\Controllers\AdminController::format_price( $transport_price ) . ')' : '' ) : '',
 			),
 			array(
 				'label' => __( 'Add-ons', 'adventure-treks' ),
@@ -474,7 +474,7 @@ class TrekBookingController {
 			),
 			array(
 				'label' => __( 'Total Amount', 'adventure-treks' ),
-				'value' => $currency . ' ' . number_format( (float) $total_price, 2 ),
+				'value' => \AdventureTreks\Admin\Controllers\AdminController::format_price( (float) $total_price ),
 			),
 			array(
 				'label' => __( 'Status', 'adventure-treks' ),
@@ -573,7 +573,7 @@ class TrekBookingController {
 			if ( $has_valid_date ) {
 				$calendar_date = gmdate( 'd M Y', strtotime( $departure_date . ' +' . intval( $day->day_number ) . ' days' ) );
 				/* translators: 1: Day number, 2: Calendar date */
-				$badge_text = sprintf( esc_html__( 'Day %1$d — %2$s', 'adventure-treks' ), intval( $day->day_number ), $calendar_date );
+				$badge_text = sprintf( esc_html__( 'Day %1$d: %2$s', 'adventure-treks' ), intval( $day->day_number ), $calendar_date );
 			} else {
 				/* translators: %d: Day number */
 				$badge_text = sprintf( esc_html__( 'Day %d', 'adventure-treks' ), intval( $day->day_number ) );

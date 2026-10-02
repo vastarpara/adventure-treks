@@ -265,8 +265,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<h4 id="at_selected_day_title" style="margin: 0; font-size: 15px; font-weight: 600;"></h4>
 								<p id="at_selected_day_desc" style="margin: 3px 0 0 0; font-size: 12px; color: #666; font-style: italic;"></p>
 							</div>
-							<div>
-								<button type="button" class="button" id="at_edit_selected_day_btn" style="margin-right:5px;"><?php esc_html_e( 'Edit Day Settings', 'adventure-treks' ); ?></button>
+							<div style="display:flex; align-items:center; gap:8px; flex-shrink:0; white-space:nowrap;">
+								<button type="button" class="button" id="at_edit_selected_day_btn"><?php esc_html_e( 'Edit Day Settings', 'adventure-treks' ); ?></button>
 								<button type="button" class="button button-primary" id="at_add_activity_btn">+ <?php esc_html_e( 'Add Activity', 'adventure-treks' ); ?></button>
 							</div>
 						</div>

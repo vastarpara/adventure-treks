@@ -89,8 +89,7 @@ class Bookings_List_Table extends \WP_List_Table {
 			case 'seats':
 				return esc_html( $item->$column_name );
 			case 'total_amount':
-				$currency = get_option( 'at_currency_symbol', '₹' );
-				return esc_html( $currency . ' ' . $item->$column_name );
+				return esc_html( \AdventureTreks\Admin\Controllers\AdminController::format_price( $item->$column_name ) );
 			case 'status':
 				$color = 'confirmed' === $item->status ? 'green' : 'red';
 				return '<span style="color:' . esc_attr( $color ) . ';font-weight:bold;">' . esc_html( ucfirst( $item->$column_name ) ) . '</span>';
