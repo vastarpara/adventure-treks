@@ -72,7 +72,7 @@ class TrekBookingController {
 			'at-public-booking-js',
 			ADVENTURE_TREKS_URL . 'assets/public/js/booking-widget.js',
 			array(),
-			ADVENTURE_TREKS_VERSION,
+			ADVENTURE_TREKS_VERSION . '.' . filemtime( ADVENTURE_TREKS_PATH . 'assets/public/js/booking-widget.js' ),
 			true
 		);
 

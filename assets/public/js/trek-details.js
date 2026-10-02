@@ -45,6 +45,17 @@ document.addEventListener('DOMContentLoaded', function() {
 			link.addEventListener('click', function(e) {
 				e.preventDefault();
 
+				// If the tab bar has been scrolled out of view, a shorter tab would leave the
+				// reader stranded below its content; bring the bar back to the top first.
+				const nav = this.closest('.at-details-tabs-nav');
+				if (nav) {
+					const stickyOffset = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--at-header-offset'), 10) || 0;
+					const navTop = nav.getBoundingClientRect().top;
+					if (navTop < stickyOffset) {
+						window.scrollBy({ top: navTop - stickyOffset - 10, left: 0, behavior: 'instant' });
+					}
+				}
+
 				tabLinks.forEach(function(l) { l.parentElement.classList.remove('active'); });
 				tabPanels.forEach(function(p) { p.classList.remove('active'); });
 

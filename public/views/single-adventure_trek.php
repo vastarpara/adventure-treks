@@ -36,22 +36,6 @@ while ( have_posts() ) :
 	$at_gallery_raw  = $at_trek_row ? $at_trek_row['gallery'] : '';
 	$at_trek_duration = $at_trek_row ? $at_trek_row['duration'] : '';
 
-	// "From" price: the cheapest active departure city (offer price when set, else base price).
-	$at_currency    = get_option( 'at_currency_symbol', '₹' );
-	$at_from_price  = 0;
-	$at_from_strike = 0;
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-	$at_price_rows  = $wpdb->get_results( $wpdb->prepare( "SELECT base_price, offer_price FROM {$wpdb->prefix}at_departure_cities WHERE trek_id = %d AND status = 'active'", $trek_id ), ARRAY_A );
-	foreach ( (array) $at_price_rows as $at_price_row ) {
-		$at_base  = floatval( $at_price_row['base_price'] );
-		$at_offer = floatval( $at_price_row['offer_price'] );
-		$at_eff   = ( $at_offer > 0 && $at_offer < $at_base ) ? $at_offer : $at_base;
-		if ( $at_eff > 0 && ( 0 === $at_from_price || $at_eff < $at_from_price ) ) {
-			$at_from_price  = $at_eff;
-			$at_from_strike = $at_eff < $at_base ? $at_base : 0;
-		}
-	}
-
 	$at_gallery_ids  = ! empty( $at_gallery_raw ) ? array_filter( array_map( 'intval', explode( ',', $at_gallery_raw ) ) ) : array();
 
 	$at_hero_images = array();
@@ -78,7 +62,7 @@ while ( have_posts() ) :
 	?>
 
 <style>
-/* ── Single Trek Layout ───────────────────────────────────────── */
+/* - Single Trek Layout - */
 .at-single-trek-wrap {
 	max-width: 1200px;
 	margin: 30px auto;
@@ -93,7 +77,8 @@ while ( have_posts() ) :
 }
 .at-hero-mosaic {
 	display: grid;
-	grid-template-columns: 1.4fr 1fr;
+	grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+	grid-template-rows: minmax(0, 1fr);
 	gap: 8px;
 	height: 420px;
 	border-radius: 16px;
@@ -105,15 +90,17 @@ while ( have_posts() ) :
 }
 .at-mosaic-main,
 .at-mosaic-cell {
+	min-height: 0;
 	overflow: hidden;
 	cursor: zoom-in;
 	background: #f1f3f5;
 }
 .at-mosaic-main img,
 .at-mosaic-cell img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
+	width: 100% !important;
+	max-width: none !important;
+	height: 100% !important;
+	object-fit: cover !important;
 	display: block;
 	transition: transform .3s;
 }
@@ -123,8 +110,8 @@ while ( have_posts() ) :
 }
 .at-mosaic-side {
 	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	grid-template-rows: repeat(2, 1fr);
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-template-rows: repeat(2, minmax(0, 1fr));
 	gap: 8px;
 	height: 100%;
 }
@@ -135,8 +122,23 @@ while ( have_posts() ) :
 .at-mosaic-side[data-count="2"] .at-mosaic-cell {
 	grid-row: 1 / -1;
 }
+.at-mosaic-side[data-count="2"] .at-mosaic-cell:nth-child(1) {
+	grid-column: 1;
+}
+.at-mosaic-side[data-count="2"] .at-mosaic-cell:nth-child(2) {
+	grid-column: 2;
+}
 .at-mosaic-side[data-count="3"] .at-mosaic-cell:nth-child(1) {
 	grid-row: 1 / -1;
+	grid-column: 1;
+}
+.at-mosaic-side[data-count="3"] .at-mosaic-cell:nth-child(2) {
+	grid-column: 2;
+	grid-row: 1;
+}
+.at-mosaic-side[data-count="3"] .at-mosaic-cell:nth-child(3) {
+	grid-column: 2;
+	grid-row: 2;
 }
 /* CSS Grid auto-placement actively dodges any cell an explicit item has claimed —
    it does NOT overlap by default. So the 4th cell needs the *same* explicit
@@ -173,6 +175,7 @@ while ( have_posts() ) :
 	font-weight: 700;
 	text-decoration: none;
 	cursor: pointer;
+	white-space: nowrap;
 	box-shadow: 0 2px 8px rgba(0,0,0,.15);
 }
 .at-mosaic-viewall-btn .dashicons {
@@ -192,19 +195,38 @@ while ( have_posts() ) :
 .at-mosaic-viewall-mobile {
 	display: none;
 }
+/* Single photo: no side tiles, so one full-width column with the button on top. */
+.at-hero-mosaic--single {
+	grid-template-columns: 1fr;
+}
+.at-hero-mosaic--single .at-mosaic-viewall-mobile {
+	display: flex;
+	grid-column: 1;
+	grid-row: 1;
+}
 @media (max-width: 767px) {
+	/* Mobile keeps the same mosaic: wide main photo on top, 2x2 grid below,
+	   with the "View All Images" button on the last tile. */
 	.at-hero-mosaic {
 		grid-template-columns: 1fr;
-		grid-template-rows: 1fr;
-		height: 260px;
+		grid-template-rows: 220px auto;
+		height: auto;
 	}
 	.at-mosaic-side {
-		display: none;
+		grid-template-rows: repeat(2, 120px);
+		height: auto;
+	}
+	.at-hero-mosaic--single {
+		grid-template-rows: 260px;
+	}
+	.at-mosaic-viewall-btn {
+		margin: 6px;
+		padding: 6px 10px;
+		font-size: 12px;
+		gap: 4px;
 	}
 	.at-mosaic-viewall-mobile {
-		display: flex;
-		grid-column: 1;
-		grid-row: 1;
+		display: none;
 	}
 }
 
@@ -336,29 +358,6 @@ while ( have_posts() ) :
 	margin: 0;
 	line-height: 1.6;
 }
-.at-hero-from-price {
-	display: flex;
-	align-items: baseline;
-	flex-wrap: wrap;
-	gap: 6px;
-	margin-top: 12px;
-}
-.at-hero-from-label,
-.at-hero-from-unit {
-	font-size: 13px;
-	color: #6b7280;
-	font-weight: 600;
-}
-.at-hero-from-strike {
-	font-size: 14px;
-	color: #9ca3af;
-	text-decoration: line-through;
-}
-.at-hero-from-amount {
-	font-size: 24px;
-	font-weight: 800;
-	color: var(--at-primary-color, #137a7f);
-	line-height: 1;
 }
 .at-hero-share-btn {
 	flex-shrink: 0;
@@ -426,6 +425,12 @@ while ( have_posts() ) :
 	.at-single-sidebar {
 		position: sticky;
 		top: calc(var(--at-header-offset, 0px) + 30px);
+		/* Never taller than the viewport (minus the fixed bottom Book Now bar): a sticky
+		   box taller than the screen rides its row's bottom edge, so it shifts whenever the
+		   main column changes height (Show More, tab switch). Scroll inside it instead. */
+		max-height: calc(100vh - var(--at-header-offset, 0px) - 100px);
+		overflow-y: auto;
+		overscroll-behavior: contain;
 	}
 }
 
@@ -463,6 +468,42 @@ while ( have_posts() ) :
 	line-height: 1.75;
 }
 .at-post-content p { margin-bottom: 16px; }
+.at-post-content-wrap { position: relative; }
+/* Teaser (first 250 characters) is shown until "Show More" swaps it for the full text. */
+.at-post-content-wrap.at-collapsible .at-about-full { display: none; }
+.at-post-content-wrap.at-collapsible.at-expanded .at-about-full { display: block; }
+.at-post-content-wrap.at-collapsible.at-expanded .at-about-short { display: none; }
+.at-show-more-btn {
+	display: none;
+	align-items: center;
+	gap: 6px;
+	margin: 8px 0 0;
+	padding: 0 !important;
+	background: transparent !important;
+	border: none !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	color: var(--at-primary-color, #137a7f) !important;
+	font-size: 14px;
+	font-weight: 700;
+	text-transform: none;
+	cursor: pointer;
+}
+.at-show-more-btn:hover,
+.at-show-more-btn:focus {
+	background: transparent !important;
+	color: var(--at-primary-color, #137a7f) !important;
+	outline: none !important;
+	box-shadow: none !important;
+}
+.at-show-more-btn .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	transition: transform .2s ease;
+}
+.at-post-content-wrap.at-expanded + .at-show-more-btn .dashicons { transform: rotate(180deg); }
+.at-post-content-wrap.at-collapsible + .at-show-more-btn { display: inline-flex; }
 </style>
 
 <div class="at-single-trek-wrap">
@@ -477,14 +518,14 @@ while ( have_posts() ) :
 	?>
 	<?php if ( $at_main_image ) : ?>
 		<div class="at-hero-gallery-card" id="at_hero_gallery">
-			<div class="at-hero-mosaic">
+			<div class="at-hero-mosaic<?php echo 0 === $at_side_count ? ' at-hero-mosaic--single' : ''; ?>">
 
 				<div class="at-mosaic-main at-hero-lightbox-trigger" data-full="<?php echo esc_url( $at_main_image['full'] ); ?>" data-index="0">
 					<img src="<?php echo esc_url( $at_main_image['url'] ); ?>"
 						alt="<?php echo esc_attr( $at_main_image['alt'] ? $at_main_image['alt'] : get_the_title() ); ?>"
 						loading="eager" />
 				</div>
-				<?php if ( $at_total_images > 1 ) : ?>
+				<?php if ( $at_total_images >= 1 ) : ?>
 					<!-- Sibling grid item sharing .at-mosaic-main's cell (mobile only) — not
 					     nested inside it, so it never depends on that element's `position`. -->
 					<button type="button" class="at-mosaic-viewall-btn at-mosaic-viewall-mobile" data-start-index="0">
@@ -502,10 +543,11 @@ while ( have_posts() ) :
 									loading="lazy" />
 							</div>
 						<?php endforeach; ?>
-						<?php if ( $at_hidden_count > 0 ) : ?>
+						<?php if ( $at_total_images > 1 ) : ?>
 							<!-- Sibling grid item sharing the last cell's grid area (row2/col2) —
-							     not nested inside that cell, so no `position` dependency at all. -->
-							<button type="button" class="at-mosaic-viewall-btn" data-start-index="5">
+							     not nested inside that cell, so no `position` dependency at all.
+							     Always shown on desktop; jumps past the 5 tiles only when more exist. -->
+							<button type="button" class="at-mosaic-viewall-btn" data-start-index="<?php echo esc_attr( $at_hidden_count > 0 ? 5 : 0 ); ?>">
 								<span class="dashicons dashicons-images-alt2"></span> <?php esc_html_e( 'View All Images', 'adventure-treks' ); ?>
 							</button>
 						<?php endif; ?>
@@ -544,7 +586,7 @@ while ( have_posts() ) :
 		</div>
 	<?php endif; ?>
 
-	<!-- ── TWO-COLUMN BODY ──────────────────────────────────── -->
+	<!--  TWO-COLUMN BODY -->
 	<div class="at-single-body">
 
 		<!-- MAIN -->
@@ -560,16 +602,6 @@ while ( have_posts() ) :
 					<?php if ( has_excerpt() ) : ?>
 						<p class="at-hero-excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
 					<?php endif; ?>
-					<?php if ( $at_from_price > 0 ) : ?>
-						<div class="at-hero-from-price">
-							<span class="at-hero-from-label"><?php esc_html_e( 'From', 'adventure-treks' ); ?></span>
-							<?php if ( $at_from_strike > 0 ) : ?>
-								<span class="at-hero-from-strike"><?php echo esc_html( $at_currency . number_format( $at_from_strike, 0 ) ); ?></span>
-							<?php endif; ?>
-							<span class="at-hero-from-amount"><?php echo esc_html( $at_currency . number_format( $at_from_price, 0 ) ); ?></span>
-							<span class="at-hero-from-unit"><?php esc_html_e( '/ person', 'adventure-treks' ); ?></span>
-						</div>
-					<?php endif; ?>
 				</div>
 				<button type="button" class="at-hero-share-btn" id="at_hero_share_btn" data-share-url="<?php echo esc_url( get_permalink( $trek_id ) ); ?>" data-share-title="<?php echo esc_attr( get_the_title() ); ?>">
 					<span class="dashicons dashicons-share"></span> <?php esc_html_e( 'Share', 'adventure-treks' ); ?>
@@ -579,7 +611,36 @@ while ( have_posts() ) :
 			<?php if ( get_the_content() ) : ?>
 			<div class="at-section-card">
 				<h2><span class="dashicons dashicons-text-page"></span><?php esc_html_e( 'About This Trek', 'adventure-treks' ); ?></h2>
-				<div class="at-post-content"><?php the_content(); ?></div>
+				<?php
+				// Plain-text teaser: first 250 characters, then the full formatted content on demand.
+				$at_about_html  = apply_filters( 'the_content', get_the_content() );
+				$at_about_text  = trim( preg_replace( '/\s+/u', ' ', wp_strip_all_tags( $at_about_html ) ) );
+				$at_about_long  = mb_strlen( $at_about_text ) > 250;
+				$at_about_short = $at_about_long ? rtrim( mb_substr( $at_about_text, 0, 250 ) ) . '...' : '';
+				?>
+				<div class="at-post-content-wrap<?php echo $at_about_long ? ' at-collapsible' : ''; ?>" id="at_about_wrap">
+					<?php if ( $at_about_long ) : ?>
+						<div class="at-post-content at-about-short"><p><?php echo esc_html( $at_about_short ); ?></p></div>
+					<?php endif; ?>
+					<div class="at-post-content at-about-full"><?php echo $at_about_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core the_content output. ?></div>
+				</div>
+				<button type="button" class="at-show-more-btn" id="at_about_toggle"
+					data-more="<?php esc_attr_e( 'Show More', 'adventure-treks' ); ?>"
+					data-less="<?php esc_attr_e( 'Show Less', 'adventure-treks' ); ?>">
+					<span class="at-toggle-label"><?php esc_html_e( 'Show More', 'adventure-treks' ); ?></span>
+					<span class="dashicons dashicons-arrow-down-alt2"></span>
+				</button>
+				<script>
+				(function() {
+					var wrap = document.getElementById('at_about_wrap');
+					var btn = document.getElementById('at_about_toggle');
+					if (!wrap || !btn) return;
+					btn.addEventListener('click', function() {
+						var expanded = wrap.classList.toggle('at-expanded');
+						btn.querySelector('.at-toggle-label').textContent = btn.getAttribute(expanded ? 'data-less' : 'data-more');
+					});
+				})();
+				</script>
 			</div>
 			<?php endif; ?>
 

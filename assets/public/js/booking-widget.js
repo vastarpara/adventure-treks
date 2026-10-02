@@ -598,24 +598,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			return parseInt(val) || 0;
 		}
 
-		// 4. Extra Charges
-		let extraSum = 0;
-		if (dateDetails.extra_charges && dateDetails.extra_charges.length > 0) {
-			dateDetails.extra_charges.forEach(charge => {
-				let amt = 0;
-				if (charge.type === 'person') {
-					amt = totalPax * parseFloat(charge.price);
-					markup += `<div style="display:flex; justify-content:space-between;"><span>${charge.name} (${totalPax} x ${currency}${parseFloat(charge.price).toFixed(2)})</span><span>+${currency}${amt.toFixed(2)}</span></div>`;
-				} else {
-					amt = parseFloat(charge.price);
-					markup += `<div style="display:flex; justify-content:space-between;"><span>${charge.name} (Flat)</span><span>+${currency}${amt.toFixed(2)}</span></div>`;
-				}
-				extraSum += amt;
-			});
-		}
-		subtotal += extraSum;
-
-		// 5. Optional Checked Addons
+		// 4. Optional Checked Addons
 		let addonsSum = 0;
 		const checkedAddons = addonsList ? addonsList.querySelectorAll('input[name="addon_check"]:checked') : [];
 		checkedAddons.forEach(chk => {
@@ -634,6 +617,23 @@ document.addEventListener('DOMContentLoaded', function() {
 			addonsSum += amt;
 		});
 		subtotal += addonsSum;
+
+		// 5. Mandatory Extra Charges (listed last, after the optional add-ons)
+		let extraSum = 0;
+		if (dateDetails.extra_charges && dateDetails.extra_charges.length > 0) {
+			dateDetails.extra_charges.forEach(charge => {
+				let amt = 0;
+				if (charge.type === 'person') {
+					amt = totalPax * parseFloat(charge.price);
+					markup += `<div style="display:flex; justify-content:space-between;"><span>${charge.name} (${totalPax} x ${currency}${parseFloat(charge.price).toFixed(2)})</span><span>+${currency}${amt.toFixed(2)}</span></div>`;
+				} else {
+					amt = parseFloat(charge.price);
+					markup += `<div style="display:flex; justify-content:space-between;"><span>${charge.name} (Flat)</span><span>+${currency}${amt.toFixed(2)}</span></div>`;
+				}
+				extraSum += amt;
+			});
+		}
+		subtotal += extraSum;
 
 		// Set totals
 		receiptRows.innerHTML = markup;

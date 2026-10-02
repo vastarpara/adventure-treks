@@ -237,7 +237,7 @@ class TrekShortcodesController {
 			'at-public-details-css',
 			ADVENTURE_TREKS_URL . 'assets/public/css/trek-details.css',
 			array( 'dashicons' ),
-			ADVENTURE_TREKS_VERSION
+			ADVENTURE_TREKS_VERSION . '.' . filemtime( ADVENTURE_TREKS_PATH . 'assets/public/css/trek-details.css' )
 		);
 
 		// Frontend JS.
@@ -245,7 +245,7 @@ class TrekShortcodesController {
 			'at-public-details-js',
 			ADVENTURE_TREKS_URL . 'assets/public/js/trek-details.js',
 			array(),
-			ADVENTURE_TREKS_VERSION,
+			ADVENTURE_TREKS_VERSION . '.' . filemtime( ADVENTURE_TREKS_PATH . 'assets/public/js/trek-details.js' ),
 			true
 		);
 
