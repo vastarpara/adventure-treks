@@ -230,6 +230,143 @@ while ( have_posts() ) :
 	}
 }
 
+/* Share dialog: choose where to share (WhatsApp, Facebook, X, LinkedIn...) */
+.at-share-modal {
+	display: none;
+	position: fixed;
+	inset: 0;
+	z-index: 100001;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+	background: rgba(0, 0, 0, .55);
+}
+.at-share-modal.active {
+	display: flex;
+}
+.at-share-dialog {
+	width: 100%;
+	max-width: 420px;
+	background: #fff;
+	border-radius: 16px;
+	padding: 22px 22px 20px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
+	box-sizing: border-box;
+}
+.at-share-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 4px;
+}
+.at-share-head h3 {
+	margin: 0;
+	font-size: 18px;
+	font-weight: 700;
+	color: #1a1a1a;
+}
+.at-share-close {
+	background: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 4px !important;
+	color: #6b7280 !important;
+	cursor: pointer;
+	line-height: 1;
+}
+.at-share-close:hover,
+.at-share-close:focus {
+	color: var(--at-secondary-color, #0f6165) !important;
+}
+.at-share-sub {
+	margin: 0 0 18px;
+	font-size: 13px;
+	color: #6b7280;
+}
+.at-share-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 14px 8px;
+	margin-bottom: 18px;
+}
+.at-share-option {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	padding: 0;
+	background: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	color: #333 !important;
+	font-size: 12px;
+	font-weight: 600;
+	text-decoration: none !important;
+	cursor: pointer;
+}
+.at-share-option:hover,
+.at-share-option:focus {
+	color: var(--at-secondary-color, #0f6165) !important;
+}
+.at-share-icon {
+	width: 52px;
+	height: 52px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	transition: transform .15s ease;
+}
+.at-share-option:hover .at-share-icon {
+	transform: translateY(-2px);
+}
+.at-share-icon .dashicons {
+	font-size: 26px;
+	width: 26px;
+	height: 26px;
+}
+.at-share-icon svg {
+	width: 22px;
+	height: 22px;
+	fill: currentColor;
+}
+.at-share-whatsapp { background: #25d366; }
+.at-share-facebook { background: #1877f2; }
+.at-share-x { background: #000; }
+.at-share-linkedin { background: #0a66c2; }
+.at-share-reddit { background: #ff4500; }
+.at-share-email { background: #6b7280; }
+.at-share-copy-row {
+	display: flex;
+	gap: 8px;
+}
+.at-share-copy-row input {
+	flex: 1;
+	min-width: 0;
+	padding: 9px 12px;
+	border: 1px solid #d0d5dd;
+	border-radius: 8px;
+	font-size: 12px;
+	color: #444;
+	background: #f6f7f7;
+}
+.at-share-copy-btn {
+	flex-shrink: 0;
+	padding: 9px 16px !important;
+	border: 0 !important;
+	border-radius: 8px !important;
+	background: var(--at-primary-color, #137a7f) !important;
+	color: #fff !important;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+}
+.at-share-copy-btn:hover,
+.at-share-copy-btn:focus {
+	background: var(--at-secondary-color, #0f6165) !important;
+}
+
 /* Hero gallery lightbox — full, uncropped view of the tapped photo */
 .at-hero-lightbox {
 	display: none;
@@ -358,7 +495,6 @@ while ( have_posts() ) :
 	margin: 0;
 	line-height: 1.6;
 }
-}
 .at-hero-share-btn {
 	flex-shrink: 0;
 	display: flex !important;
@@ -382,9 +518,14 @@ while ( have_posts() ) :
 	text-decoration: none !important;
 }
 .at-hero-share-btn .dashicons {
-	font-size: 16px;
-	width: 16px;
-	height: 16px;
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	color: var(--at-primary-color, #137a7f);
+}
+.at-hero-share-btn:hover .dashicons,
+.at-hero-share-btn:focus .dashicons {
+	color: var(--at-secondary-color, #0f6165);
 }
 @media (max-width: 600px) {
 	.at-hero-heading-card {
@@ -463,6 +604,13 @@ while ( have_posts() ) :
 		max-height: calc(100vh - var(--at-header-offset, 0px) - 100px);
 		overflow-y: auto;
 		overscroll-behavior: contain;
+		/* Still scrollable with wheel / touch / keyboard, just without the visible scrollbar. */
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+	}
+	.at-single-sidebar::-webkit-scrollbar {
+		display: none;
+		width: 0;
 	}
 }
 
@@ -602,6 +750,29 @@ while ( have_posts() ) :
 
 	<!-- ── HERO GALLERY LIGHTBOX (full, uncropped photo view) ──── -->
 	<?php if ( ! empty( $at_hero_images ) ) : ?>
+		<!-- Share dialog (opened by the Share button) -->
+		<div class="at-share-modal" id="at_share_modal" role="dialog" aria-modal="true" aria-labelledby="at_share_title">
+			<div class="at-share-dialog">
+				<div class="at-share-head">
+					<h3 id="at_share_title"><?php esc_html_e( 'Share this trek', 'adventure-treks' ); ?></h3>
+					<button type="button" class="at-share-close" id="at_share_close" aria-label="<?php esc_attr_e( 'Close', 'adventure-treks' ); ?>"><span class="dashicons dashicons-no-alt"></span></button>
+				</div>
+				<p class="at-share-sub"><?php echo esc_html( get_the_title() ); ?></p>
+				<div class="at-share-grid">
+					<a class="at-share-option" data-share="whatsapp" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-whatsapp"><span class="dashicons dashicons-whatsapp"></span></span>WhatsApp</a>
+					<a class="at-share-option" data-share="facebook" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-facebook"><span class="dashicons dashicons-facebook-alt"></span></span>Facebook</a>
+					<a class="at-share-option" data-share="x" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></span>X</a>
+					<a class="at-share-option" data-share="linkedin" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-linkedin"><span class="dashicons dashicons-linkedin"></span></span>LinkedIn</a>
+					<a class="at-share-option" data-share="reddit" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-reddit"><span class="dashicons dashicons-reddit"></span></span>Reddit</a>
+					<a class="at-share-option" data-share="email"><span class="at-share-icon at-share-email"><span class="dashicons dashicons-email-alt"></span></span><?php esc_html_e( 'Email', 'adventure-treks' ); ?></a>
+				</div>
+				<div class="at-share-copy-row">
+					<input type="text" id="at_share_url" value="<?php echo esc_url( get_permalink( $trek_id ) ); ?>" readonly />
+					<button type="button" class="at-share-copy-btn" id="at_share_copy" data-copied="<?php esc_attr_e( 'Copied!', 'adventure-treks' ); ?>"><?php esc_html_e( 'Copy link', 'adventure-treks' ); ?></button>
+				</div>
+			</div>
+		</div>
+
 		<div class="at-hero-lightbox" id="at_hero_lightbox">
 			<div class="at-hero-lightbox-overlay" data-lightbox-close></div>
 			<div class="at-hero-lightbox-content">
@@ -769,28 +940,53 @@ while ( have_posts() ) :
 	});
 })();
 
-// Share button: native share sheet where supported (mobile), otherwise copy the
-// trek's URL to the clipboard. Independent of the gallery/lightbox above so it
-// still works on treks with no photos configured yet.
+// Share button: opens the share dialog (WhatsApp, Facebook, X, LinkedIn, Reddit, Email, copy link).
+// Independent of the gallery/lightbox above so it still works on treks with no photos yet.
 (function() {
 	var shareBtn = document.getElementById('at_hero_share_btn');
-	if (!shareBtn) return;
+	var modal = document.getElementById('at_share_modal');
+	if (!shareBtn || !modal) return;
 
-	shareBtn.addEventListener('click', function() {
-		var url = shareBtn.getAttribute('data-share-url');
-		var title = shareBtn.getAttribute('data-share-title');
+	var url = shareBtn.getAttribute('data-share-url');
+	var title = shareBtn.getAttribute('data-share-title');
+	var text = encodeURIComponent(title);
+	var link = encodeURIComponent(url);
 
-		if (navigator.share) {
-			navigator.share({ title: title, url: url }).catch(function() {});
-			return;
+	var targets = {
+		whatsapp: 'https://wa.me/?text=' + encodeURIComponent(title + ' ' + url),
+		facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + link,
+		x: 'https://twitter.com/intent/tweet?text=' + text + '&url=' + link,
+		linkedin: 'https://www.linkedin.com/sharing/share-offsite/?url=' + link,
+		reddit: 'https://www.reddit.com/submit?url=' + link + '&title=' + text,
+		email: 'mailto:?subject=' + text + '&body=' + encodeURIComponent(title + '\n' + url)
+	};
+	modal.querySelectorAll('[data-share]').forEach(function(a) {
+		a.setAttribute('href', targets[a.getAttribute('data-share')]);
+	});
+
+	var copyBtn = document.getElementById('at_share_copy');
+	var copyInput = document.getElementById('at_share_url');
+	var copyLabel = copyBtn.textContent;
+
+	function openModal() { modal.classList.add('active'); document.body.style.overflow = 'hidden'; }
+	function closeModal() { modal.classList.remove('active'); document.body.style.overflow = ''; }
+
+	shareBtn.addEventListener('click', openModal);
+	document.getElementById('at_share_close').addEventListener('click', closeModal);
+	modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+	document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && modal.classList.contains('active')) closeModal(); });
+	modal.querySelectorAll('a[data-share]').forEach(function(a) { a.addEventListener('click', function() { setTimeout(closeModal, 150); }); });
+
+	copyBtn.addEventListener('click', function() {
+		function done() {
+			copyBtn.textContent = copyBtn.getAttribute('data-copied');
+			setTimeout(function() { copyBtn.textContent = copyLabel; }, 2000);
 		}
-
 		if (navigator.clipboard && navigator.clipboard.writeText) {
-			navigator.clipboard.writeText(url).then(function() {
-				var original = shareBtn.innerHTML;
-				shareBtn.innerHTML = '<span class="dashicons dashicons-yes"></span> Link Copied';
-				setTimeout(function() { shareBtn.innerHTML = original; }, 2000);
-			}).catch(function() {});
+			navigator.clipboard.writeText(url).then(done).catch(function() { copyInput.select(); });
+		} else {
+			copyInput.select();
+			try { document.execCommand('copy'); done(); } catch (err) {}
 		}
 	});
 })();
