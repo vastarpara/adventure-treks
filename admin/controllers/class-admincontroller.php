@@ -189,7 +189,7 @@ class AdminController {
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_hex_color',
-				'default'           => '#137a7f',
+				'default'           => '',
 			)
 		);
 
@@ -199,7 +199,7 @@ class AdminController {
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_hex_color',
-				'default'           => '#0f6165',
+				'default'           => '',
 			)
 		);
 

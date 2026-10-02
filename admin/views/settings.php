@@ -68,6 +68,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</table>
 
 			<h2><?php esc_html_e( 'Color', 'adventure-treks' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Leave a color empty to use your theme\'s own colors (Primary and Secondary).', 'adventure-treks' ); ?></p>
 			<table class="form-table" role="presentation">
 				<tbody>
 					<tr>
@@ -75,7 +76,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<label for="at_primary_color"><?php esc_html_e( 'Primary', 'adventure-treks' ); ?></label>
 						</th>
 						<td>
-							<input type="text" name="at_primary_color" id="at_primary_color" class="at-color-picker" value="<?php echo esc_attr( get_option( 'at_primary_color', '#137a7f' ) ); ?>" data-default-color="#137a7f" />
+							<input type="text" name="at_primary_color" id="at_primary_color" class="at-color-picker" value="<?php echo esc_attr( get_option( 'at_primary_color', '' ) ); ?>" />
 						</td>
 					</tr>
 					<tr>
@@ -83,7 +84,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<label for="at_secondary_color"><?php esc_html_e( 'Secondary', 'adventure-treks' ); ?></label>
 						</th>
 						<td>
-							<input type="text" name="at_secondary_color" id="at_secondary_color" class="at-color-picker" value="<?php echo esc_attr( get_option( 'at_secondary_color', '#0f6165' ) ); ?>" data-default-color="#0f6165" />
+							<input type="text" name="at_secondary_color" id="at_secondary_color" class="at-color-picker" value="<?php echo esc_attr( get_option( 'at_secondary_color', '' ) ); ?>" />
 						</td>
 					</tr>
 				</tbody>

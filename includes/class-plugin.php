@@ -136,24 +136,152 @@ class Plugin {
 	}
 
 	/**
-	 * Build the `:root` CSS custom properties block for the admin-configured
-	 * Primary/Secondary brand colors, so the same setting drives styling
-	 * across both the admin screens and the public-facing templates.
+	 * Built-in brand colors, used only when neither the Settings > Color options
+	 * nor the active theme provide one.
+	 *
+	 * @var array<string,string>
+	 */
+	const DEFAULT_COLORS = array(
+		'primary'   => '#137a7f',
+		'secondary' => '#0f6165',
+	);
+
+	/**
+	 * Palette slugs / Elementor global color ids that stand in for each brand role in a theme.
+	 *
+	 * @return array<string,array<string,string[]>>
+	 */
+	private static function theme_color_map() {
+		return array(
+			'primary'   => array(
+				'css'       => array( '--wp--preset--color--primary', '--e-global-color-primary', '--wp--preset--color--accent-1' ),
+				'palette'   => array( 'primary', 'accent-1', 'accent', 'brand' ),
+				'elementor' => array( 'primary' ),
+			),
+			'secondary' => array(
+				'css'       => array( '--wp--preset--color--secondary', '--e-global-color-secondary', '--wp--preset--color--accent-2' ),
+				'palette'   => array( 'secondary', 'accent-2', 'contrast' ),
+				'elementor' => array( 'secondary' ),
+			),
+		);
+	}
+
+	/**
+	 * Look up a brand color in the active theme (block-theme palette, classic editor palette
+	 * or the Elementor kit) as a hex value. Returns an empty string when the theme has none.
+	 *
+	 * @param string $role 'primary' or 'secondary'.
+	 * @return string
+	 */
+	public static function get_theme_color_hex( $role ) {
+		$map = self::theme_color_map();
+		if ( ! isset( $map[ $role ] ) ) {
+			return '';
+		}
+
+		$palette = array();
+
+		if ( function_exists( 'wp_get_global_settings' ) ) {
+			$global = wp_get_global_settings( array( 'color', 'palette' ) );
+			if ( is_array( $global ) ) {
+				foreach ( array( 'theme', 'custom' ) as $origin ) {
+					if ( ! empty( $global[ $origin ] ) && is_array( $global[ $origin ] ) ) {
+						foreach ( $global[ $origin ] as $entry ) {
+							if ( isset( $entry['slug'], $entry['color'] ) ) {
+								$palette[ $entry['slug'] ] = $entry['color'];
+							}
+						}
+					}
+				}
+			}
+		}
+
+		$support = get_theme_support( 'editor-color-palette' );
+		if ( ! empty( $support[0] ) && is_array( $support[0] ) ) {
+			foreach ( $support[0] as $entry ) {
+				if ( isset( $entry['slug'], $entry['color'] ) && ! isset( $palette[ $entry['slug'] ] ) ) {
+					$palette[ $entry['slug'] ] = $entry['color'];
+				}
+			}
+		}
+
+		if ( class_exists( '\\Elementor\\Plugin' ) && isset( \Elementor\Plugin::$instance->kits_manager ) ) {
+			$kit = \Elementor\Plugin::$instance->kits_manager->get_active_kit_for_frontend();
+			if ( $kit ) {
+				foreach ( (array) $kit->get_settings( 'system_colors' ) as $entry ) {
+					if ( isset( $entry['_id'], $entry['color'] ) && in_array( $entry['_id'], $map[ $role ]['elementor'], true ) ) {
+						$palette[ 'elementor-' . $entry['_id'] ] = $entry['color'];
+					}
+				}
+			}
+		}
+
+		$candidates = array_merge( array_map( static function ( $id ) {
+			return 'elementor-' . $id;
+		}, $map[ $role ]['elementor'] ), $map[ $role ]['palette'] );
+
+		foreach ( $candidates as $slug ) {
+			if ( ! empty( $palette[ $slug ] ) ) {
+				$hex = sanitize_hex_color( $palette[ $slug ] );
+				if ( $hex ) {
+					return $hex;
+				}
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * The brand color for a role: the value saved in Settings > Color, otherwise the theme's
+	 * color, otherwise the built-in default. Always a hex value (used where CSS variables
+	 * are unavailable, such as emails).
+	 *
+	 * @param string $role 'primary' or 'secondary'.
+	 * @return string
+	 */
+	public static function get_brand_color( $role ) {
+		$saved = sanitize_hex_color( (string) get_option( 'at_' . $role . '_color', '' ) );
+		if ( $saved ) {
+			return $saved;
+		}
+
+		$theme = self::get_theme_color_hex( $role );
+
+		return $theme ? $theme : self::DEFAULT_COLORS[ $role ];
+	}
+
+	/**
+	 * Build the `:root` CSS custom properties block for the Primary/Secondary brand colors.
+	 *
+	 * A color saved in Settings > Color always wins. When it is left empty, the public site
+	 * follows the active theme (its CSS color variables, live) and the admin screens use the
+	 * theme's hex value; both finish on the built-in default.
 	 *
 	 * @return string
 	 */
 	public static function get_dynamic_color_css() {
-		$primary   = sanitize_hex_color( get_option( 'at_primary_color', '#137a7f' ) );
-		$secondary = sanitize_hex_color( get_option( 'at_secondary_color', '#0f6165' ) );
+		$map   = self::theme_color_map();
+		$rules = '';
 
-		if ( ! $primary ) {
-			$primary = '#137a7f';
-		}
-		if ( ! $secondary ) {
-			$secondary = '#0f6165';
+		foreach ( array( 'primary', 'secondary' ) as $role ) {
+			$saved = sanitize_hex_color( (string) get_option( 'at_' . $role . '_color', '' ) );
+
+			if ( $saved ) {
+				$value = $saved;
+			} elseif ( is_admin() ) {
+				$value = self::get_brand_color( $role );
+			} else {
+				$value = self::get_brand_color( $role );
+				foreach ( array_reverse( $map[ $role ]['css'] ) as $variable ) {
+					$value = 'var(' . $variable . ', ' . $value . ')';
+				}
+			}
+
+			$rules .= '--at-' . $role . '-color:' . $value . ';';
 		}
 
-		return ":root{--at-primary-color:{$primary};--at-secondary-color:{$secondary};}";
+		return ':root{' . $rules . '}';
 	}
 
 	/**
@@ -169,14 +297,8 @@ class Plugin {
 	 * @return string
 	 */
 	public static function render_email_html( $heading, $intro, $details_rows, $cta_label = '', $cta_url = '' ) {
-		$primary = sanitize_hex_color( get_option( 'at_primary_color', '#137a7f' ) );
-		if ( ! $primary ) {
-			$primary = '#137a7f';
-		}
-		$secondary = sanitize_hex_color( get_option( 'at_secondary_color', '#0f6165' ) );
-		if ( ! $secondary ) {
-			$secondary = '#0f6165';
-		}
+		$primary   = self::get_brand_color( 'primary' );
+		$secondary = self::get_brand_color( 'secondary' );
 
 		$site_name = get_bloginfo( 'name' );
 		$logo_url  = get_option( 'at_site_logo', '' );

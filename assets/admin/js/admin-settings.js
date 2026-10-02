@@ -60,6 +60,22 @@ document.addEventListener('DOMContentLoaded', function () {
 if (typeof jQuery !== 'undefined') {
 	jQuery(function ($) {
 		$('.at-color-picker').wpColorPicker();
+
+		// An empty color means "follow the theme": give each picker a one-click way to get there
+		// (the stock "Default" button only returns to a fixed colour, which we no longer set).
+		$('.at-color-picker').each(function () {
+			const $input = $(this);
+			const $btn = $('<button type="button" class="button button-small at-color-theme-btn"></button>')
+				.text('Use theme color')
+				.css('margin-left', '6px');
+			$input.closest('.wp-picker-container').append($btn);
+
+			$btn.on('click', function () {
+				$input.wpColorPicker('close');
+				$input.val('').trigger('change');
+				$input.closest('.wp-picker-container').find('.wp-color-result').css('background-color', '');
+			});
+		});
 	});
 }
 
