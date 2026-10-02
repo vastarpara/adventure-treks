@@ -222,3 +222,114 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	});
 });
+
+// ==========================================
+// Age rules: Adults / Children age labels must fit the trek's Age Limit.
+//   Adults   "12" or "12+", not below the minimum age (nor above the maximum).
+//   Children "a-b", starting at/above the minimum age and ending before the adults age.
+// Mirrors TrekMetaBoxController::validate_ages() (the server re-checks on save).
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
+	const limitInput = document.getElementById('at_age_limit');
+	const adultInput = document.getElementById('at_adult_age');
+	const childInput = document.getElementById('at_child_age');
+	if (!limitInput || !adultInput || !childInput) {
+		return;
+	}
+
+	function parseLimit(text) {
+		const nums = (text.match(/\d+/g) || []).map(Number);
+		return { min: nums.length > 0 ? nums[0] : null, max: nums.length > 1 ? nums[1] : null };
+	}
+
+	function validate() {
+		const limit = parseLimit(limitInput.value);
+		const errors = { adult: '', child: '' };
+		let adult = null;
+
+		const adultText = adultInput.value.trim();
+		if (adultText !== '') {
+			const m = adultText.match(/^(\d{1,2})\+?$/);
+			if (!m) {
+				errors.adult = 'Adults age must be a number, optionally followed by +, e.g. 12+.';
+			} else {
+				adult = parseInt(m[1], 10);
+				if (limit.min !== null && adult < limit.min) {
+					errors.adult = 'Adults age (' + adult + ') cannot be below the trek minimum age (' + limit.min + ').';
+				} else if (limit.max !== null && adult > limit.max) {
+					errors.adult = 'Adults age (' + adult + ') cannot be above the trek maximum age (' + limit.max + ').';
+				}
+			}
+		}
+
+		const childText = childInput.value.trim();
+		if (childText !== '') {
+			const m = childText.match(/^(\d{1,2})\s*-\s*(\d{1,2})$/);
+			if (!m) {
+				errors.child = 'Children age must be a range, e.g. 10-11.';
+			} else {
+				const from = parseInt(m[1], 10);
+				const to = parseInt(m[2], 10);
+				if (from > to) {
+					errors.child = 'Children age range must go from the lower age to the higher age, e.g. 10-11.';
+				} else if (limit.min !== null && from < limit.min) {
+					errors.child = 'Children age cannot start at ' + from + ', the trek minimum age is ' + limit.min + '.';
+				} else if (adult !== null && to >= adult) {
+					errors.child = 'Children age range must end before the adults age (' + adult + ').';
+				}
+			}
+		}
+
+		return errors;
+	}
+
+	function showError(input, message) {
+		let el = input.parentNode.querySelector('.at-age-error');
+		if (!message) {
+			if (el) { el.remove(); }
+			input.style.borderColor = '';
+			return;
+		}
+		if (!el) {
+			el = document.createElement('p');
+			el.className = 'at-age-error';
+			el.style.cssText = 'color:#b32d2e; margin:4px 0 0; font-size:12px;';
+			input.parentNode.appendChild(el);
+		}
+		el.textContent = message;
+		input.style.borderColor = '#b32d2e';
+	}
+
+	function render() {
+		const errors = validate();
+		showError(adultInput, errors.adult);
+		showError(childInput, errors.child);
+		return !errors.adult && !errors.child;
+	}
+
+	[limitInput, adultInput, childInput].forEach(function(input) {
+		input.addEventListener('input', render);
+	});
+	render();
+
+	// Block "Update" / "Publish" until the ages fit the Age Limit.
+	const postForm = document.getElementById('post');
+	if (postForm) {
+		postForm.addEventListener('submit', function(e) {
+			if (!render()) {
+				e.preventDefault();
+				const tabLink = document.querySelector('.at-meta-tabs-nav a[href="#at-tab-general"]');
+				if (tabLink) { tabLink.click(); }
+				adultInput.scrollIntoView({ block: 'center' });
+				if (typeof window.at_admin_toast === 'function') {
+					window.at_admin_toast('Please fix the age settings before saving.');
+				}
+				// WordPress disables the submit button while saving; undo that so the editor can retry.
+				setTimeout(function() {
+					document.querySelectorAll('#publishing-action .spinner').forEach(function(s) { s.classList.remove('is-active'); });
+					document.querySelectorAll('#publish, #save-post').forEach(function(b) { b.classList.remove('disabled'); b.removeAttribute('disabled'); });
+				}, 50);
+			}
+		});
+	}
+});

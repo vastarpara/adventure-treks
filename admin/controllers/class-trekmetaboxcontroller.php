@@ -25,6 +25,114 @@ class TrekMetaBoxController {
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_box' ) );
 		add_action( 'save_post_adventure_trek', array( $this, 'save_trek_details' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'admin_notices', array( $this, 'render_age_notice' ) );
+	}
+
+	/**
+	 * Parse an Age Limit label such as "10+ years" or "10 - 55 Years" into min / max ages.
+	 *
+	 * @param string $age_limit Age limit text.
+	 * @return array{min:int|null,max:int|null}
+	 */
+	public static function parse_age_limit( $age_limit ) {
+		preg_match_all( '/\d+/', (string) $age_limit, $matches );
+		$numbers = array_map( 'intval', $matches[0] );
+
+		return array(
+			'min' => isset( $numbers[0] ) ? $numbers[0] : null,
+			'max' => isset( $numbers[1] ) ? $numbers[1] : null,
+		);
+	}
+
+	/**
+	 * Validate the Adults / Children age labels against the trek's Age Limit.
+	 *
+	 * Adults: "12" or "12+", never below the minimum age (nor above the maximum).
+	 * Children: a range "a-b", starting at or above the minimum age and ending before the adults age.
+	 * Blank values are valid (built-in defaults apply).
+	 *
+	 * @param string $age_limit Age limit text.
+	 * @param string $adult_age Adults age label.
+	 * @param string $child_age Children age label.
+	 * @return array{adult:string,child:string} Error message per field, empty string when valid.
+	 */
+	public static function validate_ages( $age_limit, $adult_age, $child_age ) {
+		$limit  = self::parse_age_limit( $age_limit );
+		$errors = array(
+			'adult' => '',
+			'child' => '',
+		);
+		$adult  = null;
+
+		$adult_age = trim( (string) $adult_age );
+		if ( '' !== $adult_age ) {
+			if ( ! preg_match( '/^(\d{1,2})\+?$/', $adult_age, $m ) ) {
+				$errors['adult'] = __( 'Adults age must be a number, optionally followed by +, e.g. 12+.', 'adventure-treks' );
+			} else {
+				$adult = (int) $m[1];
+				if ( null !== $limit['min'] && $adult < $limit['min'] ) {
+					/* translators: 1: entered adults age, 2: trek minimum age. */
+					$errors['adult'] = sprintf( __( 'Adults age (%1$d) cannot be below the trek minimum age (%2$d).', 'adventure-treks' ), $adult, $limit['min'] );
+				} elseif ( null !== $limit['max'] && $adult > $limit['max'] ) {
+					/* translators: 1: entered adults age, 2: trek maximum age. */
+					$errors['adult'] = sprintf( __( 'Adults age (%1$d) cannot be above the trek maximum age (%2$d).', 'adventure-treks' ), $adult, $limit['max'] );
+				}
+			}
+		}
+
+		$child_age = trim( (string) $child_age );
+		if ( '' !== $child_age ) {
+			if ( ! preg_match( '/^(\d{1,2})\s*-\s*(\d{1,2})$/', $child_age, $m ) ) {
+				$errors['child'] = __( 'Children age must be a range, e.g. 10-11.', 'adventure-treks' );
+			} else {
+				$from = (int) $m[1];
+				$to   = (int) $m[2];
+				if ( $from > $to ) {
+					$errors['child'] = __( 'Children age range must go from the lower age to the higher age, e.g. 10-11.', 'adventure-treks' );
+				} elseif ( null !== $limit['min'] && $from < $limit['min'] ) {
+					/* translators: 1: children range start, 2: trek minimum age. */
+					$errors['child'] = sprintf( __( 'Children age cannot start at %1$d, the trek minimum age is %2$d.', 'adventure-treks' ), $from, $limit['min'] );
+				} elseif ( null !== $adult && $to >= $adult ) {
+					/* translators: %d: adults age. */
+					$errors['child'] = sprintf( __( 'Children age range must end before the adults age (%d).', 'adventure-treks' ), $adult );
+				}
+			}
+		}
+
+		return $errors;
+	}
+
+	/**
+	 * Default Adults / Children age labels that respect the trek's minimum age.
+	 *
+	 * @param string $age_limit Age limit text.
+	 * @return array{adult:string,child:string} Child is empty when there is no room for a children range.
+	 */
+	public static function default_ages( $age_limit ) {
+		$min   = self::parse_age_limit( $age_limit )['min'];
+		$adult = max( 12, (int) $min );
+		$from  = max( 5, (int) $min );
+		$to    = $adult - 1;
+
+		return array(
+			'adult' => $adult . '+',
+			'child' => $from <= $to ? $from . '-' . $to : '',
+		);
+	}
+
+	/**
+	 * Show the age validation message saved by the last trek update.
+	 *
+	 * @return void
+	 */
+	public function render_age_notice() {
+		$key     = 'at_age_notice_' . get_current_user_id();
+		$message = get_transient( $key );
+		if ( ! $message ) {
+			return;
+		}
+		delete_transient( $key );
+		echo '<div class="notice notice-error is-dismissible"><p>' . esc_html( $message ) . '</p></div>';
 	}
 
 	/**
@@ -182,6 +290,25 @@ class TrekMetaBoxController {
 		$fitness_level = isset( $_POST['at_fitness_level'] ) ? sanitize_text_field( wp_unslash( $_POST['at_fitness_level'] ) ) : '';
 		$age_limit     = $at_plain( 'at_age_limit', true );
 		$group_size    = $at_plain( 'at_group_size' );
+
+		// Age labels shown next to Adults / Children in the booking widget (blank = built-in defaults).
+		$adult_age   = $at_plain( 'at_adult_age', true );
+		$child_age   = $at_plain( 'at_child_age', true );
+		$age_errors  = self::validate_ages( $age_limit, $adult_age, $child_age );
+		$age_message = array();
+		if ( '' !== $age_errors['adult'] ) {
+			$adult_age     = '';
+			$age_message[] = $age_errors['adult'];
+		}
+		if ( '' !== $age_errors['child'] ) {
+			$child_age     = '';
+			$age_message[] = $age_errors['child'];
+		}
+		if ( ! empty( $age_message ) ) {
+			set_transient( 'at_age_notice_' . get_current_user_id(), __( 'Some age settings were not saved:', 'adventure-treks' ) . ' ' . implode( ' ', $age_message ), 60 );
+		}
+		update_post_meta( $post_id, '_at_adult_age', $adult_age );
+		update_post_meta( $post_id, '_at_child_age', $child_age );
 
 		// Highlights, exclusions and carry list (saved as newline separated in form, serialized/processed cleanly).
 		$highlights      = isset( $_POST['at_highlights'] ) ? sanitize_textarea_field( wp_unslash( $_POST['at_highlights'] ) ) : '';

@@ -12,6 +12,16 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
+
+// Age ranges shown beside the Adults / Children counters (set per trek; defaults respect the trek's Age Limit when blank).
+global $wpdb;
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+$at_age_limit = (string) $wpdb->get_var( $wpdb->prepare( "SELECT age_limit FROM {$wpdb->prefix}at_treks WHERE post_id = %d", $trek_id ) );
+$at_adult_age = get_post_meta( $trek_id, '_at_adult_age', true );
+$at_child_age = get_post_meta( $trek_id, '_at_child_age', true );
+$at_age_defaults = \AdventureTreks\Admin\Controllers\TrekMetaBoxController::default_ages( $at_age_limit );
+$at_adult_age    = '' !== $at_adult_age ? $at_adult_age : $at_age_defaults['adult'];
+$at_child_age    = '' !== $at_child_age ? $at_child_age : $at_age_defaults['child'];
 ?>
 <div class="at-booking-widget-wrapper" id="at_booking_widget_root" data-trek-id="<?php echo esc_attr( $trek_id ); ?>">
 	
@@ -100,7 +110,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="at-pax-row">
 				<div class="at-pax-label">
 					<strong><?php esc_html_e( 'Adults', 'adventure-treks' ); ?></strong>
-					<span class="description"><?php esc_html_e( 'Age 12+', 'adventure-treks' ); ?></span>
+					<span class="description"><?php echo esc_html( sprintf( /* translators: %s: age range, e.g. 12+ */ __( 'Age %s', 'adventure-treks' ), $at_adult_age ) ); ?></span>
 				</div>
 				<div class="at-pax-counter">
 					<button type="button" class="at-counter-btn minus" data-type="adults">-</button>
@@ -111,7 +121,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="at-pax-row" id="at_widget_child_row" style="display:none;">
 				<div class="at-pax-label">
 					<strong><?php esc_html_e( 'Children', 'adventure-treks' ); ?></strong>
-					<span class="description"><?php esc_html_e( 'Age 5-11', 'adventure-treks' ); ?></span>
+					<?php if ( '' !== $at_child_age ) : ?>
+						<span class="description"><?php echo esc_html( sprintf( /* translators: %s: age range, e.g. 5-11 */ __( 'Age %s', 'adventure-treks' ), $at_child_age ) ); ?></span>
+					<?php endif; ?>
 				</div>
 				<div class="at-pax-counter">
 					<button type="button" class="at-counter-btn minus" data-type="children">-</button>

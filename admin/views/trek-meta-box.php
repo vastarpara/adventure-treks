@@ -79,6 +79,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<input type="text" name="at_age_limit" id="at_age_limit" data-at-plain-text="plus" value="<?php echo esc_attr( $trek['age_limit'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. 10 to 60 Years', 'adventure-treks' ); ?>" />
 				</div>
 				<div class="at-form-row">
+					<label for="at_adult_age"><?php esc_html_e( 'Adults Age (booking widget, e.g. 12+)', 'adventure-treks' ); ?></label>
+					<input type="text" name="at_adult_age" id="at_adult_age" data-at-plain-text="plus" value="<?php echo esc_attr( get_post_meta( $post->ID, '_at_adult_age', true ) ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( '12+', 'adventure-treks' ); ?>" />
+				</div>
+				<div class="at-form-row">
+					<label for="at_child_age"><?php esc_html_e( 'Children Age (booking widget, e.g. 5-11)', 'adventure-treks' ); ?></label>
+					<input type="text" name="at_child_age" id="at_child_age" data-at-plain-text="plus" value="<?php echo esc_attr( get_post_meta( $post->ID, '_at_child_age', true ) ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( '5-11', 'adventure-treks' ); ?>" />
+				</div>
+				<div class="at-form-row">
 					<label for="at_group_size"><?php esc_html_e( 'Ideal Group Size', 'adventure-treks' ); ?></label>
 					<input type="text" name="at_group_size" id="at_group_size" data-at-plain-text="1" value="<?php echo esc_attr( $trek['group_size'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. 12 to 20 Trekkers', 'adventure-treks' ); ?>" />
 				</div>
