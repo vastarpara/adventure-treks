@@ -306,6 +306,27 @@ class Bookings_List_Table extends \WP_List_Table {
 				<input type="hidden" name="filter_date_from" value="<?php echo esc_attr( $date_from ); ?>" />
 				<input type="hidden" name="filter_date_to" value="<?php echo esc_attr( $date_to ); ?>" />
 				<?php submit_button( __( 'Filter', 'adventure-treks' ), '', 'filter_action', false, array( 'id' => 'post-query-submit' ) ); ?>
+				<?php
+				$pdf_url = wp_nonce_url(
+					add_query_arg(
+						array_filter(
+							array(
+								'action'           => 'at_export_bookings_pdf',
+								'filter_trek_id'   => $selected_trek,
+								'filter_status'    => $selected_status,
+								'filter_date_from' => $date_from,
+								'filter_date_to'   => $date_to,
+								// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+								's'                => isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '',
+								'booking_view'     => $this->is_trash_view() ? 'trash' : '',
+							)
+						),
+						admin_url( 'admin-post.php' )
+					),
+					'at_export_bookings_pdf'
+				);
+				?>
+				<a href="<?php echo esc_url( $pdf_url ); ?>" class="button"><?php esc_html_e( 'Download PDF', 'adventure-treks' ); ?></a>
 				<?php if ( $this->is_trash_view() ) : ?>
 					<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'edit.php?post_type=adventure_trek&page=at-bookings&booking_view=trash&action=empty-trash' ), 'at_empty_trash' ) ); ?>" class="button" onclick="return confirm('<?php echo esc_js( __( 'Permanently delete every booking in the Trash? This cannot be undone.', 'adventure-treks' ) ); ?>');"><?php esc_html_e( 'Empty Trash', 'adventure-treks' ); ?></a>
 				<?php endif; ?>
@@ -465,6 +486,41 @@ class Bookings_List_Table extends \WP_List_Table {
 		}
 	}
 	/**
+	 * Build the WHERE clause shared by the list table and the PDF export.
+	 *
+	 * @param array $filters trash (bool), trek_id (int), status, date_from, date_to (Y-m-d), search.
+	 * @return string Prepared SQL starting with "WHERE".
+	 */
+	public static function build_where_clause( $filters ) {
+		global $wpdb;
+
+		$where = ! empty( $filters['trash'] ) ? 'WHERE trashed_at IS NOT NULL' : 'WHERE trashed_at IS NULL';
+
+		if ( ! empty( $filters['trek_id'] ) ) {
+			$where .= $wpdb->prepare( ' AND trek_id = %d', absint( $filters['trek_id'] ) );
+		}
+
+		if ( ! empty( $filters['status'] ) && in_array( $filters['status'], array( 'pending', 'confirmed', 'cancelled' ), true ) ) {
+			$where .= $wpdb->prepare( ' AND status = %s', $filters['status'] );
+		}
+
+		// Travel (departure) date range, inclusive. Either end may be left empty.
+		$date_table = $wpdb->prefix . 'at_departure_dates';
+		if ( ! empty( $filters['date_from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $filters['date_from'] ) ) {
+			$where .= $wpdb->prepare( " AND date_id IN (SELECT id FROM $date_table WHERE departure_date >= %s)", $filters['date_from'] ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+		if ( ! empty( $filters['date_to'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $filters['date_to'] ) ) {
+			$where .= $wpdb->prepare( " AND date_id IN (SELECT id FROM $date_table WHERE departure_date <= %s)", $filters['date_to'] ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+
+		if ( ! empty( $filters['search'] ) ) {
+			$like   = '%' . $wpdb->esc_like( $filters['search'] ) . '%';
+			$where .= $wpdb->prepare( ' AND (cust_name LIKE %s OR cust_email LIKE %s OR cust_phone LIKE %s)', $like, $like, $like );
+		}
+
+		return $where;
+	}
+	/**
 	 * Prepare items.
 	 */
 	public function prepare_items() {
@@ -497,42 +553,18 @@ class Bookings_List_Table extends \WP_List_Table {
 		$current_page = $this->get_pagenum();
 		$offset       = ( $current_page - 1 ) * $per_page;
 
-		// Build WHERE clause for filter and search.
-		$where_clause = $this->is_trash_view() ? 'WHERE trashed_at IS NOT NULL' : 'WHERE trashed_at IS NULL';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$filter_trek_id = isset( $_GET['filter_trek_id'] ) ? absint( wp_unslash( $_GET['filter_trek_id'] ) ) : 0;
-		if ( $filter_trek_id > 0 ) {
-			$where_clause .= $wpdb->prepare( ' AND trek_id = %d', $filter_trek_id );
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$filter_status  = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
-		$valid_statuses = array( 'pending', 'confirmed', 'cancelled' );
-		if ( in_array( $filter_status, $valid_statuses, true ) ) {
-			$where_clause .= $wpdb->prepare( ' AND status = %s', $filter_status );
-		}
-
-		// Travel (departure) date range, inclusive. Either end may be left empty.
-		$date_table = $wpdb->prefix . 'at_departure_dates';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$filter_from = isset( $_GET['filter_date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_date_from'] ) ) : '';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$filter_to = isset( $_GET['filter_date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_date_to'] ) ) : '';
-		if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $filter_from ) ) {
-			$where_clause .= $wpdb->prepare( " AND date_id IN (SELECT id FROM $date_table WHERE departure_date >= %s)", $filter_from ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		}
-		if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $filter_to ) ) {
-			$where_clause .= $wpdb->prepare( " AND date_id IN (SELECT id FROM $date_table WHERE departure_date <= %s)", $filter_to ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		}
-
-		// Search handling.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$search_query = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-		if ( ! empty( $search_query ) ) {
-			$like          = '%' . $wpdb->esc_like( $search_query ) . '%';
-			$where_clause .= $wpdb->prepare( ' AND (cust_name LIKE %s OR cust_email LIKE %s OR cust_phone LIKE %s)', $like, $like, $like );
-		}
-
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$where_clause = self::build_where_clause(
+			array(
+				'trash'     => $this->is_trash_view(),
+				'trek_id'   => isset( $_GET['filter_trek_id'] ) ? absint( wp_unslash( $_GET['filter_trek_id'] ) ) : 0,
+				'status'    => isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '',
+				'date_from' => isset( $_GET['filter_date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_date_from'] ) ) : '',
+				'date_to'   => isset( $_GET['filter_date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_date_to'] ) ) : '',
+				'search'    => isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '',
+			)
+		);
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		// We cannot easily order by date_val directly because date_val is in another table, but for simplicity, we will just order by the booking ID or created_at. If ordered by date_val, we ignore it and fallback to created_at to avoid complex JOINs for this simple admin panel.
 		if ( 'date_val' === $orderby ) {
 			$orderby = 'created_at';

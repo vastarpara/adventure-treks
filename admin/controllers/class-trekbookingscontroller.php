@@ -23,6 +23,7 @@ class TrekBookingsController {
 		add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'admin_post_at_save_booking', array( $this, 'handle_save_booking' ) );
+		add_action( 'admin_post_at_export_bookings_pdf', array( $this, 'handle_export_pdf' ) );
 		add_action( 'wp_ajax_at_get_single_booking_details', array( $this, 'ajax_get_booking_details' ) );
 	}
 
@@ -81,6 +82,131 @@ class TrekBookingsController {
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery
 	}
 
+
+	/**
+	 * Download the currently filtered bookings as an A4 (landscape) PDF.
+	 *
+	 * @return void
+	 */
+	public function handle_export_pdf() {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_die( esc_html__( 'You are not allowed to do this.', 'adventure-treks' ), '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( 'at_export_bookings_pdf' );
+
+		global $wpdb;
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$filters = array(
+			'trash'     => isset( $_GET['booking_view'] ) && 'trash' === $_GET['booking_view'],
+			'trek_id'   => isset( $_GET['filter_trek_id'] ) ? absint( wp_unslash( $_GET['filter_trek_id'] ) ) : 0,
+			'status'    => isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '',
+			'date_from' => isset( $_GET['filter_date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_date_from'] ) ) : '',
+			'date_to'   => isset( $_GET['filter_date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_date_to'] ) ) : '',
+			'search'    => isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '',
+		);
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		$where = Bookings_List_Table::build_where_clause( $filters );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$bookings = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}at_bookings $where ORDER BY id ASC" );
+		$cities   = $wpdb->get_results( "SELECT id, city_name FROM {$wpdb->prefix}at_departure_cities", OBJECT_K );
+		$dates    = $wpdb->get_results( "SELECT id, departure_date FROM {$wpdb->prefix}at_departure_dates", OBJECT_K );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+
+		// Earliest travel date first, then booking order.
+		usort(
+			$bookings,
+			static function ( $a, $b ) use ( $dates ) {
+				$da = isset( $dates[ $a->date_id ] ) ? $dates[ $a->date_id ]->departure_date : '9999-12-31';
+				$db = isset( $dates[ $b->date_id ] ) ? $dates[ $b->date_id ]->departure_date : '9999-12-31';
+				return $da === $db ? (int) $a->id - (int) $b->id : strcmp( $da, $db );
+			}
+		);
+
+		// Filter summary under the title.
+		$summary = array();
+		$summary[] = $filters['trek_id'] ? get_the_title( $filters['trek_id'] ) : __( 'All treks', 'adventure-treks' );
+		if ( $filters['status'] ) {
+			$summary[] = ucfirst( $filters['status'] );
+		}
+		if ( $filters['date_from'] || $filters['date_to'] ) {
+			$fmt       = static function ( $date ) {
+				return $date ? wp_date( 'd M Y', strtotime( $date ) ) : '...';
+			};
+			$summary[] = __( 'Travel date', 'adventure-treks' ) . ': ' . $fmt( $filters['date_from'] ) . ' - ' . $fmt( $filters['date_to'] );
+		}
+		if ( $filters['search'] ) {
+			$summary[] = __( 'Search', 'adventure-treks' ) . ': ' . $filters['search'];
+		}
+		if ( $filters['trash'] ) {
+			$summary[] = __( 'Trash', 'adventure-treks' );
+		}
+
+		$pdf = new \AdventureTreks\Includes\BookingsPdf(
+			array(
+				$filters['trash'] ? __( 'Trek Bookings (Trash)', 'adventure-treks' ) : __( 'Trek Bookings', 'adventure-treks' ),
+				implode( '  |  ', $summary ),
+			),
+			array(
+				array( '#', 8, 'C' ),
+				array( __( 'Trek', 'adventure-treks' ), 48, 'L' ),
+				array( __( 'Customer Name', 'adventure-treks' ), 40, 'L' ),
+				array( __( 'Phone', 'adventure-treks' ), 30, 'L' ),
+				array( __( 'Departure City', 'adventure-treks' ), 30, 'L' ),
+				array( __( 'Total Seats', 'adventure-treks' ), 20, 'C' ),
+				array( __( 'Pickup Point', 'adventure-treks' ), 43, 'L' ),
+				array( __( 'Payment Status', 'adventure-treks' ), 28, 'C' ),
+				array( __( 'Balance Amount', 'adventure-treks' ), 30, 'R' ),
+			)
+		);
+		$pdf->AddPage();
+
+		$total_seats   = 0;
+		$total_balance = 0.0;
+		$n             = 0;
+		foreach ( $bookings as $booking ) {
+			++$n;
+			$cancelled = 'cancelled' === $booking->status;
+			// Only "pending" / "paid" are tracked, so an unpaid booking owes its full amount. Cancelled bookings owe nothing.
+			$balance = ( 'paid' === $booking->payment_status || $cancelled ) ? 0.0 : (float) $booking->total_amount;
+			if ( ! $cancelled ) {
+				$total_seats += (int) $booking->seats;
+			}
+			$total_balance += $balance;
+
+			$pdf->row(
+				array(
+					(string) $n,
+					get_the_title( $booking->trek_id ),
+					$booking->cust_name,
+					$booking->cust_phone,
+					isset( $cities[ $booking->city_id ] ) ? $cities[ $booking->city_id ]->city_name : '-',
+					(string) (int) $booking->seats,
+					'' !== $booking->pickup_point ? $booking->pickup_point : '-',
+					$cancelled ? __( 'Cancelled', 'adventure-treks' ) : ucfirst( $booking->payment_status ),
+					AdminController::format_price( $balance ),
+				),
+				0 === $n % 2
+			);
+		}
+
+		if ( ! $n ) {
+			$pdf->row( array( '', __( 'No bookings found for the selected filters.', 'adventure-treks' ) ) );
+		} else {
+			$pdf->row(
+				array( '', __( 'Total', 'adventure-treks' ), '', '', '', (string) $total_seats, '', '', AdminController::format_price( $total_balance ) ),
+				false,
+				true
+			);
+		}
+
+		if ( ob_get_length() ) {
+			ob_end_clean();
+		}
+		$pdf->Output( 'D', 'trek-bookings-' . gmdate( 'Y-m-d' ) . '.pdf' );
+		exit;
+	}
 	/**
 	 * Register submenu.
 	 */
