@@ -30,7 +30,7 @@ class Plugin {
 	 *
 	 * @var string
 	 */
-	protected $version = '1.0.1';
+	protected $version = '1.0.2';
 
 	/**
 	 * The single instance of the class.
@@ -108,6 +108,7 @@ class Plugin {
 			new \AdventureTreks\Admin\Controllers\TrekPickupPointsController();
 			new \AdventureTreks\Admin\Controllers\TrekPricingController();
 			new \AdventureTreks\Admin\Controllers\TrekBookingsController();
+			new \AdventureTreks\Admin\Controllers\TrekImportExportController();
 		}
 
 		// Handle Public/Global hooks.

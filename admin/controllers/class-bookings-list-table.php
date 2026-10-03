@@ -120,14 +120,23 @@ class Bookings_List_Table extends \WP_List_Table {
 		$name .= '<br><a href="mailto:' . esc_attr( $item->cust_email ) . '">' . esc_html( $item->cust_email ) . '</a>';
 		$name .= '<br>' . esc_html( $item->cust_phone );
 
-		$delete_nonce = wp_create_nonce( 'at_delete_booking' );
-		$edit_url     = sprintf( '?post_type=adventure_trek&page=at-bookings&action=edit&booking=%d', $item->id );
-		$delete_url   = sprintf( '?post_type=adventure_trek&page=at-bookings&action=delete&booking=%d&_wpnonce=%s', $item->id, $delete_nonce );
-		$actions      = array(
-			'edit'   => sprintf( '<a href="%s">%s</a>', esc_url( $edit_url ), esc_html__( 'Edit', 'adventure-treks' ) ),
-			'delete' => sprintf( '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>', esc_url( $delete_url ), esc_attr__( 'Are you sure you want to delete this booking? This cannot be undone.', 'adventure-treks' ), esc_html__( 'Delete', 'adventure-treks' ) ),
-		);
+		$action_nonce = wp_create_nonce( 'at_delete_booking' );
+		$base         = 'edit.php?post_type=adventure_trek&page=at-bookings';
+		$action_url   = static function ( $action ) use ( $base, $item, $action_nonce ) {
+			return admin_url( sprintf( '%s&action=%s&booking=%d&_wpnonce=%s', $base, $action, $item->id, $action_nonce ) );
+		};
 
+		if ( $this->is_trash_view() ) {
+			$actions = array(
+				'restore' => sprintf( '<a href="%s">%s</a>', esc_url( $action_url( 'restore' ) ), esc_html__( 'Restore', 'adventure-treks' ) ),
+				'delete'  => sprintf( '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>', esc_url( $action_url( 'delete' ) ), esc_attr__( 'Delete this booking permanently? This cannot be undone.', 'adventure-treks' ), esc_html__( 'Delete Permanently', 'adventure-treks' ) ),
+			);
+		} else {
+			$actions = array(
+				'edit'  => sprintf( '<a href="%s">%s</a>', esc_url( admin_url( sprintf( '%s&action=edit&booking=%d', $base, $item->id ) ) ), esc_html__( 'Edit', 'adventure-treks' ) ),
+				'trash' => sprintf( '<a href="%s" class="submitdelete">%s</a>', esc_url( $action_url( 'trash' ) ), esc_html__( 'Trash', 'adventure-treks' ) ),
+			);
+		}
 		return $name . $this->row_actions( $actions );
 	}
 
@@ -200,11 +209,53 @@ class Bookings_List_Table extends \WP_List_Table {
 	 * @return array
 	 */
 	protected function get_bulk_actions() {
+		if ( $this->is_trash_view() ) {
+			return array(
+				'bulk-restore' => __( 'Restore', 'adventure-treks' ),
+				'bulk-delete'  => __( 'Delete Permanently', 'adventure-treks' ),
+			);
+		}
+
 		return array(
-			'bulk-delete' => __( 'Delete', 'adventure-treks' ),
+			'bulk-trash' => __( 'Move to Trash', 'adventure-treks' ),
 		);
 	}
 
+	/**
+	 * Whether the Trash view is being shown.
+	 *
+	 * @return bool
+	 */
+	private function is_trash_view() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return isset( $_GET['booking_view'] ) && 'trash' === $_GET['booking_view'];
+	}
+
+	/**
+	 * "All | Trash" views with counts.
+	 *
+	 * @return array
+	 */
+	protected function get_views() {
+		global $wpdb;
+		$table = $wpdb->prefix . 'at_bookings';
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$all   = (int) $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE trashed_at IS NULL" );
+		$trash = (int) $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE trashed_at IS NOT NULL" );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+
+		$base     = admin_url( 'edit.php?post_type=adventure_trek&page=at-bookings' );
+		$in_trash = $this->is_trash_view();
+
+		$views = array(
+			'all' => sprintf( '<a href="%s"%s>%s <span class="count">(%d)</span></a>', esc_url( $base ), $in_trash ? '' : ' class="current" aria-current="page"', esc_html__( 'All', 'adventure-treks' ), $all ),
+		);
+		if ( $trash || $in_trash ) {
+			$views['trash'] = sprintf( '<a href="%s"%s>%s <span class="count">(%d)</span></a>', esc_url( $base . '&booking_view=trash' ), $in_trash ? ' class="current" aria-current="page"' : '', esc_html__( 'Trash', 'adventure-treks' ), $trash );
+		}
+
+		return $views;
+	}
 	/**
 	 * Extra table nav (Filter by Trek, Filter by Status).
 	 *
@@ -226,6 +277,8 @@ class Bookings_List_Table extends \WP_List_Table {
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$selected_status = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
+			$date_from       = isset( $_GET['filter_date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_date_from'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$date_to         = isset( $_GET['filter_date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_date_to'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$statuses        = array(
 				'pending'   => __( 'Pending', 'adventure-treks' ),
 				'confirmed' => __( 'Confirmed', 'adventure-treks' ),
@@ -249,63 +302,168 @@ class Bookings_List_Table extends \WP_List_Table {
 						</option>
 					<?php endforeach; ?>
 				</select>
+				<input type="text" id="at_filter_date_range" class="at-filter-date" value="" placeholder="<?php esc_attr_e( 'Travel date range', 'adventure-treks' ); ?>" autocomplete="off" readonly style="width:230px;" />
+				<input type="hidden" name="filter_date_from" value="<?php echo esc_attr( $date_from ); ?>" />
+				<input type="hidden" name="filter_date_to" value="<?php echo esc_attr( $date_to ); ?>" />
 				<?php submit_button( __( 'Filter', 'adventure-treks' ), '', 'filter_action', false, array( 'id' => 'post-query-submit' ) ); ?>
+				<?php if ( $this->is_trash_view() ) : ?>
+					<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'edit.php?post_type=adventure_trek&page=at-bookings&booking_view=trash&action=empty-trash' ), 'at_empty_trash' ) ); ?>" class="button" onclick="return confirm('<?php echo esc_js( __( 'Permanently delete every booking in the Trash? This cannot be undone.', 'adventure-treks' ) ); ?>');"><?php esc_html_e( 'Empty Trash', 'adventure-treks' ); ?></a>
+				<?php endif; ?>
+				<?php if ( $selected_trek || '' !== $selected_status || '' !== $date_from || '' !== $date_to ) : ?>
+					<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=adventure_trek&page=at-bookings' . ( $this->is_trash_view() ? '&booking_view=trash' : '' ) ) ); ?>" class="button"><?php esc_html_e( 'Reset', 'adventure-treks' ); ?></a>
+				<?php endif; ?>
 			</div>
 			<?php
 		}
 	}
 
 	/**
-	 * Process bulk action.
+	 * Fetch bookings by ID, optionally limited to trashed / live ones.
+	 *
+	 * @param int[]     $ids     Booking IDs.
+	 * @param bool|null $trashed true = only trashed, false = only live, null = any.
+	 * @return object[]
 	 */
-	public function process_bulk_action() {
+	private function get_bookings_by_ids( $ids, $trashed = null ) {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'at_bookings';
-
-		// Handle single delete action.
-		if ( 'delete' === $this->current_action() ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'at_delete_booking' ) ) {
-				return;
-			}
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$booking_id = isset( $_GET['booking'] ) ? absint( wp_unslash( $_GET['booking'] ) ) : 0;
-			if ( $booking_id ) {
-				// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-				$booking = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE id = %d", $booking_id ) );
-				$wpdb->delete( $table_name, array( 'id' => $booking_id ), array( '%d' ) );
-				// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-
-				if ( $booking && 'cancelled' !== $booking->status ) {
-					TrekBookingsController::sync_availability( $booking->date_id, -intval( $booking->seats ) );
-				}
-
-				echo '<div class="notice notice-success is-dismissible"><p>Booking deleted successfully.</p></div>';
-			}
+		$ids = array_filter( array_map( 'absint', $ids ) );
+		if ( empty( $ids ) ) {
+			return array();
 		}
-
-		// Handle bulk delete action.
-		if ( ( isset( $_GET['action'] ) && 'bulk-delete' === $_GET['action'] ) || ( isset( $_GET['action2'] ) && 'bulk-delete' === $_GET['action2'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$booking_ids = isset( $_GET['booking_ids'] ) ? array_map( 'absint', (array) wp_unslash( $_GET['booking_ids'] ) ) : array();
-			if ( ! empty( $booking_ids ) ) {
-				// phpcs:disable WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$ids                = implode( ',', $booking_ids );
-				$bookings_to_delete = $wpdb->get_results( "SELECT * FROM $table_name WHERE id IN ($ids)" );
-				$wpdb->query( "DELETE FROM $table_name WHERE id IN ($ids)" );
-				// phpcs:enable WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
-				foreach ( $bookings_to_delete as $booking ) {
-					if ( 'cancelled' !== $booking->status ) {
-						TrekBookingsController::sync_availability( $booking->date_id, -intval( $booking->seats ) );
-					}
-				}
-
-				echo '<div class="notice notice-success is-dismissible"><p>Bookings deleted successfully.</p></div>';
-			}
+		$list  = implode( ',', $ids );
+		$extra = '';
+		if ( true === $trashed ) {
+			$extra = ' AND trashed_at IS NOT NULL';
+		} elseif ( false === $trashed ) {
+			$extra = ' AND trashed_at IS NULL';
 		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		return (array) $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}at_bookings WHERE id IN ($list)" . $extra );
 	}
 
+	/**
+	 * Move bookings to / out of the Trash, keeping seat availability in sync.
+	 *
+	 * @param int[] $ids      Booking IDs.
+	 * @param bool  $to_trash true to trash, false to restore.
+	 * @return int Number of bookings changed.
+	 */
+	private function set_trashed( $ids, $to_trash ) {
+		global $wpdb;
+		$bookings = $this->get_bookings_by_ids( $ids, ! $to_trash );
+		foreach ( $bookings as $booking ) {
+			if ( $to_trash ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->update( $wpdb->prefix . 'at_bookings', array( 'trashed_at' => current_time( 'mysql' ) ), array( 'id' => $booking->id ), array( '%s' ), array( '%d' ) );
+			} else {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}at_bookings SET trashed_at = NULL WHERE id = %d", $booking->id ) );
+			}
+			// A trashed booking no longer holds its seats; restoring takes them back.
+			if ( 'cancelled' !== $booking->status ) {
+				TrekBookingsController::sync_availability( $booking->date_id, ( $to_trash ? -1 : 1 ) * intval( $booking->seats ) );
+			}
+		}
+		return count( $bookings );
+	}
+
+	/**
+	 * Permanently delete trashed bookings (their seats were already released when trashed).
+	 *
+	 * @param int[]|null $ids Booking IDs, or null for every trashed booking.
+	 * @return int Number deleted.
+	 */
+	private function delete_trashed( $ids = null ) {
+		global $wpdb;
+		$table = $wpdb->prefix . 'at_bookings';
+		if ( null === $ids ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			return (int) $wpdb->query( "DELETE FROM $table WHERE trashed_at IS NOT NULL" );
+		}
+		$bookings = $this->get_bookings_by_ids( $ids, true );
+		foreach ( $bookings as $booking ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->delete( $table, array( 'id' => $booking->id ), array( '%d' ) );
+		}
+		return count( $bookings );
+	}
+
+	/**
+	 * Print a success notice.
+	 *
+	 * @param string $message Message.
+	 * @return void
+	 */
+	private function notice( $message ) {
+		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $message ) . '</p></div>';
+	}
+
+	/**
+	 * Process single and bulk actions (trash, restore, delete permanently, empty trash).
+	 */
+	public function process_bulk_action() {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return;
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$action  = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : '';
+		$action2 = isset( $_GET['action2'] ) ? sanitize_text_field( wp_unslash( $_GET['action2'] ) ) : '';
+		$nonce   = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		// Single actions.
+		if ( in_array( $action, array( 'trash', 'restore', 'delete' ), true ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$booking_id = isset( $_GET['booking'] ) ? absint( wp_unslash( $_GET['booking'] ) ) : 0;
+			if ( ! $booking_id || ! wp_verify_nonce( $nonce, 'at_delete_booking' ) ) {
+				return;
+			}
+			if ( 'trash' === $action && $this->set_trashed( array( $booking_id ), true ) ) {
+				$this->notice( __( 'Booking moved to the Trash.', 'adventure-treks' ) );
+			} elseif ( 'restore' === $action && $this->set_trashed( array( $booking_id ), false ) ) {
+				$this->notice( __( 'Booking restored.', 'adventure-treks' ) );
+			} elseif ( 'delete' === $action && $this->delete_trashed( array( $booking_id ) ) ) {
+				$this->notice( __( 'Booking deleted permanently.', 'adventure-treks' ) );
+			}
+			return;
+		}
+
+		if ( 'empty-trash' === $action ) {
+			if ( wp_verify_nonce( $nonce, 'at_empty_trash' ) ) {
+				$count = $this->delete_trashed();
+				/* translators: %d: number of bookings */
+				$this->notice( sprintf( _n( '%d booking deleted permanently.', '%d bookings deleted permanently.', $count, 'adventure-treks' ), $count ) );
+			}
+			return;
+		}
+
+		// Bulk actions (top or bottom dropdown).
+		$bulk_actions = array( 'bulk-trash', 'bulk-restore', 'bulk-delete' );
+		$bulk         = in_array( $action, $bulk_actions, true ) ? $action : $action2;
+		if ( ! in_array( $bulk, $bulk_actions, true ) || ! wp_verify_nonce( $nonce, 'bulk-bookings' ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$booking_ids = isset( $_GET['booking_ids'] ) ? array_map( 'absint', (array) wp_unslash( $_GET['booking_ids'] ) ) : array();
+		if ( empty( $booking_ids ) ) {
+			return;
+		}
+
+		if ( 'bulk-trash' === $bulk ) {
+			$count = $this->set_trashed( $booking_ids, true );
+			/* translators: %d: number of bookings */
+			$this->notice( sprintf( _n( '%d booking moved to the Trash.', '%d bookings moved to the Trash.', $count, 'adventure-treks' ), $count ) );
+		} elseif ( 'bulk-restore' === $bulk ) {
+			$count = $this->set_trashed( $booking_ids, false );
+			/* translators: %d: number of bookings */
+			$this->notice( sprintf( _n( '%d booking restored.', '%d bookings restored.', $count, 'adventure-treks' ), $count ) );
+		} else {
+			$count = $this->delete_trashed( $booking_ids );
+			/* translators: %d: number of bookings */
+			$this->notice( sprintf( _n( '%d booking deleted permanently.', '%d bookings deleted permanently.', $count, 'adventure-treks' ), $count ) );
+		}
+	}
 	/**
 	 * Prepare items.
 	 */
@@ -340,7 +498,7 @@ class Bookings_List_Table extends \WP_List_Table {
 		$offset       = ( $current_page - 1 ) * $per_page;
 
 		// Build WHERE clause for filter and search.
-		$where_clause = 'WHERE 1=1';
+		$where_clause = $this->is_trash_view() ? 'WHERE trashed_at IS NOT NULL' : 'WHERE trashed_at IS NULL';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$filter_trek_id = isset( $_GET['filter_trek_id'] ) ? absint( wp_unslash( $_GET['filter_trek_id'] ) ) : 0;
 		if ( $filter_trek_id > 0 ) {
@@ -352,6 +510,19 @@ class Bookings_List_Table extends \WP_List_Table {
 		$valid_statuses = array( 'pending', 'confirmed', 'cancelled' );
 		if ( in_array( $filter_status, $valid_statuses, true ) ) {
 			$where_clause .= $wpdb->prepare( ' AND status = %s', $filter_status );
+		}
+
+		// Travel (departure) date range, inclusive. Either end may be left empty.
+		$date_table = $wpdb->prefix . 'at_departure_dates';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$filter_from = isset( $_GET['filter_date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_date_from'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$filter_to = isset( $_GET['filter_date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_date_to'] ) ) : '';
+		if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $filter_from ) ) {
+			$where_clause .= $wpdb->prepare( " AND date_id IN (SELECT id FROM $date_table WHERE departure_date >= %s)", $filter_from ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+		if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $filter_to ) ) {
+			$where_clause .= $wpdb->prepare( " AND date_id IN (SELECT id FROM $date_table WHERE departure_date <= %s)", $filter_to ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		}
 
 		// Search handling.

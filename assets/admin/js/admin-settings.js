@@ -17,6 +17,12 @@ document.addEventListener('DOMContentLoaded', function () {
 		document.querySelectorAll('.at-settings-tab').forEach(function (panel) {
 			panel.style.display = (panel.id === 'at-settings-tab-' + tabKey) ? '' : 'none';
 		});
+
+		// Import / Export has its own forms, so the settings form (and its Save button) is hidden there.
+		const settingsForm = document.querySelector('form.at-settings-form-card');
+		if (settingsForm) {
+			settingsForm.style.display = (tabKey === 'import-export') ? 'none' : '';
+		}
 	}
 
 	tabLinks.forEach(function (link) {

@@ -34,9 +34,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div id="post-body" class="metabox-holder">
 			<div id="post-body-content">
 				<div class="meta-box-sortables ui-sortable">
+					<?php $table->views(); ?>
 					<form method="get">
 						<input type="hidden" name="post_type" value="adventure_trek" />
 						<input type="hidden" name="page" value="at-bookings" />
+						<?php
+						// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+						if ( isset( $_GET['booking_view'] ) && 'trash' === $_GET['booking_view'] ) :
+							?>
+							<input type="hidden" name="booking_view" value="trash" />
+						<?php endif; ?>
 						<?php
 						$table->search_box( __( 'Search', 'adventure-treks' ), 'search_id' );
 						$table->display();

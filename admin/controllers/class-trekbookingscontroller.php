@@ -123,10 +123,13 @@ class TrekBookingsController {
 			ADVENTURE_TREKS_VERSION
 		);
 
+		wp_enqueue_style( 'flatpickr-css', ADVENTURE_TREKS_URL . 'assets/vendor/flatpickr/flatpickr.min.css', array(), '4.6.13' );
+		wp_enqueue_script( 'flatpickr-js', ADVENTURE_TREKS_URL . 'assets/vendor/flatpickr/flatpickr.min.js', array(), '4.6.13', true );
+
 		wp_enqueue_script(
 			'at-admin-bookings-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-bookings.js',
-			array(),
+			array( 'flatpickr-js' ),
 			ADVENTURE_TREKS_VERSION . '.' . filemtime( ADVENTURE_TREKS_PATH . 'assets/admin/js/admin-bookings.js' ),
 			true
 		);

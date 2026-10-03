@@ -196,6 +196,7 @@ class Database {
 			status varchar(50) DEFAULT 'confirmed' NOT NULL,
 			payment_status varchar(20) DEFAULT 'pending' NOT NULL,
 			created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+			trashed_at datetime DEFAULT NULL,
 			PRIMARY KEY  (id),
 			KEY trek_id (trek_id),
 			KEY city_id (city_id),

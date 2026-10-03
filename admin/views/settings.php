@@ -19,7 +19,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<a href="#" class="nav-tab" data-at-tab="currency"><?php esc_html_e( 'Currency', 'adventure-treks' ); ?></a>
 		<a href="#" class="nav-tab" data-at-tab="payment"><?php esc_html_e( 'Payment', 'adventure-treks' ); ?></a>
 		<a href="#" class="nav-tab" data-at-tab="email"><?php esc_html_e( 'Email', 'adventure-treks' ); ?></a>
+		<a href="#" class="nav-tab" data-at-tab="import-export"><?php esc_html_e( 'Import / Export', 'adventure-treks' ); ?></a>
 	</h2>
+
+	<?php
+	$adventure_treks_ie_notice = get_transient( 'at_import_export_notice_' . get_current_user_id() );
+	if ( $adventure_treks_ie_notice ) {
+		delete_transient( 'at_import_export_notice_' . get_current_user_id() );
+		printf(
+			'<div class="notice notice-%1$s is-dismissible"><p>%2$s</p></div>',
+			esc_attr( 'success' === $adventure_treks_ie_notice[0] ? 'success' : 'error' ),
+			esc_html( $adventure_treks_ie_notice[1] )
+		);
+	}
+	?>
 
 	<form method="post" action="options.php" class="at-settings-form-card">
 		<?php
@@ -254,4 +267,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<?php submit_button(); ?>
 	</form>
+
+	<?php // Outside the settings form: these post to admin-post.php, and forms cannot be nested. ?>
+	<div id="at-settings-tab-import-export" class="at-settings-tab at-settings-form-card" style="display:none;">
+		<h2><?php esc_html_e( 'Export Treks', 'adventure-treks' ); ?></h2>
+		<p><?php esc_html_e( 'Download all treks as a JSON file, including specifications, departure cities, itineraries, pickup points, dates, seats and pricing. Bookings are not included.', 'adventure-treks' ); ?></p>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<input type="hidden" name="action" value="at_export_treks" />
+			<?php wp_nonce_field( 'at_export_treks' ); ?>
+			<?php submit_button( __( 'Export Treks', 'adventure-treks' ), 'primary', 'submit', false ); ?>
+		</form>
+
+		<hr />
+
+		<h2><?php esc_html_e( 'Import Treks', 'adventure-treks' ); ?></h2>
+		<p><?php esc_html_e( 'Choose a JSON file exported from Adventure Treks. Every trek in the file is created as a new trek; existing treks are never overwritten. Images are downloaded into the media library.', 'adventure-treks' ); ?></p>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
+			<input type="hidden" name="action" value="at_import_treks" />
+			<?php wp_nonce_field( 'at_import_treks' ); ?>
+			<p><input type="file" name="at_import_file" accept=".json,application/json" required /></p>
+			<?php submit_button( __( 'Import Treks', 'adventure-treks' ), 'primary', 'submit', false ); ?>
+		</form>
+	</div>
 </div>

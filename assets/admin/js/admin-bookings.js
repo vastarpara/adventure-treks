@@ -576,3 +576,93 @@ document.addEventListener('DOMContentLoaded', function () {
 		});
 	}
 });
+
+
+/**
+ * Travel date range filter (flatpickr, two-month range picker).
+ */
+document.addEventListener('DOMContentLoaded', function () {
+	'use strict';
+
+	const range = document.getElementById('at_filter_date_range');
+	const from = document.querySelector('input[name="filter_date_from"]');
+	const to = document.querySelector('input[name="filter_date_to"]');
+	if (!range || !from || !to || typeof flatpickr === 'undefined') {
+		return;
+	}
+
+	const picker = flatpickr(range, {
+		mode: 'range',
+		showMonths: 2,
+		dateFormat: 'Y-m-d',
+		altInput: true,
+		altFormat: 'd M Y',
+		rangeSeparator: ' → ',
+		defaultDate: from.value ? (to.value && to.value !== from.value ? [from.value, to.value] : [from.value]) : null,
+		onChange: function (selected, str, instance) {
+			if (selected.length === 2) {
+				from.value = instance.formatDate(selected[0], 'Y-m-d');
+				to.value = instance.formatDate(selected[1], 'Y-m-d');
+			} else if (selected.length === 1) {
+				// A single clicked day is a one-day filter until a second day is picked.
+				from.value = to.value = instance.formatDate(selected[0], 'Y-m-d');
+			} else {
+				from.value = to.value = '';
+			}
+		}
+	});
+	picker.altInput.style.width = '230px';
+	picker.altInput.setAttribute('placeholder', range.getAttribute('placeholder'));
+
+	// Double-click the field to clear the range.
+	picker.altInput.addEventListener('dblclick', function () { picker.clear(); });
+});
+
+/**
+ * Keep the list URL short: on submit, leave out empty / default / WordPress-internal fields
+ * so only the filters actually in use end up in the query string.
+ */
+document.addEventListener('DOMContentLoaded', function () {
+	'use strict';
+
+	const form = document.querySelector('#poststuff form');
+	if (!form) {
+		return;
+	}
+
+	const alwaysSkip = ['_wp_http_referer', 'filter_action', 'paged'];
+
+	form.addEventListener('submit', function () {
+		// Bulk actions are verified with the form's nonce, so keep it only when one is chosen.
+		const bulkChosen = ['action', 'action2'].some(function (name) {
+			const el = form.elements[name];
+			return el && el.value && el.value !== '-1';
+		});
+		if (!bulkChosen && form.elements._wpnonce) {
+			form.elements._wpnonce.disabled = true;
+		}
+
+		Array.prototype.forEach.call(form.elements, function (field) {
+			if (!field.name || field.type === 'submit' || field.type === 'button' || field.disabled) {
+				return;
+			}
+			if (field.type === 'checkbox' && field.checked) {
+				return; // Selected bulk-action rows must be sent.
+			}
+			const name = field.name;
+			const value = field.value;
+			const isDefault = value === '' ||
+				(name === 'filter_trek_id' && value === '0') ||
+				((name === 'action' || name === 'action2') && value === '-1');
+
+			if (alwaysSkip.indexOf(name) !== -1 || isDefault || field.type === 'checkbox') {
+				field.disabled = true;
+			}
+		});
+	});
+
+	// Re-enable on back/forward cache restore so the form is not left half-disabled.
+	window.addEventListener('pageshow', function () {
+		Array.prototype.forEach.call(form.elements, function (field) { field.disabled = false; });
+	});
+});
