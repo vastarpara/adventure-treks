@@ -1,0 +1,16 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "adventure-treks/trek-details",
+	"title": "Trek Details",
+	"category": "adventure-treks",
+	"icon": "palmtree",
+	"description": "Shows the full details of a trek: specifications, itinerary, gallery, FAQ and policies.",
+	"keywords": [ "trek", "details", "itinerary", "adventure" ],
+	"textdomain": "adventure-treks",
+	"attributes": {
+		"trekId": { "type": "number", "default": 0 }
+	},
+	"usesContext": [ "postId" ],
+	"supports": { "html": false, "align": [ "wide", "full" ] }
+}

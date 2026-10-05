@@ -92,6 +92,9 @@ class Plugin {
 		// Register Custom Post Types.
 		PostTypes::register();
 
+		// Register Gutenberg blocks (Trek Details, Trek Booking, Trek Archive).
+		Blocks::register();
+
 		// Self-healing database table check.
 		if ( is_admin() && get_option( 'adventure_treks_db_version' ) !== $this->version ) {
 			Database::create_tables();

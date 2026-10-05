@@ -3,7 +3,7 @@
  * Plugin Name:       Adventure Treks
  * Plugin URI:        #
  * Description:       A premium trekking and adventure trip management plugin for WordPress.
- * Version:           1.0.9
+ * Version:           1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Nilesh Vastarpara
@@ -23,7 +23,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Currently active version of the plugin.
  */
-define( 'ADVENTURE_TREKS_VERSION', '1.0.9' );
+define( 'ADVENTURE_TREKS_VERSION', '1.0' );
 
 /**
  * Base directory path for the plugin.

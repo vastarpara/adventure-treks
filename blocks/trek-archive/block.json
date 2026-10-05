@@ -1,0 +1,23 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "adventure-treks/trek-archive",
+	"title": "Trek Archive",
+	"category": "adventure-treks",
+	"icon": "grid-view",
+	"description": "A grid of treks, either all treks or a hand-picked selection.",
+	"keywords": [ "trek", "archive", "list", "grid", "adventure" ],
+	"textdomain": "adventure-treks",
+	"attributes": {
+		"source": { "type": "string", "default": "all" },
+		"selectedTreks": { "type": "array", "items": { "type": "number" }, "default": [] },
+		"orderby": { "type": "string", "default": "date" },
+		"order": { "type": "string", "default": "DESC" },
+		"postsPerPage": { "type": "number", "default": 9 },
+		"columns": { "type": "number", "default": 3 },
+		"showExcerpt": { "type": "boolean", "default": true },
+		"showPrice": { "type": "boolean", "default": true },
+		"showPagination": { "type": "boolean", "default": true }
+	},
+	"supports": { "html": false, "align": [ "wide", "full" ] }
+}
