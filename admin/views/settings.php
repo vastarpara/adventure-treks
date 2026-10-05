@@ -46,21 +46,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<tbody>
 					<tr>
 						<th scope="row">
-							<label for="at_site_logo"><?php esc_html_e( 'Site Logo', 'adventure-treks' ); ?></label>
+							<?php esc_html_e( 'Site Logo', 'adventure-treks' ); ?>
 						</th>
 						<td>
-							<input type="hidden" name="at_site_logo" id="at_site_logo" value="<?php echo esc_attr( get_option( 'at_site_logo', '' ) ); ?>" />
-							<div id="at_site_logo_preview">
-								<?php $adventure_treks_logo_url = get_option( 'at_site_logo', '' ); ?>
-								<?php if ( $adventure_treks_logo_url ) : ?>
-									<img src="<?php echo esc_url( $adventure_treks_logo_url ); ?>" class="at-logo-preview-img" />
-								<?php endif; ?>
-							</div>
-							<p>
-								<button type="button" class="button" id="at_site_logo_select_btn"><?php esc_html_e( 'Select Logo Image', 'adventure-treks' ); ?></button>
-								<button type="button" class="button" id="at_site_logo_remove_btn" <?php echo $adventure_treks_logo_url ? '' : 'style="display:none;"'; ?>><?php esc_html_e( 'Remove', 'adventure-treks' ); ?></button>
-							</p>
-							<p class="description"><?php esc_html_e( 'Shown in the header of booking confirmation and status update emails.', 'adventure-treks' ); ?></p>
+							<?php
+							$adventure_treks_logo_url = \AdventureTreks\Includes\Plugin::get_site_logo_url();
+							// The preview ignores the checkbox, so it shows which logo would be used.
+							$adventure_treks_theme_logo_id = (int) get_theme_mod( 'custom_logo' );
+							if ( ! $adventure_treks_theme_logo_id ) {
+								$adventure_treks_theme_logo_id = (int) get_option( 'site_logo' );
+							}
+							$adventure_treks_preview_url = $adventure_treks_theme_logo_id ? wp_get_attachment_image_url( $adventure_treks_theme_logo_id, 'medium' ) : '';
+							?>
+							<fieldset>
+								<legend class="screen-reader-text"><span><?php esc_html_e( 'Site Logo', 'adventure-treks' ); ?></span></legend>
+								<label for="at_use_site_logo">
+									<input name="at_use_site_logo" type="checkbox" id="at_use_site_logo" value="1" <?php checked( '1', get_option( 'at_use_site_logo', '1' ) ); ?> />
+									<?php esc_html_e( 'Use the site logo in the header of booking confirmation and status update emails.', 'adventure-treks' ); ?>
+								</label>
+							</fieldset>
+							<?php if ( $adventure_treks_preview_url ) : ?>
+								<p class="at-site-logo-preview"><img src="<?php echo esc_url( $adventure_treks_preview_url ); ?>" class="at-logo-preview-img" alt="" /></p>
+								<p class="description"><?php esc_html_e( 'This is your WordPress site logo.', 'adventure-treks' ); ?></p>
+							<?php else : ?>
+								<p class="description">
+									<?php esc_html_e( 'No site logo is set, so emails show your site name instead.', 'adventure-treks' ); ?>
+									<?php if ( current_theme_supports( 'custom-logo' ) ) : ?>
+										<a href="<?php echo esc_url( admin_url( 'customize.php?autofocus[section]=title_tagline' ) ); ?>"><?php esc_html_e( 'Set a site logo', 'adventure-treks' ); ?></a>
+									<?php endif; ?>
+								</p>
+							<?php endif; ?>
 						</td>
 					</tr>
 					<tr>

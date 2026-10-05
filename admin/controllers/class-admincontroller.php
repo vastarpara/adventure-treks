@@ -165,11 +165,11 @@ class AdminController {
 
 		register_setting(
 			'adventure_treks_settings_group',
-			'at_site_logo',
+			'at_use_site_logo',
 			array(
-				'type'              => 'string',
-				'sanitize_callback' => 'esc_url_raw',
-				'default'           => '',
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => true,
 			)
 		);
 

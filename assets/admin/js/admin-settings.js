@@ -84,61 +84,6 @@ if (typeof jQuery !== 'undefined') {
 		});
 	});
 }
-
-/**
- * Site Logo media uploader.
- */
-if (typeof jQuery !== 'undefined') {
-	jQuery(function ($) {
-		const logoInput = document.getElementById('at_site_logo');
-		const logoPreview = document.getElementById('at_site_logo_preview');
-		const logoSelectBtn = document.getElementById('at_site_logo_select_btn');
-		const logoRemoveBtn = document.getElementById('at_site_logo_remove_btn');
-
-		if (!logoInput || !logoSelectBtn || typeof wp === 'undefined' || !wp.media) {
-			return;
-		}
-
-		let logoFrame;
-
-		logoSelectBtn.addEventListener('click', function (e) {
-			e.preventDefault();
-
-			if (logoFrame) {
-				logoFrame.open();
-				return;
-			}
-
-			logoFrame = wp.media({
-				title: 'Select Site Logo',
-				button: { text: 'Use this image' },
-				multiple: false,
-				library: { type: 'image' }
-			});
-
-			logoFrame.on('select', function () {
-				const attachment = logoFrame.state().get('selection').first().toJSON();
-				logoInput.value = attachment.url;
-				logoPreview.innerHTML = '<img src="' + attachment.url + '" class="at-logo-preview-img" />';
-				if (logoRemoveBtn) {
-					logoRemoveBtn.style.display = '';
-				}
-			});
-
-			logoFrame.open();
-		});
-
-		if (logoRemoveBtn) {
-			logoRemoveBtn.addEventListener('click', function (e) {
-				e.preventDefault();
-				logoInput.value = '';
-				logoPreview.innerHTML = '';
-				logoRemoveBtn.style.display = 'none';
-			});
-		}
-	});
-}
-
 /**
  * UPI QR Code media uploader.
  */

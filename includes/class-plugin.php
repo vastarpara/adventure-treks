@@ -123,6 +123,31 @@ class Plugin {
 	}
 
 	/**
+	 * URL of the WordPress site logo (Appearance > Customize > Site Identity, or the Site Editor's
+	 * Site Logo block) when "Use the site logo in emails" is on; empty otherwise.
+	 *
+	 * @return string
+	 */
+	public static function get_site_logo_url() {
+		if ( ! get_option( 'at_use_site_logo', true ) ) {
+			return '';
+		}
+
+		$logo_id = (int) get_theme_mod( 'custom_logo' );
+		if ( ! $logo_id ) {
+			$logo_id = (int) get_option( 'site_logo' );
+		}
+		$url = $logo_id ? wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+
+		/**
+		 * Filters the logo used in booking emails.
+		 *
+		 * @param string $url Logo URL, or an empty string for none.
+		 */
+		return (string) apply_filters( 'adventure_treks_site_logo_url', $url ? $url : '' );
+	}
+
+	/**
 	 * Cache-busting version for a bundled asset: the plugin version plus the file's modification time,
 	 * so browsers fetch a changed CSS/JS file straight away instead of using a stale cached copy.
 	 *
@@ -325,7 +350,7 @@ class Plugin {
 		$secondary = self::get_brand_color( 'secondary' );
 
 		$site_name = get_bloginfo( 'name' );
-		$logo_url  = get_option( 'at_site_logo', '' );
+		$logo_url  = self::get_site_logo_url();
 		$year      = gmdate( 'Y' );
 
 		$header_brand = $logo_url

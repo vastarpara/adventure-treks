@@ -51,6 +51,8 @@ function adventure_treks_uninstall() {
 		delete_option( 'at_price_decimals' );
 		delete_option( 'at_booking_email' );
 		delete_option( 'at_enable_schema' );
+		delete_option( 'at_use_site_logo' );
+		delete_option( 'at_site_logo' );
 		delete_option( 'at_remove_data_on_uninstall' );
 
 		// Clear scheduled actions or transients if any, e.g. delete_expired_transients( true ).
