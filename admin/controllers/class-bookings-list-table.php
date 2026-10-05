@@ -526,9 +526,9 @@ class Bookings_List_Table extends \WP_List_Table {
 	public function prepare_items() {
 		global $wpdb;
 
-		$per_page = 20;
+		$per_page = $this->get_items_per_page( 'at_bookings_per_page', 20 );
 		$columns  = $this->get_columns();
-		$hidden   = array();
+		$hidden   = get_hidden_columns( $this->screen );
 		$sortable = $this->get_sortable_columns();
 
 		$this->_column_headers = array( $columns, $hidden, $sortable );

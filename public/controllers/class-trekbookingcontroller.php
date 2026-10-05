@@ -336,9 +336,9 @@ class TrekBookingController {
 			wp_send_json_error( array( 'message' => __( 'Please fill all required customer contact details.', 'adventure-treks' ) ) );
 		}
 
-		$clean_phone = preg_replace( '/[\-\s]/', '', $cust_phone );
-		if ( ! preg_match( '/^(?:\+91|91|0)?[6789]\d{9}$/', $clean_phone ) ) {
-			wp_send_json_error( array( 'message' => __( 'Please enter a valid Indian phone number.', 'adventure-treks' ) ) );
+		$clean_phone = preg_replace( '/[\s\-().]/', '', $cust_phone );
+		if ( ! preg_match( '/^\+?\d{10,15}$/', $clean_phone ) ) {
+			wp_send_json_error( array( 'message' => __( 'Please enter a valid phone number with 10 to 15 digits.', 'adventure-treks' ) ) );
 		}
 
 		$seats_requested = $num_adults + $num_children;

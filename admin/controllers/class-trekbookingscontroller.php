@@ -25,6 +25,49 @@ class TrekBookingsController {
 		add_action( 'admin_post_at_save_booking', array( $this, 'handle_save_booking' ) );
 		add_action( 'admin_post_at_export_bookings_pdf', array( $this, 'handle_export_pdf' ) );
 		add_action( 'wp_ajax_at_get_single_booking_details', array( $this, 'ajax_get_booking_details' ) );
+		add_filter( 'set_screen_option_at_bookings_per_page', array( $this, 'save_screen_option' ), 10, 3 );
+	}
+
+	/**
+	 * Screen Options: items per page and the column toggles for the bookings list.
+	 *
+	 * @return void
+	 */
+	public function register_screen_options() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['action'] ) && in_array( $_GET['action'], array( 'add', 'edit' ), true ) ) {
+			return; // The Add/Edit form has no list to configure.
+		}
+
+		add_screen_option(
+			'per_page',
+			array(
+				'label'   => __( 'Number of bookings per page:', 'adventure-treks' ),
+				'default' => 20,
+				'option'  => 'at_bookings_per_page',
+			)
+		);
+
+		// Lists the columns as checkboxes in the Screen Options panel.
+		$screen = get_current_screen();
+		add_filter(
+			'manage_' . $screen->id . '_columns',
+			static function () {
+				return ( new Bookings_List_Table() )->get_columns();
+			}
+		);
+	}
+
+	/**
+	 * Persist the per-page value from Screen Options.
+	 *
+	 * @param mixed  $status Current filter value (false = not handled).
+	 * @param string $option Option name.
+	 * @param mixed  $value  Submitted value.
+	 * @return int
+	 */
+	public function save_screen_option( $status, $option, $value ) {
+		return max( 1, min( 200, (int) $value ) );
 	}
 
 	/**
@@ -154,8 +197,8 @@ class TrekBookingsController {
 				array( __( 'Customer Name', 'adventure-treks' ), 40, 'L' ),
 				array( __( 'Phone', 'adventure-treks' ), 30, 'L' ),
 				array( __( 'Departure City', 'adventure-treks' ), 30, 'L' ),
-				array( __( 'Total Seats', 'adventure-treks' ), 20, 'C' ),
 				array( __( 'Pickup Point', 'adventure-treks' ), 43, 'L' ),
+				array( __( 'Total Seats', 'adventure-treks' ), 20, 'C' ),
 				array( __( 'Payment Status', 'adventure-treks' ), 28, 'C' ),
 				array( __( 'Balance Amount', 'adventure-treks' ), 30, 'R' ),
 			)
@@ -182,8 +225,8 @@ class TrekBookingsController {
 					$booking->cust_name,
 					$booking->cust_phone,
 					isset( $cities[ $booking->city_id ] ) ? $cities[ $booking->city_id ]->city_name : '-',
-					(string) (int) $booking->seats,
 					'' !== $booking->pickup_point ? $booking->pickup_point : '-',
+					(string) (int) $booking->seats,
 					$cancelled ? __( 'Cancelled', 'adventure-treks' ) : ucfirst( $booking->payment_status ),
 					AdminController::format_price( $balance ),
 				),
@@ -195,7 +238,7 @@ class TrekBookingsController {
 			$pdf->row( array( '', __( 'No bookings found for the selected filters.', 'adventure-treks' ) ) );
 		} else {
 			$pdf->row(
-				array( '', __( 'Total', 'adventure-treks' ), '', '', '', (string) $total_seats, '', '', AdminController::format_price( $total_balance ) ),
+				array( '', __( 'Total', 'adventure-treks' ), '', '', '', '', (string) $total_seats, '', AdminController::format_price( $total_balance ) ),
 				false,
 				true
 			);
@@ -211,7 +254,7 @@ class TrekBookingsController {
 	 * Register submenu.
 	 */
 	public function register_menu() {
-		add_submenu_page(
+		$hook = add_submenu_page(
 			'edit.php?post_type=adventure_trek',
 			__( 'Bookings', 'adventure-treks' ),
 			__( 'Bookings', 'adventure-treks' ),
@@ -219,6 +262,10 @@ class TrekBookingsController {
 			'at-bookings',
 			array( $this, 'render_page' )
 		);
+
+		if ( $hook ) {
+			add_action( 'load-' . $hook, array( $this, 'register_screen_options' ) );
+		}
 	}
 
 	/**

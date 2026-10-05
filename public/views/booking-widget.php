@@ -167,7 +167,7 @@ $at_child_age    = '' !== $at_child_age ? $at_child_age : $at_age_defaults['chil
 				<span class="at-booking-modal-close" id="at_checkout_modal_close">&times;</span>
 			</div>
 			<div class="at-booking-modal-body">
-				<form id="at_checkout_form">
+				<form id="at_checkout_form" novalidate>
 					<div class="at-form-field">
 						<label for="at_checkout_name"><?php esc_html_e( 'Full Name *', 'adventure-treks' ); ?></label>
 						<input type="text" id="at_checkout_name" name="cust_name" required placeholder="<?php esc_attr_e( 'e.g. Nilesh Vastarpara', 'adventure-treks' ); ?>" />
@@ -188,7 +188,7 @@ $at_child_age    = '' !== $at_child_age ? $at_child_age : $at_age_defaults['chil
 						<span class="description" id="at_checkout_pickup_instructions" style="font-size:11px; margin-top:5px; display:block; color:#666;"></span>
 					</div>
 				</form>
-				<div class="at-checkout-terms">
+				<div class="at-checkout-terms" id="at_checkout_terms_wrap">
 					<label style="display:flex; align-items:flex-start; gap:6px; font-size:11px; color:#666; margin:0; cursor:pointer;">
 						<input type="checkbox" id="at_checkout_terms_agree" style="margin-top:2px;" />
 						<span><?php esc_html_e( 'By booking, you agree to the cancellation, refund policies, and terms and conditions configured for this trek.', 'adventure-treks' ); ?></span>
@@ -197,7 +197,7 @@ $at_child_age    = '' !== $at_child_age ? $at_child_age : $at_age_defaults['chil
 			</div>
 			<div class="at-booking-modal-footer">
 				<button type="button" class="at-modal-btn cancel" id="at_checkout_cancel_btn"><?php esc_html_e( 'Cancel', 'adventure-treks' ); ?></button>
-				<button type="button" class="at-modal-btn confirm" id="at_checkout_confirm_btn" disabled><?php esc_html_e( 'Proceed to Payment', 'adventure-treks' ); ?></button>
+				<button type="button" class="at-modal-btn confirm" id="at_checkout_confirm_btn"><?php esc_html_e( 'Proceed to Payment', 'adventure-treks' ); ?></button>
 			</div>
 		</div>
 	</div>
@@ -241,7 +241,7 @@ $at_child_age    = '' !== $at_child_age ? $at_child_age : $at_age_defaults['chil
 				<p style="font-size:13px; color:#555; margin-bottom:20px; line-height:1.4;">
 					<?php esc_html_e( 'Your reservation is pending confirmation. We have sent your booking receipt by email, and you will receive another email once your reservation is confirmed.', 'adventure-treks' ); ?>
 				</p>
-				<div class="at-success-receipt" id="at_success_receipt_body" style="text-align:left; background:#fafafa; border:1px solid #ddd; padding:15px; border-radius:4px; font-size:12px; margin-bottom:20px;">
+				<div class="at-success-receipt" id="at_success_receipt_body" style="margin-bottom:20px;">
 					<!-- Loaded via response -->
 				</div>
 				<button type="button" class="at-book-now-btn" id="at_success_close_btn" style="margin:0; width:100%;">

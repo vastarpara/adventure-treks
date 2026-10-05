@@ -694,13 +694,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		pickupInstructions.textContent = '';
 		checkoutTermsAgree.checked = false;
-		checkoutConfirm.disabled = true;
 		checkoutModal.style.display = 'flex';
 	});
 
-	checkoutTermsAgree.addEventListener('change', function() {
-		checkoutConfirm.disabled = !checkoutTermsAgree.checked;
-	});
 
 	// Pickup instruction updates
 	pickupSelect.addEventListener('change', function() {
@@ -717,8 +713,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	function closeCheckout() {
 		checkoutModal.style.display = 'none';
 		checkoutForm.reset();
+		checkoutModal.querySelectorAll('.at-field-error').forEach(function(m) { m.remove(); });
+		checkoutModal.querySelectorAll('.has-error').forEach(function(w) { w.classList.remove('has-error'); });
 		checkoutTermsAgree.checked = false;
-		checkoutConfirm.disabled = true;
 	}
 
 	checkoutClose.addEventListener('click', closeCheckout);
@@ -727,24 +724,95 @@ document.addEventListener('DOMContentLoaded', function() {
 	// ==========================================
 	// 5. Step 4 -> 4.5: Proceed to Payment
 	// ==========================================
-	checkoutConfirm.addEventListener('click', function() {
-		if (!checkoutTermsAgree.checked) {
-			alert('Please agree to the cancellation, refund policies, and terms and conditions before confirming.');
-			return;
-		}
+	// Inline field validation (no alert() / browser bubbles).
+	function fieldWrap(el) {
+		return el.closest('.at-form-field') || el.closest('.at-checkout-terms');
+	}
 
-		if (!checkoutForm.reportValidity()) return;
+	function clearFieldError(el) {
+		const wrap = fieldWrap(el);
+		if (!wrap) return;
+		wrap.classList.remove('has-error');
+		el.removeAttribute('aria-invalid');
+		const msg = wrap.querySelector('.at-field-error');
+		if (msg) msg.remove();
+	}
 
+	function setFieldError(el, message) {
+		clearFieldError(el);
+		const wrap = fieldWrap(el);
+		if (!wrap) return;
+		wrap.classList.add('has-error');
+		el.setAttribute('aria-invalid', 'true');
+		const msg = document.createElement('span');
+		msg.className = 'at-field-error';
+		msg.setAttribute('role', 'alert');
+		msg.textContent = message;
+		wrap.appendChild(msg);
+	}
+
+	function validateCheckout() {
+		const nameInput = document.getElementById('at_checkout_name');
+		const emailInput = document.getElementById('at_checkout_email');
 		const phoneInput = document.getElementById('at_checkout_phone');
-		if (phoneInput) {
-			const cleanPhone = phoneInput.value.replace(/[\-\s]/g, '');
-			const indianPhoneRegex = /^(?:\+91|91|0)?[6789]\d{9}$/;
-			if (!indianPhoneRegex.test(cleanPhone)) {
-				alert('Please enter a valid Indian phone number (e.g. +91 98765 43210).');
-				phoneInput.focus();
-				return;
-			}
+		let firstInvalid = null;
+
+		function fail(el, message) {
+			setFieldError(el, message);
+			if (!firstInvalid) firstInvalid = el;
 		}
+
+		[nameInput, emailInput, phoneInput, pickupSelect, checkoutTermsAgree].forEach(clearFieldError);
+
+		if (!nameInput.value.trim()) {
+			fail(nameInput, 'Please enter your full name.');
+		} else if (nameInput.value.trim().length < 2) {
+			fail(nameInput, 'Name must be at least 2 characters.');
+		}
+
+		const email = emailInput.value.trim();
+		if (!email) {
+			fail(emailInput, 'Please enter your email address.');
+		} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+			fail(emailInput, 'Please enter a valid email address (e.g. nilesh@example.com).');
+		}
+
+		const cleanPhone = phoneInput.value.replace(/[\s\-().]/g, '');
+		if (!cleanPhone) {
+			fail(phoneInput, 'Please enter your phone number.');
+		} else if (!/^\+?\d{10,15}$/.test(cleanPhone)) {
+			fail(phoneInput, 'Please enter a valid phone number with 10 to 15 digits (e.g. +91 98765 43210).');
+		}
+
+		if (pickupSelect.required && !pickupSelect.value) {
+			fail(pickupSelect, 'Please select a pickup location.');
+		}
+
+		if (!checkoutTermsAgree.checked) {
+			fail(checkoutTermsAgree, 'Please agree to the cancellation, refund policies and terms to continue.');
+		}
+
+		if (firstInvalid) {
+			firstInvalid.focus();
+			return false;
+		}
+		return true;
+	}
+
+	// Clear a field's error as soon as the user fixes it.
+	[
+		['at_checkout_name', 'input'],
+		['at_checkout_email', 'input'],
+		['at_checkout_phone', 'input'],
+		['at_checkout_pickup', 'change'],
+		['at_checkout_terms_agree', 'change']
+	].forEach(function(pair) {
+		const el = document.getElementById(pair[0]);
+		if (el) el.addEventListener(pair[1], function() { clearFieldError(el); });
+	});
+
+	checkoutConfirm.addEventListener('click', function() {
+		if (!validateCheckout()) return;
 
 		openPaymentStep();
 	});
@@ -896,16 +964,43 @@ document.addEventListener('DOMContentLoaded', function() {
 	});
 
 	function showSuccessReceipt(res) {
-		successReceiptBody.innerHTML = `
-			<p><strong>Customer Name</strong>: ${res.cust_name}</p>
-			<p><strong>Trek</strong>: ${res.trek_title}</p>
-			<p><strong>From City</strong>: ${res.city_name}</p>
-			<p><strong>Date</strong>: ${res.date}</p>
-			<p><strong>Seats Booked</strong>: ${res.seats}</p>
-			${res.pickup_point ? `<p><strong>Pickup Location</strong>: ${res.pickup_point}</p>` : ''}
-			${res.transport_name ? `<p><strong>Transportation</strong>: ${res.transport_name}${parseFloat(res.transport_price) > 0 ? ' (+' + atFormatPrice(res.transport_price) + ')' : ''}</p>` : ''}
-			<p style="border-top:1px solid #ddd; padding-top:8px; margin:8px 0 0 0; font-weight:bold; color:#137a7f; font-size:14px;"><strong>Amount Paid</strong>: ${atFormatPrice(parseFloat(res.total))}</p>
-		`;
+		const esc = function(value) {
+			const div = document.createElement('div');
+			div.textContent = value == null ? '' : String(value);
+			return div.innerHTML;
+		};
+		const icons = {
+			trek: '<path d="M3 20l6-10 4 6 2-3 6 7z"/>',
+			date: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>',
+			user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
+			city: '<path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+			pickup: '<path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><path d="M9.5 10l2 2 3.5-4"/>',
+			transport: '<rect x="4" y="3" width="16" height="15" rx="3"/><path d="M4 11h16M8 21v-3M16 21v-3"/><circle cx="8.5" cy="14.5" r=".6"/><circle cx="15.5" cy="14.5" r=".6"/>',
+			seats: '<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><path d="M16 4.5a3.5 3.5 0 010 7M19 14c2 .8 3 2.6 3 5"/>',
+			card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>'
+		};
+		const row = function(type, label, value) {
+			return `<div class="at-receipt-row at-receipt-${type}">
+				<span class="at-receipt-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[type]}</svg></span>
+				<span class="at-receipt-text"><span class="at-receipt-label">${label}</span><strong class="at-receipt-value">${esc(value)}</strong></span>
+			</div>`;
+		};
+		const transport = res.transport_name
+			? res.transport_name + (parseFloat(res.transport_price) > 0 ? ' (+' + atFormatPrice(res.transport_price) + ')' : '')
+			: '';
+
+		successReceiptBody.innerHTML =
+			row('trek', 'Trek', res.trek_title) +
+			row('date', 'Date', res.date) +
+			row('user', 'Customer Name', res.cust_name) +
+			row('city', 'From City', res.city_name) +
+			(res.pickup_point ? row('pickup', 'Pickup Location', res.pickup_point) : '') +
+			(transport ? row('transport', 'Transportation', transport) : '') +
+			row('seats', 'Seats Booked', res.seats) +
+			`<div class="at-receipt-total">
+				<span class="at-receipt-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons.card}</svg></span>
+				<span class="at-receipt-text"><span class="at-receipt-label">Total Amount</span><strong class="at-receipt-amount">${esc(atFormatPrice(parseFloat(res.total)))}</strong></span>
+			</div>`;
 		successModal.style.display = 'flex';
 	}
 

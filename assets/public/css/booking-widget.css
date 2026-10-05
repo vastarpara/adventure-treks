@@ -1037,3 +1037,112 @@
 		grid-template-columns: 1fr;
 	}
 }
+
+/* Inline checkout validation */
+.at-form-field.has-error input,
+.at-form-field.has-error select {
+	border-color: #d63638;
+	background: #fff8f8;
+}
+.at-form-field.has-error input:focus,
+.at-form-field.has-error select:focus {
+	border-color: #d63638;
+	box-shadow: 0 0 0 1px #d63638;
+}
+.at-field-error {
+	display: flex;
+	align-items: flex-start;
+	gap: 5px;
+	margin-top: 5px;
+	font-size: 12px;
+	line-height: 1.4;
+	color: #d63638;
+}
+.at-field-error::before {
+	content: "!";
+	flex: 0 0 14px;
+	width: 14px;
+	height: 14px;
+	margin-top: 1px;
+	border-radius: 50%;
+	background: #d63638;
+	color: #fff;
+	font-size: 10px;
+	font-weight: 700;
+	line-height: 14px;
+	text-align: center;
+}
+.at-checkout-terms.has-error .at-field-error {
+	margin-top: 6px;
+}
+
+/* Booking success receipt */
+.at-success-receipt {
+	text-align: left;
+}
+.at-receipt-row {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 11px 2px;
+	border-bottom: 1px solid #eceff1;
+}
+.at-receipt-icon {
+	flex: 0 0 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: #eef1f4;
+	color: #475569;
+}
+.at-receipt-trek .at-receipt-icon { background: #e8edf2; color: #475569; }
+.at-receipt-date .at-receipt-icon { background: #e3f5ec; color: #16805a; }
+.at-receipt-user .at-receipt-icon { background: #e4eefb; color: #2563a8; }
+.at-receipt-city .at-receipt-icon { background: #fdeede; color: #c2620a; }
+.at-receipt-pickup .at-receipt-icon { background: #ece8fb; color: #5b3fbf; }
+.at-receipt-transport .at-receipt-icon { background: #fdf0d5; color: #b7791f; }
+.at-receipt-seats .at-receipt-icon { background: #fde6ea; color: #c0264a; }
+.at-receipt-text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	text-align: left;
+}
+.at-receipt-label {
+	font-size: 12px;
+	line-height: 1.3;
+	color: #64748b;
+}
+.at-receipt-value {
+	font-size: 15px;
+	line-height: 1.35;
+	font-weight: 700;
+	color: #0f172a;
+	overflow-wrap: anywhere;
+}
+.at-receipt-total {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin-top: 14px;
+	padding: 14px 16px;
+	border-radius: 12px;
+	background: #e6f6f4;
+}
+.at-receipt-total .at-receipt-icon {
+	background: #cdeeea;
+	color: #0f766e;
+}
+.at-receipt-total .at-receipt-label {
+	font-weight: 600;
+	color: #0f766e;
+}
+.at-receipt-amount {
+	font-size: 24px;
+	line-height: 1.2;
+	font-weight: 800;
+	color: #0f3d3a;
+}
