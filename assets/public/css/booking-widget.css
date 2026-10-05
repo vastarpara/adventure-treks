@@ -702,7 +702,7 @@
 	border-radius: 50%;
 	background: var(--at-primary-color, #137a7f);
 	box-shadow: 0 0 0 2px var(--at-primary-color, #137a7f);
-	z-index: 1;
+	/* z-index: 1; */
 }
 
 /* Connector from this day's dot down to the next one (none after the last day). */
@@ -1145,4 +1145,110 @@
 	line-height: 1.2;
 	font-weight: 800;
 	color: #0f3d3a;
+}
+
+/* Success dialog header */
+.at-success-check {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 60px;
+	height: 60px;
+	margin: 0 auto 14px;
+	border-radius: 50%;
+	background: #e3f1dc;
+	color: #385723;
+}
+.at-success-title {
+	margin: 0 0 10px;
+	padding: 0;
+	font-size: 22px;
+	font-weight: 700;
+	line-height: 1.3;
+	color: #385723;
+	text-align: center;
+}
+.at-success-title::before,
+.at-success-title::after {
+	content: none;
+	display: none;
+}
+
+/* Total row in the success receipt (overrides the generic .at-receipt-total used in the price breakdown) */
+.at-success-receipt .at-receipt-total {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 14px;
+	text-align: left;
+}
+.at-success-receipt .at-receipt-total .at-receipt-text {
+	align-items: flex-start;
+	flex: 1;
+}
+.at-success-receipt .at-receipt-total strong.at-receipt-amount {
+	font-size: 24px;
+	font-weight: 800;
+	color: #0f3d3a;
+}
+
+/* Compact success dialog */
+#at_success_modal .at-booking-modal-body {
+	padding: 20px 18px !important;
+}
+#at_success_modal .at-success-check {
+	width: 44px;
+	height: 44px;
+	margin-bottom: 8px;
+}
+#at_success_modal .at-success-check svg {
+	width: 24px;
+	height: 24px;
+}
+#at_success_modal .at-success-title {
+	margin-bottom: 6px;
+	font-size: 19px;
+}
+#at_success_modal .at-booking-modal-body > p {
+	margin-bottom: 12px !important;
+	font-size: 12px !important;
+	line-height: 1.35 !important;
+}
+#at_success_modal .at-success-receipt {
+	margin-bottom: 12px !important;
+}
+#at_success_modal .at-receipt-row {
+	gap: 12px;
+	padding: 7px 2px;
+}
+#at_success_modal .at-receipt-icon {
+	flex-basis: 32px;
+	width: 32px;
+	height: 32px;
+}
+#at_success_modal .at-receipt-icon svg {
+	width: 16px;
+	height: 16px;
+}
+#at_success_modal .at-receipt-label {
+	font-size: 11px;
+	line-height: 1.2;
+}
+#at_success_modal .at-receipt-value {
+	font-size: 13.5px;
+	line-height: 1.25;
+}
+#at_success_modal .at-success-receipt .at-receipt-total {
+	margin-top: 8px;
+	padding: 9px 12px;
+	gap: 12px;
+}
+#at_success_modal .at-success-receipt .at-receipt-total strong.at-receipt-amount {
+	font-size: 20px;
+	line-height: 1.15;
+}
+#at_success_modal #at_success_close_btn {
+	padding-top: 10px;
+	padding-bottom: 10px;
 }

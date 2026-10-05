@@ -236,8 +236,11 @@ $at_child_age    = '' !== $at_child_age ? $at_child_age : $at_age_defaults['chil
 	<div class="at-booking-modal" id="at_success_modal" style="display: none;">
 		<div class="at-booking-modal-content" style="max-width:450px; text-align:center;">
 			<div class="at-booking-modal-body" style="padding:30px 20px;">
-				<span class="dashicons dashicons-saved" style="color:#385723; font-size:64px; width:64px; height:64px; display:block; margin:0 auto 15px auto;"></span>
-				<h3 style="color:#385723; margin:0 0 10px 0; font-size:22px; font-weight:700;"><?php esc_html_e( 'Thank you for your booking!', 'adventure-treks' ); ?></h3>
+				<span class="at-success-check" aria-hidden="true">
+					<svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+				</span>
+				<h3 class="at-success-title"><?php esc_html_e( 'Thank you for your booking!', 'adventure-treks' ); ?></h3>
+				
 				<p style="font-size:13px; color:#555; margin-bottom:20px; line-height:1.4;">
 					<?php esc_html_e( 'Your reservation is pending confirmation. We have sent your booking receipt by email, and you will receive another email once your reservation is confirmed.', 'adventure-treks' ); ?>
 				</p>
