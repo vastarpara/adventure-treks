@@ -2,6 +2,7 @@
 
 # Keep development-only files out of `git archive` / release zips.
 /.github          export-ignore
+/.wordpress-org   export-ignore
 /.claude          export-ignore
 /.vscode          export-ignore
 /.editorconfig    export-ignore
