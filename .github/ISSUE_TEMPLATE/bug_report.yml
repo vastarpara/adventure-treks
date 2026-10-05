@@ -1,0 +1,75 @@
+name: Bug report
+description: Something is not working as expected
+labels: [ bug ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. **Do not report security problems here**; see CONTRIBUTING.md.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: A clear description of the problem, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+        3. See the error
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does it happen?
+      options:
+        - Booking widget (frontend)
+        - Single trek or archive page
+        - Bookings screen (admin)
+        - Trek editor / departure cities
+        - Settings
+        - Import / Export
+        - Gutenberg block
+        - Elementor widget
+        - Emails
+        - PDF export
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+    validations:
+      required: true
+  - type: input
+    id: wp-version
+    attributes:
+      label: WordPress version
+    validations:
+      required: true
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+    validations:
+      required: true
+  - type: input
+    id: theme
+    attributes:
+      label: Active theme
+  - type: input
+    id: elementor
+    attributes:
+      label: Elementor version (if used)
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error messages
+      description: PHP error log or browser console output.
+      render: shell

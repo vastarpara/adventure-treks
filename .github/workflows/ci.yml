@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, 'dev-*' ]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: PHP lint (${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ '7.4', '8.0', '8.1', '8.2', '8.3' ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: Syntax check
+        run: find . -name '*.php' -not -path './vendor/*' -not -path './includes/vendor/*' -print0 | xargs -0 -n1 php -l > /dev/null
+
+  phpcs:
+    name: Coding standards (PHPCS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+      - name: Run PHPCS
+        run: vendor/bin/phpcs --standard=phpcs.xml.dist --ignore=includes/vendor,assets --report=full
+
+  javascript:
+    name: JavaScript syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check syntax of every script
+        run: |
+          for f in $(find assets -name '*.js' -not -path 'assets/vendor/*'); do
+            node --check "$f" || exit 1
+          done
+
+  plugin-check:
+    name: Plugin Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build a release-like copy (without development files)
+        run: |
+          mkdir -p build/adventure-treks
+          rsync -a --exclude-from=.distignore --exclude='.git' ./ build/adventure-treks/
+      - uses: WordPress/plugin-check-action@v1
+        with:
+          build-dir: build/adventure-treks
+          exclude-directories: includes/vendor
+          categories: |
+            general
+            plugin_repo
+            security
+            performance
+            accessibility
+
+  package:
+    name: Build release zip
+    runs-on: ubuntu-latest
+    needs: [ lint, phpcs, javascript, plugin-check ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create zip
+        run: |
+          mkdir -p dist/adventure-treks
+          rsync -a --exclude-from=.distignore --exclude='.git' ./ dist/adventure-treks/
+          cd dist && zip -qr adventure-treks.zip adventure-treks
+      - uses: actions/upload-artifact@v4
+        with:
+          name: adventure-treks
+          path: dist/adventure-treks.zip
