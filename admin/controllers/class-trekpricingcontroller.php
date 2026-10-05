@@ -46,7 +46,7 @@ class TrekPricingController {
 			'at-admin-pricing-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-pricing.js',
 			array(),
-			ADVENTURE_TREKS_VERSION,
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/js/admin-pricing.js' ),
 			true
 		);
 

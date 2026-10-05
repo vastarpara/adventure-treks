@@ -261,7 +261,7 @@ class TrekShortcodesController {
 			'at-public-archive-css',
 			ADVENTURE_TREKS_URL . 'assets/public/css/trek-archive.css',
 			array( 'dashicons' ),
-			ADVENTURE_TREKS_VERSION
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/public/css/trek-archive.css' )
 		);
 
 		if ( is_post_type_archive( 'adventure_trek' ) || has_shortcode( $at_post_content, 'adventure_list' ) || has_shortcode( $at_post_content, 'trek_archive' ) ) {

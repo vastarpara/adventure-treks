@@ -47,7 +47,7 @@ class TrekDepartureDatesController {
 			'at-admin-dates-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-dates.js',
 			array(),
-			ADVENTURE_TREKS_VERSION,
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/js/admin-dates.js' ),
 			true
 		);
 

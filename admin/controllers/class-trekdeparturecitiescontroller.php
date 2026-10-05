@@ -66,7 +66,7 @@ class TrekDepartureCitiesController {
 			'at-admin-departures-css',
 			ADVENTURE_TREKS_URL . 'assets/admin/css/admin-departures.css',
 			array(),
-			ADVENTURE_TREKS_VERSION
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/css/admin-departures.css' )
 		);
 
 		wp_enqueue_style( 'flatpickr-css', ADVENTURE_TREKS_URL . 'assets/vendor/flatpickr/flatpickr.min.css', array(), '4.6.13' );
@@ -76,7 +76,7 @@ class TrekDepartureCitiesController {
 			'at-admin-departures-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-departures.js',
 			array(),
-			ADVENTURE_TREKS_VERSION,
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/js/admin-departures.js' ),
 			true
 		);
 
@@ -84,7 +84,7 @@ class TrekDepartureCitiesController {
 			'at-admin-pickups-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-pickups.js',
 			array( 'at-admin-departures-js' ),
-			ADVENTURE_TREKS_VERSION,
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/js/admin-pickups.js' ),
 			true
 		);
 
@@ -152,7 +152,40 @@ class TrekDepartureCitiesController {
 			ARRAY_A
 		);
 
-		wp_send_json_success( $results );
+		wp_send_json_success( $this->with_setup_status( (array) $results, $trek_id ) );
+	}
+
+	/**
+	 * Add a "setup" summary to each city so the admin can see what is still missing:
+	 * upcoming dates, saved pricing rules, pickup points and itinerary days.
+	 *
+	 * @param array[] $cities  City rows.
+	 * @param int     $trek_id Trek ID.
+	 * @return array[]
+	 */
+	private function with_setup_status( $cities, $trek_id ) {
+		global $wpdb;
+		$prefix = $wpdb->prefix;
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$dates     = $wpdb->get_results( $wpdb->prepare( "SELECT city_id, COUNT(*) AS n FROM {$prefix}at_departure_dates WHERE trek_id = %d AND status != 'cancelled' AND departure_date >= CURDATE() GROUP BY city_id", $trek_id ), OBJECT_K );
+		$pickups   = $wpdb->get_results( $wpdb->prepare( "SELECT city_id, COUNT(*) AS n FROM {$prefix}at_pickup_points WHERE trek_id = %d GROUP BY city_id", $trek_id ), OBJECT_K );
+		$itinerary = $wpdb->get_results( $wpdb->prepare( "SELECT city_id, COUNT(*) AS n FROM {$prefix}at_itineraries WHERE trek_id = %d GROUP BY city_id", $trek_id ), OBJECT_K );
+		$pricing   = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT city_id FROM {$prefix}at_pricing WHERE trek_id = %d AND date_id = 0", $trek_id ) );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+
+		foreach ( $cities as &$city ) {
+			$id            = (int) $city['id'];
+			$city['setup'] = array(
+				'dates'     => isset( $dates[ $id ] ) ? (int) $dates[ $id ]->n : 0,
+				'pickups'   => isset( $pickups[ $id ] ) ? (int) $pickups[ $id ]->n : 0,
+				'itinerary' => isset( $itinerary[ $id ] ) ? (int) $itinerary[ $id ]->n : 0,
+				'pricing'   => in_array( (string) $id, array_map( 'strval', $pricing ), true ),
+			);
+		}
+		unset( $city );
+
+		return $cities;
 	}
 
 	/**

@@ -171,7 +171,7 @@ class TrekMetaBoxController {
 			'at-admin-meta-box-css',
 			ADVENTURE_TREKS_URL . 'assets/admin/css/admin-meta-box.css',
 			array(),
-			ADVENTURE_TREKS_VERSION
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/css/admin-meta-box.css' )
 		);
 
 		wp_enqueue_script(

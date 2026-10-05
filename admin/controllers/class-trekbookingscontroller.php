@@ -285,14 +285,14 @@ class TrekBookingsController {
 			'at-admin-departures-css',
 			ADVENTURE_TREKS_URL . 'assets/admin/css/admin-departures.css',
 			array(),
-			ADVENTURE_TREKS_VERSION
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/css/admin-departures.css' )
 		);
 
 		wp_enqueue_style(
 			'at-admin-bookings-css',
 			ADVENTURE_TREKS_URL . 'assets/admin/css/admin-bookings.css',
 			array( 'at-admin-departures-css' ),
-			ADVENTURE_TREKS_VERSION
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/css/admin-bookings.css' )
 		);
 
 		wp_enqueue_style( 'flatpickr-css', ADVENTURE_TREKS_URL . 'assets/vendor/flatpickr/flatpickr.min.css', array(), '4.6.13' );

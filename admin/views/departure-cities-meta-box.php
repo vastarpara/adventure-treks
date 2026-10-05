@@ -26,13 +26,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<span class="spinner is-active"></span> <?php esc_html_e( 'Loading cities data...', 'adventure-treks' ); ?>
 	</div>
 
+	<!-- Next steps after adding a city (filled by admin-departures.js) -->
+	<div class="at-next-steps" id="at_city_next_steps" style="display:none;"></div>
+
 	<!-- Cities Grid List -->
 	<div class="at-cities-list-wrapper">
 		<table class="wp-list-table widefat fixed striped posts" id="at_cities_table">
 			<thead>
 				<tr>
 					<th class="column-order" style="width: 30px;"></th>
-					<th class="column-name" style="width: 120px;"><?php esc_html_e( 'City Name', 'adventure-treks' ); ?></th>
+					<th class="column-name" style="width: 230px;"><?php esc_html_e( 'City Name', 'adventure-treks' ); ?></th>
 					<th class="column-price" style="width: 90px;"><?php esc_html_e( 'Base Price', 'adventure-treks' ); ?></th>
 					<th class="column-offer" style="width: 90px;"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></th>
 					<th class="column-transport" style="width: 130px;"><?php esc_html_e( 'Transport', 'adventure-treks' ); ?></th>

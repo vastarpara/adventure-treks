@@ -59,7 +59,7 @@ class AdminController {
 			'at-admin-settings-css',
 			ADVENTURE_TREKS_URL . 'assets/admin/css/admin-settings.css',
 			array(),
-			ADVENTURE_TREKS_VERSION
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/css/admin-settings.css' )
 		);
 
 		wp_enqueue_script(

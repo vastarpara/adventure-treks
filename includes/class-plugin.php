@@ -112,6 +112,7 @@ class Plugin {
 			new \AdventureTreks\Admin\Controllers\TrekPricingController();
 			new \AdventureTreks\Admin\Controllers\TrekBookingsController();
 			new \AdventureTreks\Admin\Controllers\TrekImportExportController();
+			new \AdventureTreks\Admin\Controllers\TrekListController();
 		}
 
 		// Handle frontend/global hooks.
@@ -119,6 +120,19 @@ class Plugin {
 		new \AdventureTreks\Frontend\Controllers\TrekShortcodesController();
 		new \AdventureTreks\Includes\Elementor();
 		new \AdventureTreks\Includes\RestApi();
+	}
+
+	/**
+	 * Cache-busting version for a bundled asset: the plugin version plus the file's modification time,
+	 * so browsers fetch a changed CSS/JS file straight away instead of using a stale cached copy.
+	 *
+	 * @param string $relative_path Path of the file relative to the plugin folder, e.g. assets/admin/css/x.css.
+	 * @return string
+	 */
+	public static function asset_version( $relative_path ) {
+		$file  = ADVENTURE_TREKS_PATH . ltrim( $relative_path, '/' );
+		$mtime = file_exists( $file ) ? filemtime( $file ) : false;
+		return $mtime ? ADVENTURE_TREKS_VERSION . '.' . $mtime : ADVENTURE_TREKS_VERSION;
 	}
 
 	/**

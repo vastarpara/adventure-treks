@@ -52,7 +52,7 @@ class TrekItineraryController {
 			'at-admin-itinerary-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-itinerary.js',
 			array(),
-			ADVENTURE_TREKS_VERSION,
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/js/admin-itinerary.js' ),
 			true
 		);
 
