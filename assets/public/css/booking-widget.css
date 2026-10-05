@@ -1252,3 +1252,89 @@
 	padding-top: 10px;
 	padding-bottom: 10px;
 }
+
+/* Adults / Children counter: hardened so theme and Elementor button/input styles cannot break it. */
+.at-booking-widget-wrapper .at-pax-row {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+}
+.at-booking-widget-wrapper .at-pax-label {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.at-booking-widget-wrapper .at-pax-label strong {
+	display: block;
+	font-size: 13px;
+	line-height: 1.3;
+	color: #222;
+}
+.at-booking-widget-wrapper .at-pax-label .description {
+	display: block;
+	font-size: 11px;
+	line-height: 1.3;
+	color: #666;
+	white-space: nowrap;
+}
+.at-booking-widget-wrapper .at-pax-counter {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: stretch;
+	width: auto;
+	height: 32px;
+	border: 1px solid #ccd0d4;
+	border-radius: 6px;
+	background: #fff;
+	overflow: hidden;
+}
+.at-booking-widget-wrapper .at-pax-counter .at-counter-btn {
+	flex: 0 0 32px;
+	width: 32px;
+	min-width: 32px;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: #f6f7f7;
+	box-shadow: none;
+	color: #3c434a;
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1;
+	text-transform: none;
+	letter-spacing: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.at-booking-widget-wrapper .at-pax-counter .at-counter-btn:hover,
+.at-booking-widget-wrapper .at-pax-counter .at-counter-btn:focus {
+	background: #ebeef0;
+	color: var(--at-secondary-color, #0f6165);
+	box-shadow: none;
+	outline: none;
+}
+.at-booking-widget-wrapper .at-pax-counter input[type="number"] {
+	flex: 0 0 44px;
+	width: 44px;
+	min-width: 0;
+	max-width: 44px;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-left: 1px solid #e3e5e8;
+	border-right: 1px solid #e3e5e8;
+	border-radius: 0;
+	background: #fff;
+	box-shadow: none;
+	color: #222;
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 1;
+	text-align: center;
+	-moz-appearance: textfield;
+}

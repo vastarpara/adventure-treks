@@ -66,6 +66,16 @@ class TrekBookingWidget extends \Elementor\Widget_Base {
 	}
 
 	/**
+	 * Declare the script the booking flow (checkout validation, success receipt) needs,
+	 * so Elementor loads it in the editor preview and on cached pages too.
+	 *
+	 * @return array
+	 */
+	public function get_script_depends() {
+		return array( 'at-public-booking-js' );
+	}
+
+	/**
 	 * Register widget controls.
 	 */
 	protected function register_controls() {

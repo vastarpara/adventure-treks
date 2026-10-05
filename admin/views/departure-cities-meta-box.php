@@ -240,10 +240,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="at-modal-body" style="display: flex; gap: 20px; overflow: hidden; height: 100%; padding: 15px;">
 				
 				<!-- Left Column: Days List -->
-				<div style="width: 280px; display: flex; flex-direction: column; border-right: 1px solid #ddd; padding-right: 15px; height: 100%;">
-					<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-						<h4 style="margin: 0; font-size: 14px; font-weight: 600;"><?php esc_html_e( 'Itinerary Days', 'adventure-treks' ); ?></h4>
-						<button type="button" class="button button-small" id="at_add_day_btn">+ <?php esc_html_e( 'Add Day', 'adventure-treks' ); ?></button>
+				<div style="flex: 0 0 280px; width: 280px; min-width: 280px; box-sizing: border-box; display: flex; flex-direction: column; border-right: 1px solid #ddd; padding-right: 15px; height: 100%;">
+					<div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 15px;">
+						<h4 style="margin: 0; font-size: 14px; font-weight: 600; white-space: nowrap;"><?php esc_html_e( 'Itinerary Days', 'adventure-treks' ); ?></h4>
+						<button type="button" class="button button-small" id="at_add_day_btn" style="flex: 0 0 auto; white-space: nowrap;">+ <?php esc_html_e( 'Add Day', 'adventure-treks' ); ?></button>
 					</div>
 					<div id="at_itinerary_days_list" style="flex-grow: 1; overflow-y: auto; padding-right: 5px; display: flex; flex-direction: column; gap: 8px;">
 						<!-- Days populated via AJAX -->

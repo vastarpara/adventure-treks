@@ -7,6 +7,14 @@ document.addEventListener('DOMContentLoaded', function() {
 	var root = document.getElementById('at_departures_module_root');
 	if (!root) return;
 
+	// In the block editor the meta box lives in a scrolling, clipped container, which breaks
+	// position:fixed overlays (modal cut off / offset). Re-parent every modal to <body> so they
+	// always cover the whole screen. Element identity is kept, so existing lookups still work.
+	root.querySelectorAll('.at-modal-overlay').forEach(function(modal) {
+		document.body.appendChild(modal);
+	});
+
+
 	var trekId  = root.getAttribute('data-trek-id');
 	var ajaxUrl = at_departures_obj.ajax_url;
 	var nonce   = at_departures_obj.nonce;
