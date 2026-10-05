@@ -39,7 +39,7 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
       - name: Run PHPCS
-        run: vendor/bin/phpcs --standard=phpcs.xml.dist --ignore=includes/vendor,assets --report=full
+        run: vendor/bin/phpcs --report=full
 
   javascript:
     name: JavaScript syntax
