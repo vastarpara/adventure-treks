@@ -3,11 +3,11 @@
  * Controller for managing Frontend Booking Widget and AJAX handlers.
  *
  * @package    AdventureTreks
- * @subpackage AdventureTreks/Public/Controllers
+ * @subpackage AdventureTreks/Frontend/Controllers
  * @author     Nilesh Vastarpara
  */
 
-namespace AdventureTreks\Public\Controllers;
+namespace AdventureTreks\Frontend\Controllers;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.

@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-\AdventureTreks\Public\Controllers\TrekShortcodesController::render_header();
+\AdventureTreks\Frontend\Controllers\TrekShortcodesController::render_header();
 ?>
 
 <div class="at-trek-archive-wrapper" style="max-width:1200px; margin:30px auto; padding:0 20px;">
@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			while ( have_posts() ) :
 				the_post();
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- values are escaped inside get_trek_archive_card_html().
-				echo \AdventureTreks\Public\Controllers\TrekShortcodesController::get_trek_archive_card_html( get_the_ID(), true, true );
+				echo \AdventureTreks\Frontend\Controllers\TrekShortcodesController::get_trek_archive_card_html( get_the_ID(), true, true );
 			endwhile;
 			?>
 		</div>
@@ -53,4 +53,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 </div>
 
 <?php
-\AdventureTreks\Public\Controllers\TrekShortcodesController::render_footer();
+\AdventureTreks\Frontend\Controllers\TrekShortcodesController::render_footer();

@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			while ( $query->have_posts() ) :
 				$query->the_post();
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- values are escaped inside get_trek_archive_card_html().
-				echo \AdventureTreks\Public\Controllers\TrekShortcodesController::get_trek_archive_card_html( get_the_ID(), $show_excerpt, $show_price );
+				echo \AdventureTreks\Frontend\Controllers\TrekShortcodesController::get_trek_archive_card_html( get_the_ID(), $show_excerpt, $show_price );
 			endwhile;
 			?>
 		</div>

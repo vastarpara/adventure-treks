@@ -60,6 +60,11 @@ class Autoloader {
 		// Lowercase every directory part to match the plugin's lowercase directory names.
 		$parts = array_map( 'strtolower', $parts );
 
+		// The Frontend namespace lives in the public/ directory ("Public" is a reserved word in PHP 7.x namespaces).
+		if ( ! empty( $parts ) && 'frontend' === $parts[0] ) {
+			$parts[0] = 'public';
+		}
+
 		// Rebuild the directory path with directory separators.
 		$relative_path = implode( '/', $parts );
 

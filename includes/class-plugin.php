@@ -114,9 +114,9 @@ class Plugin {
 			new \AdventureTreks\Admin\Controllers\TrekImportExportController();
 		}
 
-		// Handle Public/Global hooks.
-		new \AdventureTreks\Public\Controllers\TrekBookingController();
-		new \AdventureTreks\Public\Controllers\TrekShortcodesController();
+		// Handle frontend/global hooks.
+		new \AdventureTreks\Frontend\Controllers\TrekBookingController();
+		new \AdventureTreks\Frontend\Controllers\TrekShortcodesController();
 		new \AdventureTreks\Includes\Elementor();
 		new \AdventureTreks\Includes\RestApi();
 	}
