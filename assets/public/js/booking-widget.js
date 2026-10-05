@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	// Price formatting driven by Settings > Currency (symbol, position, separators, decimals).
 	const at_price_format = at_booking_obj.price_format || { symbol: at_booking_obj.currency_symbol || at_booking_obj.currency || '', position: 'left', thousand: ',', decimal: '.', decimals: 2 };
+	function atEscapeHtml(value) {
+		return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
+			return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+		});
+	}
+
 	function atFormatPrice(amount) {
 		const fmt = at_price_format;
 		const value = Math.abs(parseFloat(amount) || 0).toFixed(fmt.decimals);
@@ -307,8 +313,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			label.className = 'at-transport-option-item';
 
 			label.innerHTML = `
-				<input type="radio" name="at_widget_transport" value="${opt.name}" data-price="${price}" ${idx === 0 ? 'checked' : ''} />
-				<span class="at-transport-option-name">${opt.name}</span>
+				<input type="radio" name="at_widget_transport" value="${atEscapeHtml(opt.name)}" data-price="${price}" ${idx === 0 ? 'checked' : ''} />
+				<span class="at-transport-option-name">${atEscapeHtml(opt.name)}</span>
 				<span class="at-transport-option-price">${priceLabel}</span>
 			`;
 
@@ -388,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			const badgeText = badge.text;
 
 			btn.innerHTML = `
-				<span class="at-date-val">${d.formatted_date}</span>
+				<span class="at-date-val">${atEscapeHtml(d.formatted_date)}</span>
 				<span class="at-date-status-badge ${badgeClass}">${badgeText}</span>
 			`;
 
@@ -484,13 +490,13 @@ document.addEventListener('DOMContentLoaded', function() {
 				div.className = 'at-addon-checkbox-item';
 				
 				const scopeLabel = addon.type === 'person' ? '/Person' : ' flat';
-				const descHTML = addon.desc ? `<span class="addon-desc">${addon.desc}</span>` : '';
+				const descHTML = addon.desc ? `<span class="addon-desc">${atEscapeHtml(addon.desc)}</span>` : '';
 
 				div.innerHTML = `
 					<label>
-						<input type="checkbox" name="addon_check" value="${addon.name}" data-price="${addon.price}" data-type="${addon.type}" />
+						<input type="checkbox" name="addon_check" value="${atEscapeHtml(addon.name)}" data-price="${atEscapeHtml(addon.price)}" data-type="${atEscapeHtml(addon.type)}" />
 						<div>
-							<strong>${addon.name}</strong>
+							<strong>${atEscapeHtml(addon.name)}</strong>
 							${descHTML}
 						</div>
 					</label>
@@ -625,10 +631,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 			if (type === 'person') {
 				amt = totalPax * price;
-				markup += `<div style="display:flex; justify-content:space-between;"><span>${name} (${totalPax} x ${atFormatPrice(price)})</span><span>+${atFormatPrice(amt)}</span></div>`;
+				markup += `<div style="display:flex; justify-content:space-between;"><span>${atEscapeHtml(name)} (${totalPax} x ${atFormatPrice(price)})</span><span>+${atFormatPrice(amt)}</span></div>`;
 			} else {
 				amt = price;
-				markup += `<div style="display:flex; justify-content:space-between;"><span>${name} (Flat)</span><span>+${atFormatPrice(amt)}</span></div>`;
+				markup += `<div style="display:flex; justify-content:space-between;"><span>${atEscapeHtml(name)} (Flat)</span><span>+${atFormatPrice(amt)}</span></div>`;
 			}
 			addonsSum += amt;
 		});
@@ -641,10 +647,10 @@ document.addEventListener('DOMContentLoaded', function() {
 				let amt = 0;
 				if (charge.type === 'person') {
 					amt = totalPax * parseFloat(charge.price);
-					markup += `<div style="display:flex; justify-content:space-between;"><span>${charge.name} (${totalPax} x ${atFormatPrice(parseFloat(charge.price))})</span><span>+${atFormatPrice(amt)}</span></div>`;
+					markup += `<div style="display:flex; justify-content:space-between;"><span>${atEscapeHtml(charge.name)} (${totalPax} x ${atFormatPrice(parseFloat(charge.price))})</span><span>+${atFormatPrice(amt)}</span></div>`;
 				} else {
 					amt = parseFloat(charge.price);
-					markup += `<div style="display:flex; justify-content:space-between;"><span>${charge.name} (Flat)</span><span>+${atFormatPrice(amt)}</span></div>`;
+					markup += `<div style="display:flex; justify-content:space-between;"><span>${atEscapeHtml(charge.name)} (Flat)</span><span>+${atFormatPrice(amt)}</span></div>`;
 				}
 				extraSum += amt;
 			});
@@ -707,7 +713,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 		const time = selected.getAttribute('data-time');
 		const note = selected.getAttribute('data-instructions');
-		pickupInstructions.innerHTML = `<strong>Reporting</strong>: ${time}. ${note}`;
+		pickupInstructions.innerHTML = `<strong>Reporting</strong>: ${atEscapeHtml(time)}. ${atEscapeHtml(note)}`;
 	});
 
 	function closeCheckout() {

@@ -242,7 +242,6 @@ class TrekBookingController {
 		$table_cities  = $wpdb->prefix . 'at_departure_cities';
 		$table_dates   = $wpdb->prefix . 'at_departure_dates';
 		$table_avail   = $wpdb->prefix . 'at_availability';
-		$table_pricing = $wpdb->prefix . 'at_pricing';
 		$table_pickups = $wpdb->prefix . 'at_pickup_points';
 
 		// 1. Fetch default city specifications
@@ -260,22 +259,8 @@ class TrekBookingController {
 		$date_status        = $date_row ? $date_row['status'] : 'open';
 		$departure_date_val = $date_row ? $date_row['departure_date'] : '';
 
-		// 3. Fetch pricing: look for date override, otherwise load default city rule
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$pricing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_pricing WHERE city_id = %d AND date_id = %d", $city_id, $date_id ), ARRAY_A );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$default_pricing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_pricing WHERE city_id = %d AND date_id = 0", $city_id ), ARRAY_A );
-		if ( ! $pricing ) {
-			$pricing = $default_pricing;
-		} elseif ( $default_pricing ) {
-			// A date override only carries prices; add-ons, extra charges and group
-			// discounts are configured per city, so inherit them when the date has none.
-			foreach ( array( 'group_discount', 'extra_charges', 'optional_addons', 'transport_options' ) as $field ) {
-				if ( empty( $pricing[ $field ] ) || '[]' === $pricing[ $field ] ) {
-					$pricing[ $field ] = $default_pricing[ $field ];
-				}
-			}
-		}
+		// 3. Fetch pricing: the date's override, otherwise the city default rule.
+		$pricing = $this->get_effective_pricing( $city_id, $date_id );
 
 		// 4. Fetch pickup list
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -307,6 +292,147 @@ class TrekBookingController {
 	}
 
 	/**
+	 * The pricing row that applies to a city and date: the date's own override if there is one,
+	 * otherwise the city default. A date override only carries prices, so add-ons, extra charges,
+	 * group discounts and transport options are inherited from the city when the date has none.
+	 *
+	 * @param int $city_id City ID.
+	 * @param int $date_id Departure date ID.
+	 * @return array|null Pricing row, or null when none is configured.
+	 */
+	private function get_effective_pricing( $city_id, $date_id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . 'at_pricing';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$pricing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table WHERE city_id = %d AND date_id = %d", $city_id, $date_id ), ARRAY_A );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$default_pricing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table WHERE city_id = %d AND date_id = 0", $city_id ), ARRAY_A );
+
+		if ( ! $pricing ) {
+			return $default_pricing;
+		}
+		if ( $default_pricing ) {
+			foreach ( array( 'group_discount', 'extra_charges', 'optional_addons', 'transport_options' ) as $field ) {
+				if ( empty( $pricing[ $field ] ) || '[]' === $pricing[ $field ] ) {
+					$pricing[ $field ] = $default_pricing[ $field ];
+				}
+			}
+		}
+		return $pricing;
+	}
+
+	/**
+	 * Decode a JSON list column into an array of arrays.
+	 *
+	 * @param mixed $json JSON string.
+	 * @return array
+	 */
+	private function decode_list( $json ) {
+		$list = ! empty( $json ) ? json_decode( $json, true ) : array();
+		return is_array( $list ) ? array_values( array_filter( $list, 'is_array' ) ) : array();
+	}
+
+	/**
+	 * Work out the booking price on the server, mirroring the booking widget's calculator
+	 * (rate x travellers, group discount, add-ons, extra charges). Nothing the browser sends
+	 * about prices is trusted: only the chosen city, date, traveller counts, transport name
+	 * and add-on names are used, and each is looked up in the saved pricing.
+	 *
+	 * @param int      $city_id        City ID.
+	 * @param int      $date_id        Departure date ID.
+	 * @param int      $num_adults     Number of adults.
+	 * @param int      $num_children   Number of children.
+	 * @param string   $transport_name Chosen transport option name.
+	 * @param string[] $addon_names    Chosen optional add-on names.
+	 * @return array|\WP_Error array( total, transport_name, transport_price ) or an error.
+	 */
+	private function calculate_quote( $city_id, $date_id, $num_adults, $num_children, $transport_name, $addon_names ) {
+		global $wpdb;
+
+		$pricing = $this->get_effective_pricing( $city_id, $date_id );
+		if ( ! $pricing ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			$city = $wpdb->get_row( $wpdb->prepare( "SELECT base_price, offer_price FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $city_id ), ARRAY_A );
+			if ( ! $city ) {
+				return new \WP_Error( 'at_no_city', __( 'The selected departure city is not available.', 'adventure-treks' ) );
+			}
+			$pricing = array(
+				'adult_price'       => $city['base_price'],
+				'child_price'       => 0,
+				'offer_price'       => $city['offer_price'],
+				'group_discount'    => '',
+				'extra_charges'     => '',
+				'optional_addons'   => '',
+				'transport_options' => '',
+			);
+		}
+
+		// Transport options come from the city default pricing, exactly as the widget lists them.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$transport_json = $wpdb->get_var( $wpdb->prepare( "SELECT transport_options FROM {$wpdb->prefix}at_pricing WHERE city_id = %d AND date_id = 0", $city_id ) );
+		$transport_list = $this->decode_list( $transport_json );
+
+		$transport_price = 0.0;
+		if ( ! empty( $transport_list ) ) {
+			$matched = null;
+			foreach ( $transport_list as $option ) {
+				if ( isset( $option['name'] ) && (string) $option['name'] === $transport_name ) {
+					$matched = $option;
+					break;
+				}
+			}
+			if ( ! $matched ) {
+				return new \WP_Error( 'at_bad_transport', __( 'Please choose a valid transportation option.', 'adventure-treks' ) );
+			}
+			$transport_price = isset( $matched['price'] ) ? max( 0.0, (float) $matched['price'] ) : 0.0;
+		} else {
+			$transport_name = '';
+		}
+
+		$total_pax  = $num_adults + $num_children;
+		$base_adult = (float) $pricing['offer_price'] > 0 ? (float) $pricing['offer_price'] : (float) $pricing['adult_price'];
+		$rate_adult = $base_adult + $transport_price;
+		$base_child = (float) $pricing['child_price'];
+		$rate_child = $base_child > 0 ? $base_child + $transport_price : 0.0;
+
+		$subtotal = ( $num_adults * $rate_adult ) + ( $num_children * $rate_child );
+
+		// Best group discount: the rule with the highest min_seats that the party qualifies for.
+		$best_rule = null;
+		foreach ( $this->decode_list( $pricing['group_discount'] ) as $rule ) {
+			$min_seats = isset( $rule['min_seats'] ) ? (int) $rule['min_seats'] : 0;
+			if ( $total_pax >= $min_seats && ( ! $best_rule || $min_seats > (int) $best_rule['min_seats'] ) ) {
+				$best_rule = $rule;
+			}
+		}
+		if ( $best_rule ) {
+			$value     = isset( $best_rule['value'] ) ? (float) $best_rule['value'] : 0.0;
+			$subtotal -= ( isset( $best_rule['type'] ) && 'percent' === $best_rule['type'] ) ? $subtotal * ( $value / 100 ) : $value;
+		}
+
+		// Optional add-ons: only names that exist in the saved list count, each at most once.
+		$chosen = array_unique( array_map( 'strval', (array) $addon_names ) );
+		foreach ( $this->decode_list( $pricing['optional_addons'] ) as $addon ) {
+			if ( isset( $addon['name'] ) && in_array( (string) $addon['name'], $chosen, true ) ) {
+				$price     = isset( $addon['price'] ) ? (float) $addon['price'] : 0.0;
+				$subtotal += ( isset( $addon['type'] ) && 'person' === $addon['type'] ) ? $total_pax * $price : $price;
+			}
+		}
+
+		// Mandatory extra charges.
+		foreach ( $this->decode_list( $pricing['extra_charges'] ) as $charge ) {
+			$price     = isset( $charge['price'] ) ? (float) $charge['price'] : 0.0;
+			$subtotal += ( isset( $charge['type'] ) && 'person' === $charge['type'] ) ? $total_pax * $price : $price;
+		}
+
+		return array(
+			'total'           => round( max( 0.0, $subtotal ), 2 ),
+			'transport_name'  => $transport_name,
+			'transport_price' => round( $transport_price, 2 ),
+		);
+	}
+	/**
 	 * AJAX: Process booking submission, update seats counter, and dispatch alerts.
 	 */
 	public function ajax_submit_booking() {
@@ -324,13 +450,12 @@ class TrekBookingController {
 		$num_children = isset( $_POST['num_children'] ) ? intval( wp_unslash( $_POST['num_children'] ) ) : 0;
 		$pickup_point = isset( $_POST['pickup_point'] ) ? sanitize_text_field( wp_unslash( $_POST['pickup_point'] ) ) : '';
 
-		$transport_name  = isset( $_POST['transport_name'] ) ? sanitize_text_field( wp_unslash( $_POST['transport_name'] ) ) : '';
-		$transport_price = isset( $_POST['transport_price'] ) ? floatval( wp_unslash( $_POST['transport_price'] ) ) : 0.00;
+		$transport_name = isset( $_POST['transport_name'] ) ? sanitize_text_field( wp_unslash( $_POST['transport_name'] ) ) : '';
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$raw_addons  = isset( $_POST['addons'] ) ? wp_unslash( $_POST['addons'] ) : array();
-		$addons      = is_array( $raw_addons ) ? array_map( 'sanitize_text_field', $raw_addons ) : array();
-		$total_price = isset( $_POST['total_price'] ) ? floatval( wp_unslash( $_POST['total_price'] ) ) : 0.00;
+		$raw_addons = isset( $_POST['addons'] ) ? wp_unslash( $_POST['addons'] ) : array();
+		$addons     = is_array( $raw_addons ) ? array_map( 'sanitize_text_field', $raw_addons ) : array();
+		// The total and transport surcharge are always recalculated on the server (see calculate_quote()).
 
 		if ( ! $trek_id || ! $city_id || ! $date_id || empty( $cust_name ) || empty( $cust_email ) || empty( $cust_phone ) ) {
 			wp_send_json_error( array( 'message' => __( 'Please fill all required customer contact details.', 'adventure-treks' ) ) );
@@ -341,13 +466,34 @@ class TrekBookingController {
 			wp_send_json_error( array( 'message' => __( 'Please enter a valid phone number with 10 to 15 digits.', 'adventure-treks' ) ) );
 		}
 
-		$seats_requested = $num_adults + $num_children;
-		if ( $seats_requested <= 0 ) {
-			wp_send_json_error( array( 'message' => __( 'Please select at least 1 seat.', 'adventure-treks' ) ) );
+		if ( $num_adults < 1 || $num_children < 0 ) {
+			wp_send_json_error( array( 'message' => __( 'Please select at least 1 adult.', 'adventure-treks' ) ) );
 		}
+
+		$seats_requested = $num_adults + $num_children;
 
 		global $wpdb;
 		$table_avail = $wpdb->prefix . 'at_availability';
+
+		// The city must belong to this published trek, and the date to this city and still be bookable.
+		if ( 'adventure_trek' !== get_post_type( $trek_id ) || 'publish' !== get_post_status( $trek_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'This trek is not available for booking.', 'adventure-treks' ) ) );
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$valid_city = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}at_departure_cities WHERE id = %d AND trek_id = %d AND status = 'active'", $city_id, $trek_id ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$valid_date = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}at_departure_dates WHERE id = %d AND city_id = %d AND status != 'cancelled' AND departure_date >= CURDATE()", $date_id, $city_id ) );
+		if ( ! $valid_city || ! $valid_date ) {
+			wp_send_json_error( array( 'message' => __( 'The selected departure city or date is not available.', 'adventure-treks' ) ) );
+		}
+
+		$quote = $this->calculate_quote( $city_id, $date_id, $num_adults, $num_children, $transport_name, $addons );
+		if ( is_wp_error( $quote ) ) {
+			wp_send_json_error( array( 'message' => $quote->get_error_message() ) );
+		}
+		$transport_name  = $quote['transport_name'];
+		$transport_price = $quote['transport_price'];
+		$total_price     = $quote['total'];
 
 		// Verify seat availability under locks.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -366,37 +512,35 @@ class TrekBookingController {
 			);
 		}
 
-		// Decrement availability counter.
-		$new_booked    = intval( $avail->booked_seats ) + $seats_requested;
-		$new_available = intval( $avail->total_seats ) - $new_booked;
-
+		// Reserve the seats in a single conditional UPDATE: the WHERE clause re-checks capacity,
+		// so two simultaneous bookings can never both take the last seats.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$wpdb->update(
-			$table_avail,
-			array(
-				'booked_seats'    => $new_booked,
-				'available_seats' => $new_available,
-			),
-			array( 'id' => $avail->id ),
-			array( '%d', '%d' ),
-			array( '%d' )
+		$reserved = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE $table_avail SET booked_seats = booked_seats + %d, available_seats = total_seats - booked_seats WHERE id = %d AND available_seats >= %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$seats_requested,
+				$avail->id,
+				$seats_requested
+			)
 		);
-
+		if ( ! $reserved ) {
+			wp_send_json_error( array( 'message' => __( 'Sorry, those seats were just taken. Please try again.', 'adventure-treks' ) ) );
+		}
 		// Record booking in the database.
 		$table_bookings = $wpdb->prefix . 'at_bookings';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$wpdb->insert(
 			$table_bookings,
 			array(
-				'trek_id'        => $trek_id,
-				'city_id'        => $city_id,
-				'date_id'        => $date_id,
-				'cust_name'      => $cust_name,
-				'cust_email'     => $cust_email,
-				'cust_phone'     => $cust_phone,
-				'seats'          => $seats_requested,
-				'num_adults'     => $num_adults,
-				'num_children'   => $num_children,
+				'trek_id'         => $trek_id,
+				'city_id'         => $city_id,
+				'date_id'         => $date_id,
+				'cust_name'       => $cust_name,
+				'cust_email'      => $cust_email,
+				'cust_phone'      => $cust_phone,
+				'seats'           => $seats_requested,
+				'num_adults'      => $num_adults,
+				'num_children'    => $num_children,
 				'pickup_point'    => $pickup_point,
 				'addons'          => wp_json_encode( $addons ),
 				'transport_type'  => $transport_name,
@@ -436,7 +580,6 @@ class TrekBookingController {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$date_val       = $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $date_id ) );
 		$date_formatted = gmdate( 'd M Y', strtotime( $date_val ) );
-
 
 		$details_rows = array(
 			array(

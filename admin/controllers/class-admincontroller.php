@@ -313,7 +313,7 @@ class AdminController {
 			'symbol'   => get_option( 'at_currency_symbol', '₹' ),
 			'position' => $position,
 			'thousand' => (string) get_option( 'at_thousand_separator', ',' ),
-			'decimal'  => (string) ( get_option( 'at_decimal_separator', '.' ) ?: '.' ),
+			'decimal'  => (string) ( '' !== (string) get_option( 'at_decimal_separator', '.' ) ? get_option( 'at_decimal_separator', '.' ) : '.' ),
 			'decimals' => max( 0, min( 4, (int) get_option( 'at_price_decimals', 2 ) ) ),
 		);
 	}

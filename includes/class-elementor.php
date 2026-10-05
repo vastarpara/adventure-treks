@@ -92,6 +92,7 @@ class Elementor {
 			$property->setValue( $elements_manager, $reordered + $categories );
 		} catch ( \ReflectionException $e ) {
 			// Elementor's internal structure changed; leave the category in its default (appended) position.
+			return;
 		}
 	}
 

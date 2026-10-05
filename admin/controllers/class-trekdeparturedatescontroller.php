@@ -82,6 +82,9 @@ class TrekDepartureDatesController {
 	 */
 	public function ajax_get_dates() {
 		check_ajax_referer( 'at_dates_nonce_action', 'nonce' );
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
+		}
 
 		$city_id = isset( $_GET['city_id'] ) ? intval( $_GET['city_id'] ) : 0;
 		if ( ! $city_id ) {

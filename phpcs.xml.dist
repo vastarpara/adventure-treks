@@ -16,6 +16,7 @@
 	WordPress core resolves single post templates.
 	-->
 	<rule ref="WordPress.Files.FileName">
-		<exclude-pattern>public/Views/single-adventure_trek\.php</exclude-pattern>
+		<exclude-pattern>public/views/single-adventure_trek\.php</exclude-pattern>
+		<exclude-pattern>public/views/archive-adventure_trek\.php</exclude-pattern>
 	</rule>
 </ruleset>

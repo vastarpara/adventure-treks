@@ -133,6 +133,9 @@ class TrekDepartureCitiesController {
 	 */
 	public function ajax_get_cities() {
 		check_ajax_referer( 'at_departures_nonce_action', 'nonce' );
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
+		}
 
 		$trek_id = isset( $_GET['trek_id'] ) ? intval( $_GET['trek_id'] ) : 0;
 		if ( ! $trek_id ) {

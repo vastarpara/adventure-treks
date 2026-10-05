@@ -16,9 +16,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Age ranges shown beside the Adults / Children counters (set per trek; defaults respect the trek's Age Limit when blank).
 global $wpdb;
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-$at_age_limit = (string) $wpdb->get_var( $wpdb->prepare( "SELECT age_limit FROM {$wpdb->prefix}at_treks WHERE post_id = %d", $trek_id ) );
-$at_adult_age = get_post_meta( $trek_id, '_at_adult_age', true );
-$at_child_age = get_post_meta( $trek_id, '_at_child_age', true );
+$at_age_limit    = (string) $wpdb->get_var( $wpdb->prepare( "SELECT age_limit FROM {$wpdb->prefix}at_treks WHERE post_id = %d", $trek_id ) );
+$at_adult_age    = get_post_meta( $trek_id, '_at_adult_age', true );
+$at_child_age    = get_post_meta( $trek_id, '_at_child_age', true );
 $at_age_defaults = \AdventureTreks\Admin\Controllers\TrekMetaBoxController::default_ages( $at_age_limit );
 $at_adult_age    = '' !== $at_adult_age ? $at_adult_age : $at_age_defaults['adult'];
 $at_child_age    = '' !== $at_child_age ? $at_child_age : $at_age_defaults['child'];

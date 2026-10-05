@@ -138,13 +138,18 @@ Yes. Read-only endpoints are available under `/wp-json/adventure-treks/v1/` for 
 
 Yes. The plugin is translation ready and uses the `adventure-treks` text domain. Names in non-Latin scripts are supported everywhere except the PDF export, which uses a font without Gujarati and Hindi characters.
 
-== Third Party Libraries ==
+== Screenshots ==
 
-This plugin bundles the following libraries. All run locally and no data is sent to any external service.
-
-* **Flatpickr** 4.6.13 - date picker. MIT License. https://flatpickr.js.org
-* **tFPDF** - PDF generation. Free to use, modify and distribute. https://github.com/Setasign/tFPDF
-* **DejaVu Sans Condensed** - font embedded in PDF exports. Free license (Bitstream Vera and public domain extensions). https://dejavu-fonts.github.io
+1. Single trek page with gallery, specifications, itinerary and booking widget.
+2. Booking widget: departure city, date, travellers, transport and live price.
+3. Checkout form with inline validation.
+4. Booking confirmation receipt.
+5. Trek archive grid.
+6. Trek editor: specifications and Departure Cities manager.
+7. Itinerary Builder with timed activities.
+8. Bookings screen with date range filter, Trash and PDF download.
+9. Settings: currency, payment, email and colors.
+10. Trek Details, Trek Booking and Trek Archive blocks in the block editor.
 
 == Changelog ==
 

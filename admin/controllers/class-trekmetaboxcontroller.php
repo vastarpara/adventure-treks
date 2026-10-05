@@ -276,7 +276,7 @@ class TrekMetaBoxController {
 		// Sanitize standard text inputs.
 		// Short spec fields are plain labels (e.g. "5 Days / 4 Nights"): letters, numbers, spaces and / - , . only
 		// (plus "+" for the age limit, as in "10+ years"). Anything else, such as !@#$%^&*()=, is stripped.
-		$at_plain = static function ( $key, $allow_plus = false ) {
+		$at_plain      = static function ( $key, $allow_plus = false ) {
 			$value = isset( $_POST[ $key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by the caller.
 			$regex = $allow_plus ? '/[^\p{L}\p{N}\s\/\-,.+]/u' : '/[^\p{L}\p{N}\s\/\-,.]/u';
 			return trim( (string) preg_replace( $regex, '', $value ) );

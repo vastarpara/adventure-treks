@@ -166,7 +166,6 @@ class TrekShortcodesController {
 	public static function get_trek_archive_card_html( $trek_id, $show_excerpt = true, $show_price = true ) {
 		global $wpdb;
 
-
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$at_trek_meta = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}at_treks WHERE post_id = %d", $trek_id ), ARRAY_A );
 
@@ -327,10 +326,10 @@ class TrekShortcodesController {
 		if ( $requested_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $requested_date ) ) {
 			$default_departure_date = $requested_date;
 		} elseif ( $default_city_id ) {
-			$table_dates = $wpdb->prefix . 'at_departure_dates';
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$default_departure_date = (string) $wpdb->get_var(
+			$table_dates            = $wpdb->prefix . 'at_departure_dates';
+			$default_departure_date = (string) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 					"SELECT departure_date FROM $table_dates WHERE city_id = %d AND status NOT IN ( 'cancelled', 'sold_out' ) AND departure_date >= CURDATE() ORDER BY departure_date ASC LIMIT 1",
 					$default_city_id
 				)

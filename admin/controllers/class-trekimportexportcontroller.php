@@ -134,10 +134,10 @@ class TrekImportExportController {
 			// Dates are keyed by their old ID so date-specific pricing can be re-linked on import.
 			$entry['dates'] = array();
 			foreach ( $this->get_rows( 'at_departure_dates', 'city_id', $city_id, 'departure_date ASC, id ASC' ) as $date ) {
-				$date_entry         = $this->strip( $date, array( 'city_id', 'trek_id' ) );
-				$avail              = $this->get_rows( 'at_availability', 'date_id', (int) $date['id'] );
+				$date_entry          = $this->strip( $date, array( 'city_id', 'trek_id' ) );
+				$avail               = $this->get_rows( 'at_availability', 'date_id', (int) $date['id'] );
 				$date_entry['seats'] = ! empty( $avail ) ? $this->strip( $avail[0], array( 'id', 'date_id' ) ) : null;
-				$entry['dates'][]   = $date_entry;
+				$entry['dates'][]    = $date_entry;
 			}
 
 			$entry['pricing'] = array();

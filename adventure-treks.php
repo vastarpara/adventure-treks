@@ -1,14 +1,14 @@
 <?php
 /**
  * Plugin Name:       Adventure Treks
- * Plugin URI:        #
  * Description:       A premium trekking and adventure trip management plugin for WordPress.
  * Version:           1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Nilesh Vastarpara
  * Author URI:        https://nileshvastarpara.com
- * License:           GPL-2.0+
+ * License:           GPL-2.0-or-later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       adventure-treks
  * Domain Path:       /languages
  *

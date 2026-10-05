@@ -220,9 +220,15 @@ class Plugin {
 			}
 		}
 
-		$candidates = array_merge( array_map( static function ( $id ) {
-			return 'elementor-' . $id;
-		}, $map[ $role ]['elementor'] ), $map[ $role ]['palette'] );
+		$candidates = array_merge(
+			array_map(
+				static function ( $id ) {
+					return 'elementor-' . $id;
+				},
+				$map[ $role ]['elementor']
+			),
+			$map[ $role ]['palette']
+		);
 
 		foreach ( $candidates as $slug ) {
 			if ( ! empty( $palette[ $slug ] ) ) {

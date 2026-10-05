@@ -351,15 +351,16 @@ class Bookings_List_Table extends \WP_List_Table {
 		if ( empty( $ids ) ) {
 			return array();
 		}
-		$list  = implode( ',', $ids );
-		$extra = '';
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+		$extra        = '';
 		if ( true === $trashed ) {
 			$extra = ' AND trashed_at IS NOT NULL';
 		} elseif ( false === $trashed ) {
 			$extra = ' AND trashed_at IS NULL';
 		}
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		return (array) $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}at_bookings WHERE id IN ($list)" . $extra );
+		// $extra is one of two hard-coded fragments above and the IDs are bound as %d placeholders.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		return (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}at_bookings WHERE id IN ($placeholders)" . $extra, $ids ) );
 	}
 
 	/**

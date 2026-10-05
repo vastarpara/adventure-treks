@@ -103,7 +103,7 @@ class TrekBookingsController {
 		global $wpdb;
 		$table_avail = $wpdb->prefix . 'at_availability';
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$avail = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_avail WHERE date_id = %d", $date_id ) );
 		if ( ! $avail ) {
 			return;
@@ -122,7 +122,7 @@ class TrekBookingsController {
 			array( '%d', '%d' ),
 			array( '%d' )
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 	}
 
 
@@ -168,7 +168,7 @@ class TrekBookingsController {
 		);
 
 		// Filter summary under the title.
-		$summary = array();
+		$summary   = array();
 		$summary[] = $filters['trek_id'] ? get_the_title( $filters['trek_id'] ) : __( 'All treks', 'adventure-treks' );
 		if ( $filters['status'] ) {
 			$summary[] = ucfirst( $filters['status'] );
@@ -271,10 +271,9 @@ class TrekBookingsController {
 	/**
 	 * Enqueue CSS/JS for the bookings admin screen only.
 	 *
-	 * @param string $hook Current admin page hook suffix.
 	 * @return void
 	 */
-	public function enqueue_assets( $hook ) {
+	public function enqueue_assets() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 		if ( 'at-bookings' !== $page ) {
@@ -394,21 +393,21 @@ class TrekBookingsController {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'at_bookings';
 
-		$booking_id   = isset( $_POST['booking_id'] ) ? absint( wp_unslash( $_POST['booking_id'] ) ) : 0;
-		$trek_id      = isset( $_POST['trek_id'] ) ? absint( wp_unslash( $_POST['trek_id'] ) ) : 0;
-		$city_id      = isset( $_POST['city_id'] ) ? absint( wp_unslash( $_POST['city_id'] ) ) : 0;
-		$date_id      = isset( $_POST['date_id'] ) ? absint( wp_unslash( $_POST['date_id'] ) ) : 0;
-		$cust_name    = isset( $_POST['cust_name'] ) ? sanitize_text_field( wp_unslash( $_POST['cust_name'] ) ) : '';
-		$cust_email   = isset( $_POST['cust_email'] ) ? sanitize_email( wp_unslash( $_POST['cust_email'] ) ) : '';
-		$cust_phone   = isset( $_POST['cust_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['cust_phone'] ) ) : '';
-		$num_adults   = isset( $_POST['num_adults'] ) ? absint( wp_unslash( $_POST['num_adults'] ) ) : 0;
-		$num_children = isset( $_POST['num_children'] ) ? absint( wp_unslash( $_POST['num_children'] ) ) : 0;
-		$pickup_point = isset( $_POST['pickup_point'] ) ? sanitize_text_field( wp_unslash( $_POST['pickup_point'] ) ) : '';
+		$booking_id      = isset( $_POST['booking_id'] ) ? absint( wp_unslash( $_POST['booking_id'] ) ) : 0;
+		$trek_id         = isset( $_POST['trek_id'] ) ? absint( wp_unslash( $_POST['trek_id'] ) ) : 0;
+		$city_id         = isset( $_POST['city_id'] ) ? absint( wp_unslash( $_POST['city_id'] ) ) : 0;
+		$date_id         = isset( $_POST['date_id'] ) ? absint( wp_unslash( $_POST['date_id'] ) ) : 0;
+		$cust_name       = isset( $_POST['cust_name'] ) ? sanitize_text_field( wp_unslash( $_POST['cust_name'] ) ) : '';
+		$cust_email      = isset( $_POST['cust_email'] ) ? sanitize_email( wp_unslash( $_POST['cust_email'] ) ) : '';
+		$cust_phone      = isset( $_POST['cust_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['cust_phone'] ) ) : '';
+		$num_adults      = isset( $_POST['num_adults'] ) ? absint( wp_unslash( $_POST['num_adults'] ) ) : 0;
+		$num_children    = isset( $_POST['num_children'] ) ? absint( wp_unslash( $_POST['num_children'] ) ) : 0;
+		$pickup_point    = isset( $_POST['pickup_point'] ) ? sanitize_text_field( wp_unslash( $_POST['pickup_point'] ) ) : '';
 		$transport_type  = isset( $_POST['transport_type'] ) ? sanitize_text_field( wp_unslash( $_POST['transport_type'] ) ) : '';
 		$transport_price = isset( $_POST['transport_price'] ) ? floatval( wp_unslash( $_POST['transport_price'] ) ) : 0.00;
-		$total_amount   = isset( $_POST['total_amount'] ) ? floatval( wp_unslash( $_POST['total_amount'] ) ) : 0.00;
-		$status         = isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : 'pending';
-		$payment_status = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : 'pending';
+		$total_amount    = isset( $_POST['total_amount'] ) ? floatval( wp_unslash( $_POST['total_amount'] ) ) : 0.00;
+		$status          = isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : 'pending';
+		$payment_status  = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : 'pending';
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$addons_input = isset( $_POST['addons'] ) ? wp_unslash( $_POST['addons'] ) : array();
@@ -452,13 +451,13 @@ class TrekBookingsController {
 		$old_booking = null;
 		if ( $booking_id ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$old_booking = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE id = %d", $booking_id ) );
+			$old_booking = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE id = %d", $booking_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		}
 
 		// Authoritative server-side seat capacity check (never trust the browser alone for this).
 		if ( 'cancelled' !== $status ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$target_avail = $wpdb->get_row( $wpdb->prepare( "SELECT available_seats FROM {$wpdb->prefix}at_availability WHERE date_id = %d", $date_id ) );
+			$target_avail = $wpdb->get_row( $wpdb->prepare( "SELECT available_seats FROM {$wpdb->prefix}at_availability WHERE date_id = %d", $date_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 			// If this same booking already holds seats on the same date, those seats are
 			// being released and re-consumed, so they count back toward capacity for this save.
@@ -469,15 +468,15 @@ class TrekBookingsController {
 			$max_allowed_seats = $target_avail ? ( intval( $target_avail->available_seats ) + $own_seats_on_target_date ) : 0;
 
 			if ( $target_avail && $seats > $max_allowed_seats ) {
-				$redirect_args['action']          = $booking_id ? 'edit' : 'add';
-				$redirect_args['booking']         = $booking_id;
-				$redirect_args['at_seats_error']  = $max_allowed_seats;
+				$redirect_args['action']         = $booking_id ? 'edit' : 'add';
+				$redirect_args['booking']        = $booking_id;
+				$redirect_args['at_seats_error'] = $max_allowed_seats;
 				wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'edit.php' ) ) );
 				exit;
 			}
 		}
 
-		$data = array(
+		$data   = array(
 			'trek_id'         => $trek_id,
 			'city_id'         => $city_id,
 			'date_id'         => $date_id,
@@ -559,25 +558,24 @@ class TrekBookingsController {
 
 		$trek_title = get_the_title( $trek_id );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$city_name = $wpdb->get_var( $wpdb->prepare( "SELECT city_name FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $city_id ) );
+		$city_name = $wpdb->get_var( $wpdb->prepare( "SELECT city_name FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $city_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$date_val       = $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $date_id ) );
+		$date_val       = $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $date_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$date_formatted = $date_val ? gmdate( 'd M Y', strtotime( $date_val ) ) : '';
-
 
 		$status_labels = array(
 			'pending'   => __( 'Pending Confirmation', 'adventure-treks' ),
 			'confirmed' => __( 'Confirmed', 'adventure-treks' ),
 			'cancelled' => __( 'Cancelled', 'adventure-treks' ),
 		);
-		$status_label = isset( $status_labels[ $status ] ) ? $status_labels[ $status ] : ucfirst( $status );
+		$status_label  = isset( $status_labels[ $status ] ) ? $status_labels[ $status ] : ucfirst( $status );
 
 		$intro_messages = array(
 			'pending'   => __( 'Thank you for booking your adventure with us! Our team is currently reviewing your booking details, and we will confirm it shortly. Stay tuned!', 'adventure-treks' ),
 			'confirmed' => __( 'Great news! Our team has reviewed and confirmed your booking. Get ready for your exciting adventure!', 'adventure-treks' ),
 			'cancelled' => __( 'Your booking has been successfully cancelled. If you have any questions or need further assistance, please feel free to reach out to our team.', 'adventure-treks' ),
 		);
-		$intro = isset( $intro_messages[ $status ] ) ? $intro_messages[ $status ] : __( 'Your reservation status has been updated.', 'adventure-treks' );
+		$intro          = isset( $intro_messages[ $status ] ) ? $intro_messages[ $status ] : __( 'Your reservation status has been updated.', 'adventure-treks' );
 
 		/* translators: %s: new booking status label. */
 		$subject = sprintf( __( 'Booking %s', 'adventure-treks' ), $status_label );
@@ -673,8 +671,8 @@ class TrekBookingsController {
 		$booking['departure_date'] = $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $booking['date_id'] ) );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
-		$addons             = ! empty( $booking['addons'] ) ? json_decode( $booking['addons'], true ) : array();
-		$booking['addons']  = is_array( $addons ) ? $addons : array();
+		$addons              = ! empty( $booking['addons'] ) ? json_decode( $booking['addons'], true ) : array();
+		$booking['addons']   = is_array( $addons ) ? $addons : array();
 		$booking['currency'] = get_option( 'at_currency_symbol', '₹' );
 
 		wp_send_json_success( $booking );

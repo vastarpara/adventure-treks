@@ -255,7 +255,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 	 * Render widget output on the frontend.
 	 */
 	protected function render() {
-		$settings = $this->get_settings_for_display();
+		$settings  = $this->get_settings_for_display();
 		$is_manual = 'manual' === $settings['source'];
 
 		if ( $is_manual ) {
