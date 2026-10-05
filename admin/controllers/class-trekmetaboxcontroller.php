@@ -233,10 +233,7 @@ class TrekMetaBoxController {
 
 		$policies_decoded = ! empty( $trek['policies'] ) ? json_decode( $trek['policies'], true ) : array();
 		$policies         = array_merge(
-			array(
-				'cancellation' => '',
-				'terms'        => '',
-			),
+			array_fill_keys( array_keys( self::get_policy_types() ), '' ),
 			is_array( $policies_decoded ) ? $policies_decoded : array()
 		);
 
@@ -333,10 +330,11 @@ class TrekMetaBoxController {
 		$faq = ! empty( $faq_data ) ? wp_json_encode( $faq_data ) : '';
 
 		// Sanitize Policies.
-		$policies_data = array(
-			'cancellation' => isset( $_POST['at_policy_cancellation'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_cancellation'] ) ) : '',
-			'terms'        => isset( $_POST['at_policy_terms'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_terms'] ) ) : '',
-		);
+		$policies_data = array();
+		foreach ( self::get_policy_types() as $policy_key => $policy_type ) {
+			$field                       = 'at_policy_' . $policy_key;
+			$policies_data[ $policy_key ] = isset( $_POST[ $field ] ) ? wp_kses_post( wp_unslash( $_POST[ $field ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by the caller.
+		}
 		$policies      = wp_json_encode( $policies_data );
 
 		// Check if record exists.
@@ -381,5 +379,31 @@ class TrekMetaBoxController {
 		}
 
 		return $post_id;
+	}
+
+	/**
+	 * The policies a trek can have, in display order.
+	 *
+	 * @return array[] Policy key => array( label, description ).
+	 */
+	public static function get_policy_types() {
+		return array(
+			'cancellation' => array(
+				'label' => __( 'Cancellation Policy', 'adventure-treks' ),
+				'icon'  => 'dashicons-warning',
+			),
+			'refund'       => array(
+				'label' => __( 'Refund Policy', 'adventure-treks' ),
+				'icon'  => 'dashicons-money-alt',
+			),
+			'medical'      => array(
+				'label' => __( 'Medical Disclaimer', 'adventure-treks' ),
+				'icon'  => 'dashicons-heart',
+			),
+			'terms'        => array(
+				'label' => __( 'Terms & Conditions', 'adventure-treks' ),
+				'icon'  => 'dashicons-media-text',
+			),
+		);
 	}
 }

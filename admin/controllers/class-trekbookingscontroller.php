@@ -315,7 +315,7 @@ class TrekBookingsController {
 				'cities_nonce'         => wp_create_nonce( 'at_departures_nonce_action' ),
 				'dates_nonce'          => wp_create_nonce( 'at_dates_nonce_action' ),
 				'public_pricing_nonce' => wp_create_nonce( 'at_booking_nonce_action' ),
-				'currency'             => get_option( 'at_currency_symbol', '₹' ),
+				'currency'             => get_option( 'at_currency_symbol', '$' ),
 				'price_format'         => \AdventureTreks\Admin\Controllers\AdminController::get_price_format(),
 			)
 		);
@@ -673,7 +673,7 @@ class TrekBookingsController {
 
 		$addons              = ! empty( $booking['addons'] ) ? json_decode( $booking['addons'], true ) : array();
 		$booking['addons']   = is_array( $addons ) ? $addons : array();
-		$booking['currency'] = get_option( 'at_currency_symbol', '₹' );
+		$booking['currency'] = get_option( 'at_currency_symbol', '$' );
 
 		wp_send_json_success( $booking );
 	}

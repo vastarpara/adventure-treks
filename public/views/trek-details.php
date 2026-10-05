@@ -141,7 +141,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							$at_itinerary_shortcode .= ']';
 							echo do_shortcode( $at_itinerary_shortcode );
 						} else {
-							echo '<p style="color:#666; font-style:italic;">' . esc_html__( 'Please select a departure city to load the itinerary.', 'adventure-treks' ) . '</p>';
+							echo '<p style="color:#666; font-style:italic;">' . esc_html__( 'No itinerary found. Please contact the admin for details.', 'adventure-treks' ) . '</p>';
 						}
 						?>
 					</div>
@@ -242,56 +242,45 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 	</div>
 
-	<!-- Quick Links & Policies — always visible below the tabs, not tied to any single tab's content -->
-	<?php if ( ! empty( $policies['cancellation'] ) || ! empty( $policies['terms'] ) ) : ?>
+	<?php
+	// Only policies that have content are listed; with none, the whole section is hidden.
+	$adventure_treks_policy_types   = \AdventureTreks\Admin\Controllers\TrekMetaBoxController::get_policy_types();
+	$adventure_treks_active_policies = array();
+	foreach ( $adventure_treks_policy_types as $adventure_treks_policy_key => $adventure_treks_policy ) {
+		if ( ! empty( $policies[ $adventure_treks_policy_key ] ) && '' !== trim( wp_strip_all_tags( $policies[ $adventure_treks_policy_key ] ) ) ) {
+			$adventure_treks_active_policies[ $adventure_treks_policy_key ] = $adventure_treks_policy;
+		}
+	}
+	?>
+
+	<!-- Quick Links & Policies - always visible below the tabs, not tied to any single tab's content -->
+	<?php if ( ! empty( $adventure_treks_active_policies ) ) : ?>
 		<div class="at-section-card at-quicklinks-card">
 			<h2><?php esc_html_e( 'Quick Links & Policies', 'adventure-treks' ); ?></h2>
 			<div class="at-quicklinks-row">
-				<?php if ( ! empty( $policies['cancellation'] ) ) : ?>
-					<button type="button" class="at-quicklink-btn" data-popup-target="at-f-popup-cancellation">
-						<span class="at-quicklink-icon gray"><span class="dashicons dashicons-warning"></span></span>
-						<?php esc_html_e( 'Cancellation Policy', 'adventure-treks' ); ?>
+				<?php foreach ( $adventure_treks_active_policies as $adventure_treks_policy_key => $adventure_treks_policy ) : ?>
+					<button type="button" class="at-quicklink-btn" data-popup-target="at-f-popup-<?php echo esc_attr( $adventure_treks_policy_key ); ?>">
+						<span class="at-quicklink-icon gray"><span class="dashicons <?php echo esc_attr( $adventure_treks_policy['icon'] ); ?>"></span></span>
+						<?php echo esc_html( $adventure_treks_policy['label'] ); ?>
 					</button>
-				<?php endif; ?>
-				<?php if ( ! empty( $policies['terms'] ) ) : ?>
-					<button type="button" class="at-quicklink-btn" data-popup-target="at-f-popup-terms">
-						<span class="at-quicklink-icon gray"><span class="dashicons dashicons-media-text"></span></span>
-						<?php esc_html_e( 'Terms & Condition', 'adventure-treks' ); ?>
-					</button>
-				<?php endif; ?>
+				<?php endforeach; ?>
 			</div>
 		</div>
-	<?php endif; ?>
 
-	<!-- Cancellation Policy / Terms & Conditions Popups -->
-	<?php if ( ! empty( $policies['cancellation'] ) ) : ?>
-		<div class="at-policy-modal" id="at-f-popup-cancellation">
-			<div class="at-policy-modal-overlay" data-popup-close></div>
-			<div class="at-policy-modal-box">
-				<div class="at-policy-modal-header">
-					<h3><?php esc_html_e( 'Cancellation Policy', 'adventure-treks' ); ?></h3>
-					<span class="at-policy-modal-close" data-popup-close>&times;</span>
-				</div>
-				<div class="at-policy-modal-body">
-					<?php echo wp_kses_post( wpautop( $policies['cancellation'] ) ); ?>
+		<!-- Policy popups -->
+		<?php foreach ( $adventure_treks_active_policies as $adventure_treks_policy_key => $adventure_treks_policy ) : ?>
+			<div class="at-policy-modal" id="at-f-popup-<?php echo esc_attr( $adventure_treks_policy_key ); ?>">
+				<div class="at-policy-modal-overlay" data-popup-close></div>
+				<div class="at-policy-modal-box">
+					<div class="at-policy-modal-header">
+						<h3><?php echo esc_html( $adventure_treks_policy['label'] ); ?></h3>
+						<span class="at-policy-modal-close" data-popup-close>&times;</span>
+					</div>
+					<div class="at-policy-modal-body">
+						<?php echo wp_kses_post( wpautop( $policies[ $adventure_treks_policy_key ] ) ); ?>
+					</div>
 				</div>
 			</div>
-		</div>
+		<?php endforeach; ?>
 	<?php endif; ?>
-
-	<?php if ( ! empty( $policies['terms'] ) ) : ?>
-		<div class="at-policy-modal" id="at-f-popup-terms">
-			<div class="at-policy-modal-overlay" data-popup-close></div>
-			<div class="at-policy-modal-box">
-				<div class="at-policy-modal-header">
-					<h3><?php esc_html_e( 'Terms & Conditions', 'adventure-treks' ); ?></h3>
-					<span class="at-policy-modal-close" data-popup-close>&times;</span>
-				</div>
-				<div class="at-policy-modal-body">
-					<?php echo wp_kses_post( wpautop( $policies['terms'] ) ); ?>
-				</div>
-			</div>
-		</div>
-	<?php endif; ?>
-
 </div>

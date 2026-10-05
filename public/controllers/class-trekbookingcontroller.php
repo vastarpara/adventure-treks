@@ -83,7 +83,7 @@ class TrekBookingController {
 			array(
 				'ajax_url'        => admin_url( 'admin-ajax.php' ),
 				'nonce'           => wp_create_nonce( 'at_booking_nonce_action' ),
-				'currency_symbol' => get_option( 'at_currency_symbol', '₹' ),
+				'currency_symbol' => get_option( 'at_currency_symbol', '$' ),
 				'price_format'    => \AdventureTreks\Admin\Controllers\AdminController::get_price_format(),
 				'payment_method'  => get_option( 'at_payment_method', 'cash' ),
 				'upi_id'          => get_option( 'at_upi_id', '' ),
@@ -701,7 +701,7 @@ class TrekBookingController {
 		);
 
 		if ( empty( $days ) ) {
-			return '<p style="color:#666; font-style:italic;">' . esc_html__( 'No daily itinerary configured for this city.', 'adventure-treks' ) . '</p>';
+			return '<p style="color:#666; font-style:italic;">' . esc_html__( 'No itinerary found. Please contact the admin for details.', 'adventure-treks' ) . '</p>';
 		}
 
 		$html = '<div class="at-frontend-itinerary-timeline">';

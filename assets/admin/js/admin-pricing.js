@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		row.innerHTML = `
 			<div>
-				<input type="number" name="group_discount[${idx}][min_seats]" value="${minSeats}" placeholder="Min Pax (e.g. 5)" style="width:100%;" min="1" />
+				<input type="number" name="group_discount[${idx}][min_seats]" value="${minSeats}" placeholder="Min Pax (e.g. 5)" style="width:100%;" min="1" step="1" inputmode="numeric" data-at-integer="1" />
 			</div>
 			<div>
 				<select name="group_discount[${idx}][type]" style="width:100%;">

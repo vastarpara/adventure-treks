@@ -169,43 +169,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<!-- TAB 5: POLICIES -->
 		<div id="at-tab-policies" class="at-meta-tab-panel">
+			<p class="description"><?php esc_html_e( 'Leave a policy empty and it will not be shown on the trek page.', 'adventure-treks' ); ?></p>
 			<table class="form-table">
-				<tr>
-					<th><label for="at_policy_cancellation"><?php esc_html_e( 'Cancellation Policy', 'adventure-treks' ); ?></label></th>
-					<td>
-						<?php
-						wp_editor(
-							$policies['cancellation'],
-							'at_policy_cancellation',
-							array(
-								'textarea_name' => 'at_policy_cancellation',
-								'textarea_rows' => 8,
-								'media_buttons' => false,
-								'teeny'         => true,
-							)
-						);
-						?>
-						<p class="description"><?php esc_html_e( 'Shown to visitors in a popup after the "Things to Carry" section.', 'adventure-treks' ); ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_policy_terms"><?php esc_html_e( 'Terms & Conditions', 'adventure-treks' ); ?></label></th>
-					<td>
-						<?php
-						wp_editor(
-							$policies['terms'],
-							'at_policy_terms',
-							array(
-								'textarea_name' => 'at_policy_terms',
-								'textarea_rows' => 8,
-								'media_buttons' => false,
-								'teeny'         => true,
-							)
-						);
-						?>
-						<p class="description"><?php esc_html_e( 'Shown to visitors in a popup after the "Things to Carry" section.', 'adventure-treks' ); ?></p>
-					</td>
-				</tr>
+				<?php foreach ( \AdventureTreks\Admin\Controllers\TrekMetaBoxController::get_policy_types() as $adventure_treks_policy_key => $adventure_treks_policy ) : ?>
+					<tr>
+						<th><label for="at_policy_<?php echo esc_attr( $adventure_treks_policy_key ); ?>"><?php echo esc_html( $adventure_treks_policy['label'] ); ?></label></th>
+						<td>
+							<?php
+							wp_editor(
+								isset( $policies[ $adventure_treks_policy_key ] ) ? $policies[ $adventure_treks_policy_key ] : '',
+								'at_policy_' . $adventure_treks_policy_key,
+								array(
+									'textarea_name' => 'at_policy_' . $adventure_treks_policy_key,
+									'textarea_rows' => 8,
+									'media_buttons' => false,
+									'teeny'         => true,
+								)
+							);
+							?>
+							<p class="description"><?php esc_html_e( 'Shown to visitors in a popup below the trek details.', 'adventure-treks' ); ?></p>
+						</td>
+					</tr>
+				<?php endforeach; ?>
 			</table>
 		</div>
 

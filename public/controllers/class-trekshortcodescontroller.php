@@ -469,7 +469,7 @@ class TrekShortcodesController {
 		);
 
 		if ( empty( $days ) ) {
-			return '<p style="color:#666; font-style:italic;">' . esc_html__( 'No daily itinerary configured for this city.', 'adventure-treks' ) . '</p>';
+			return '<p style="color:#666; font-style:italic;">' . esc_html__( 'No itinerary found. Please contact the admin for details.', 'adventure-treks' ) . '</p>';
 		}
 
 		ob_start();

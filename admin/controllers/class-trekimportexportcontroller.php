@@ -316,10 +316,7 @@ class TrekImportExportController {
 			}
 			$details['faq'] = $faq;
 
-			$policies = array(
-				'cancellation' => '',
-				'terms'        => '',
-			);
+			$policies = array_fill_keys( array_keys( TrekMetaBoxController::get_policy_types() ), '' );
 			if ( ! empty( $details['policies'] ) ) {
 				$decoded = json_decode( $details['policies'], true );
 				if ( is_array( $decoded ) ) {

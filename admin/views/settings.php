@@ -108,7 +108,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<h2><?php esc_html_e( 'Currency options', 'adventure-treks' ); ?></h2>
 			<p><?php esc_html_e( 'The following options affect how prices are displayed on the frontend, in booking emails and in the admin bookings screens.', 'adventure-treks' ); ?></p>
 			<?php
-			$adventure_treks_current_currency = get_option( 'at_currency_symbol', '₹' );
+			$adventure_treks_current_currency = get_option( 'at_currency_symbol', '$' );
 			$adventure_treks_currencies       = \AdventureTreks\Admin\Controllers\AdminController::get_currencies();
 			$adventure_treks_positions        = \AdventureTreks\Admin\Controllers\AdminController::get_currency_positions();
 			$adventure_treks_price_fmt        = \AdventureTreks\Admin\Controllers\AdminController::get_price_format();

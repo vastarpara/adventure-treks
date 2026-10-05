@@ -182,6 +182,15 @@ class TrekDepartureCitiesController {
 			wp_send_json_error( array( 'message' => __( 'City name is required', 'adventure-treks' ) ) );
 		}
 
+		if ( $base_price < 0 || $offer_price < 0 ) {
+			wp_send_json_error( array( 'message' => __( 'Prices cannot be negative.', 'adventure-treks' ) ) );
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified at the top of this handler.
+		if ( isset( $_POST['booking_deadline'] ) && ! preg_match( '/^\d+$/', trim( sanitize_text_field( wp_unslash( $_POST['booking_deadline'] ) ) ) ) ) {
+			wp_send_json_error( array( 'message' => __( 'Booking deadline must be a whole number of days.', 'adventure-treks' ) ) );
+		}
+		$booking_deadline = max( 0, $booking_deadline );
+
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'at_departure_cities';
 

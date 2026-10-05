@@ -245,3 +245,21 @@ input.at-timepicker[readonly] {
 .flatpickr-calendar {
 	z-index: 9999999 !important;
 }
+
+/* Policies: keep every editor tall enough to use. */
+.at-meta-tab-panel .wp-editor-wrap .wp-editor-area {
+	min-height: 160px;
+}
+.at-meta-tab-panel .wp-editor-wrap {
+	min-width: 320px;
+	max-width: 800px;
+}
+
+/* Textareas never collapse: the FAQ answer sits in a flex column and was being squashed to one line. */
+.at-faq-row-fields textarea {
+	flex: 0 0 auto;
+	min-height: 90px;
+}
+.at-meta-tab-panel textarea {
+	min-height: 90px;
+}

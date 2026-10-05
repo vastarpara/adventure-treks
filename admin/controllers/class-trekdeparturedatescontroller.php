@@ -179,6 +179,19 @@ class TrekDepartureDatesController {
 			wp_send_json_error( array( 'message' => __( 'Departure date is required', 'adventure-treks' ) ) );
 		}
 
+		if ( $adult_price < 0 || $child_price < 0 || $offer_price < 0 ) {
+			wp_send_json_error( array( 'message' => __( 'Prices cannot be negative.', 'adventure-treks' ) ) );
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified at the top of this handler.
+		foreach ( array( 'total_seats', 'booked_seats' ) as $seat_field ) {
+			if ( isset( $_POST[ $seat_field ] ) && ! preg_match( '/^\d+$/', trim( sanitize_text_field( wp_unslash( $_POST[ $seat_field ] ) ) ) ) ) {
+				wp_send_json_error( array( 'message' => __( 'Seats must be whole numbers.', 'adventure-treks' ) ) );
+			}
+		}
+		if ( $total_seats < 1 || $booked_seats < 0 || $booked_seats > $total_seats ) {
+			wp_send_json_error( array( 'message' => __( 'Seat numbers are not valid: total seats must be at least 1 and booked seats cannot be negative or more than the total.', 'adventure-treks' ) ) );
+		}
+
 		global $wpdb;
 		$table_dates = $wpdb->prefix . 'at_departure_dates';
 		$table_avail = $wpdb->prefix . 'at_availability';

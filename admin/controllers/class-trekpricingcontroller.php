@@ -145,6 +145,10 @@ class TrekPricingController {
 		$child_price = isset( $_POST['child_price'] ) ? floatval( wp_unslash( $_POST['child_price'] ) ) : 0.00;
 		$offer_price = isset( $_POST['offer_price'] ) ? floatval( wp_unslash( $_POST['offer_price'] ) ) : 0.00;
 
+		if ( $adult_price < 0 || $child_price < 0 || $offer_price < 0 ) {
+			wp_send_json_error( array( 'message' => __( 'Prices cannot be negative.', 'adventure-treks' ) ) );
+		}
+
 		// Repeaters.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$group_discount_input = isset( $_POST['group_discount'] ) ? wp_unslash( $_POST['group_discount'] ) : array();
@@ -205,7 +209,7 @@ class TrekPricingController {
 				if ( ! empty( $option['name'] ) ) {
 					$transport_options_data[] = array(
 						'name'  => sanitize_text_field( $option['name'] ),
-						'price' => floatval( $option['price'] ),
+						'price' => max( 0, floatval( $option['price'] ) ),
 					);
 				}
 			}

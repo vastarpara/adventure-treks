@@ -206,3 +206,9 @@
 .at-action-link:hover {
 	text-decoration: underline;
 }
+
+/* Textareas in the departure, itinerary and pickup dialogs keep a usable minimum height. */
+.at-form-row textarea,
+.at-modal-box textarea {
+	min-height: 80px;
+}

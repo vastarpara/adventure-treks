@@ -71,11 +71,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
 							<label for="at_form_base_price"><?php esc_html_e( 'Base Price', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
-							<input type="number" step="1" id="at_form_base_price" name="base_price" value="0" />
+							<input type="number" step="1" id="at_form_base_price" name="base_price" value="0" min="0" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_offer_price"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="1" id="at_form_offer_price" name="offer_price" value="0" />
+							<input type="number" step="1" id="at_form_offer_price" name="offer_price" value="0" min="0" />
 						</div>
 					</div>
 
@@ -98,7 +98,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
 							<label for="at_form_booking_deadline"><?php esc_html_e( 'Booking Deadline (Days Before)', 'adventure-treks' ); ?></label>
-							<input type="number" id="at_form_booking_deadline" name="booking_deadline" value="3" min="0" />
+							<input type="number" id="at_form_booking_deadline" name="booking_deadline" value="3" min="0" step="1" inputmode="numeric" data-at-integer="1" />
 							<span class="description"><?php esc_html_e( 'Close booking X days prior to departure.', 'adventure-treks' ); ?></span>
 						</div>
 						<div class="at-form-row">
@@ -175,11 +175,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
 							<label for="at_form_date_total_seats"><?php esc_html_e( 'Total Seats', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
-							<input type="number" id="at_form_date_total_seats" name="total_seats" value="30" min="1" />
+							<input type="number" id="at_form_date_total_seats" name="total_seats" value="30" min="1" step="1" inputmode="numeric" data-at-integer="1" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_date_booked_seats"><?php esc_html_e( 'Booked Seats', 'adventure-treks' ); ?></label>
-							<input type="number" id="at_form_date_booked_seats" name="booked_seats" value="0" min="0" />
+							<input type="number" id="at_form_date_booked_seats" name="booked_seats" value="0" min="0" step="1" inputmode="numeric" data-at-integer="1" />
 						</div>
 					</div>
 
@@ -208,15 +208,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-3" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
 						<div class="at-form-row">
 							<label for="at_form_date_adult_price"><?php esc_html_e( 'Adult Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="1" id="at_form_date_adult_price" name="adult_price" value="0" />
+							<input type="number" step="1" id="at_form_date_adult_price" name="adult_price" value="0" min="0" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_date_child_price"><?php esc_html_e( 'Child Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="1" id="at_form_date_child_price" name="child_price" value="0" />
+							<input type="number" step="1" id="at_form_date_child_price" name="child_price" value="0" min="0" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_date_offer_price"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="1" id="at_form_date_offer_price" name="offer_price" value="0" />
+							<input type="number" step="1" id="at_form_date_offer_price" name="offer_price" value="0" min="0" />
 						</div>
 					</div>
 					<span class="description" style="display:block; margin-top:-5px; font-size:11px; color:#666;">
@@ -297,7 +297,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					
 					<div class="at-form-row">
 						<label for="at_form_day_number"><?php esc_html_e( 'Day Number', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
-						<input type="number" id="at_form_day_number" name="day_number" value="1" min="0" />
+						<input type="number" id="at_form_day_number" name="day_number" value="1" min="0" step="1" inputmode="numeric" data-at-integer="1" />
 						<span class="description"><?php esc_html_e( 'Use 0 for departure day assembly info, 1 for start, etc.', 'adventure-treks' ); ?></span>
 					</div>
 

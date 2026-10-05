@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $adventure_treks_is_edit  = ! empty( $booking );
-$adventure_treks_currency = get_option( 'at_currency_symbol', '₹' );
+$adventure_treks_currency = get_option( 'at_currency_symbol', '$' );
 ?>
 <div class="wrap">
 	<h1 class="wp-heading-inline">

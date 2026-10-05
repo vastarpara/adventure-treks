@@ -7,6 +7,36 @@ document.addEventListener('DOMContentLoaded', function() {
 	var root = document.getElementById('at_departures_module_root');
 	if (!root) return;
 
+	// Number fields with min="0" (prices, seats, ...) never accept a minus sign or a negative value,
+	// whether typed, pasted or stepped with the spinner. Delegated so fields created later are covered too.
+	document.addEventListener('keydown', function(e) {
+		var t = e.target;
+		if (t && t.matches && t.matches('input[type="number"][min="0"]') && (e.key === '-' || e.key === 'e' || e.key === 'E')) {
+			e.preventDefault();
+		}
+	});
+	document.addEventListener('input', function(e) {
+		var t = e.target;
+		if (t && t.matches && t.matches('input[type="number"][min="0"]') && parseFloat(t.value) < 0) {
+			t.value = 0;
+		}
+	});
+
+	// Whole-number fields (seats, deadline, pax, day number) accept digits only: no decimal point, comma, sign or exponent.
+	document.addEventListener('keydown', function(e) {
+		var t = e.target;
+		if (t && t.matches && t.matches('input[data-at-integer]') && ['.', ',', '-', '+', 'e', 'E'].indexOf(e.key) !== -1) {
+			e.preventDefault();
+		}
+	});
+	document.addEventListener('input', function(e) {
+		var t = e.target;
+		if (t && t.matches && t.matches('input[data-at-integer]') && /[^0-9]/.test(t.value)) {
+			// Pasted "100.0000" becomes 100 (cut at the decimal point), not 1000000.
+			t.value = String(t.value).split(/[.,]/)[0].replace(/[^0-9]/g, '');
+		}
+	});
+
 	// In the block editor the meta box lives in a scrolling, clipped container, which breaks
 	// position:fixed overlays (modal cut off / offset). Re-parent every modal to <body> so they
 	// always cover the whole screen. Element identity is kept, so existing lookups still work.

@@ -34,6 +34,15 @@ class Bookings_List_Table extends \WP_List_Table {
 	}
 
 	/**
+	 * Message shown when the list is empty.
+	 *
+	 * @return void
+	 */
+	public function no_items() {
+		esc_html_e( 'No trek bookings found.', 'adventure-treks' );
+	}
+
+	/**
 	 * Get columns.
 	 *
 	 * @return array

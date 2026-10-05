@@ -99,7 +99,7 @@ class AdminController {
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( $this, 'sanitize_currency_symbol' ),
-				'default'           => '₹',
+				'default'           => '$',
 			)
 		);
 
@@ -266,8 +266,8 @@ class AdminController {
 	 */
 	public static function get_currencies() {
 		return array(
-			'₹'   => __( '₹ (Indian Rupee)', 'adventure-treks' ),
 			'$'   => __( '$ (US Dollar)', 'adventure-treks' ),
+			'₹'   => __( '₹ (Indian Rupee)', 'adventure-treks' ),
 			'€'   => __( '€ (Euro)', 'adventure-treks' ),
 			'£'   => __( '£ (British Pound)', 'adventure-treks' ),
 			'¥'   => __( '¥ (Japanese Yen / Chinese Yuan)', 'adventure-treks' ),
@@ -291,10 +291,10 @@ class AdminController {
 	 */
 	public static function get_currency_positions() {
 		return array(
-			'left'        => __( 'Left (₹99.99)', 'adventure-treks' ),
-			'right'       => __( 'Right (99.99₹)', 'adventure-treks' ),
-			'left_space'  => __( 'Left with space (₹ 99.99)', 'adventure-treks' ),
-			'right_space' => __( 'Right with space (99.99 ₹)', 'adventure-treks' ),
+			'left'        => __( 'Left ($99.99)', 'adventure-treks' ),
+			'right'       => __( 'Right (99.99$)', 'adventure-treks' ),
+			'left_space'  => __( 'Left with space ($ 99.99)', 'adventure-treks' ),
+			'right_space' => __( 'Right with space (99.99 $)', 'adventure-treks' ),
 		);
 	}
 
@@ -310,7 +310,7 @@ class AdminController {
 		}
 
 		return array(
-			'symbol'   => get_option( 'at_currency_symbol', '₹' ),
+			'symbol'   => get_option( 'at_currency_symbol', '$' ),
 			'position' => $position,
 			'thousand' => (string) get_option( 'at_thousand_separator', ',' ),
 			'decimal'  => (string) ( '' !== (string) get_option( 'at_decimal_separator', '.' ) ? get_option( 'at_decimal_separator', '.' ) : '.' ),
@@ -402,6 +402,6 @@ class AdminController {
 			return $input;
 		}
 
-		return get_option( 'at_currency_symbol', '₹' );
+		return get_option( 'at_currency_symbol', '$' );
 	}
 }
