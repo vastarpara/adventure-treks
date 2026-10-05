@@ -225,6 +225,15 @@ class TrekMetaBoxController {
 			);
 		}
 
+		// Columns such as highlights and exclusions are nullable; a NULL must never reach esc_html() or
+		// esc_textarea() (PHP 8.1+ deprecation notice printed into the page).
+		$trek = array_map(
+			static function ( $value ) {
+				return null === $value ? '' : $value;
+			},
+			$trek
+		);
+
 		// Parse JSON fields to associative arrays for form use.
 		$faq_items = ! empty( $trek['faq'] ) ? json_decode( $trek['faq'], true ) : array();
 		if ( ! is_array( $faq_items ) ) {

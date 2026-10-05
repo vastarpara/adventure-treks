@@ -33,8 +33,8 @@ while ( have_posts() ) :
 	global $wpdb;
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 	$adventure_treks_trek_row      = $wpdb->get_row( $wpdb->prepare( "SELECT gallery, duration FROM {$wpdb->prefix}at_treks WHERE post_id = %d", $adventure_treks_trek_id ), ARRAY_A );
-	$adventure_treks_gallery_raw   = $adventure_treks_trek_row ? $adventure_treks_trek_row['gallery'] : '';
-	$adventure_treks_trek_duration = $adventure_treks_trek_row ? $adventure_treks_trek_row['duration'] : '';
+	$adventure_treks_gallery_raw   = $adventure_treks_trek_row ? (string) $adventure_treks_trek_row['gallery'] : '';
+	$adventure_treks_trek_duration = $adventure_treks_trek_row ? (string) $adventure_treks_trek_row['duration'] : '';
 
 	$adventure_treks_gallery_ids = ! empty( $adventure_treks_gallery_raw ) ? array_filter( array_map( 'intval', explode( ',', $adventure_treks_gallery_raw ) ) ) : array();
 
@@ -748,31 +748,31 @@ while ( have_posts() ) :
 		</div>
 	<?php endif; ?>
 
-	<!-- ── HERO GALLERY LIGHTBOX (full, uncropped photo view) ──── -->
-	<?php if ( ! empty( $adventure_treks_hero_images ) ) : ?>
-		<!-- Share dialog (opened by the Share button) -->
-		<div class="at-share-modal" id="at_share_modal" role="dialog" aria-modal="true" aria-labelledby="at_share_title">
-			<div class="at-share-dialog">
-				<div class="at-share-head">
-					<h3 id="at_share_title"><?php esc_html_e( 'Share this trek', 'adventure-treks' ); ?></h3>
-					<button type="button" class="at-share-close" id="at_share_close" aria-label="<?php esc_attr_e( 'Close', 'adventure-treks' ); ?>"><span class="dashicons dashicons-no-alt"></span></button>
-				</div>
-				<p class="at-share-sub"><?php echo esc_html( get_the_title() ); ?></p>
-				<div class="at-share-grid">
-					<a class="at-share-option" data-share="whatsapp" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-whatsapp"><span class="dashicons dashicons-whatsapp"></span></span>WhatsApp</a>
-					<a class="at-share-option" data-share="facebook" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-facebook"><span class="dashicons dashicons-facebook-alt"></span></span>Facebook</a>
-					<a class="at-share-option" data-share="x" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></span>X</a>
-					<a class="at-share-option" data-share="linkedin" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-linkedin"><span class="dashicons dashicons-linkedin"></span></span>LinkedIn</a>
-					<a class="at-share-option" data-share="reddit" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-reddit"><span class="dashicons dashicons-reddit"></span></span>Reddit</a>
-					<a class="at-share-option" data-share="email"><span class="at-share-icon at-share-email"><span class="dashicons dashicons-email-alt"></span></span><?php esc_html_e( 'Email', 'adventure-treks' ); ?></a>
-				</div>
-				<div class="at-share-copy-row">
-					<input type="text" id="at_share_url" value="<?php echo esc_url( get_permalink( $adventure_treks_trek_id ) ); ?>" readonly />
-					<button type="button" class="at-share-copy-btn" id="at_share_copy" data-copied="<?php esc_attr_e( 'Copied!', 'adventure-treks' ); ?>"><?php esc_html_e( 'Copy link', 'adventure-treks' ); ?></button>
-				</div>
+	<!-- Share dialog (opened by the Share button). Rendered even without photos so sharing always works. -->
+	<div class="at-share-modal" id="at_share_modal" role="dialog" aria-modal="true" aria-labelledby="at_share_title">
+		<div class="at-share-dialog">
+			<div class="at-share-head">
+				<h3 id="at_share_title"><?php esc_html_e( 'Share this trek', 'adventure-treks' ); ?></h3>
+				<button type="button" class="at-share-close" id="at_share_close" aria-label="<?php esc_attr_e( 'Close', 'adventure-treks' ); ?>"><span class="dashicons dashicons-no-alt"></span></button>
+			</div>
+			<p class="at-share-sub"><?php echo esc_html( get_the_title() ); ?></p>
+			<div class="at-share-grid">
+				<a class="at-share-option" data-share="whatsapp" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-whatsapp"><span class="dashicons dashicons-whatsapp"></span></span>WhatsApp</a>
+				<a class="at-share-option" data-share="facebook" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-facebook"><span class="dashicons dashicons-facebook-alt"></span></span>Facebook</a>
+				<a class="at-share-option" data-share="x" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></span>X</a>
+				<a class="at-share-option" data-share="linkedin" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-linkedin"><span class="dashicons dashicons-linkedin"></span></span>LinkedIn</a>
+				<a class="at-share-option" data-share="reddit" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-reddit"><span class="dashicons dashicons-reddit"></span></span>Reddit</a>
+				<a class="at-share-option" data-share="email"><span class="at-share-icon at-share-email"><span class="dashicons dashicons-email-alt"></span></span><?php esc_html_e( 'Email', 'adventure-treks' ); ?></a>
+			</div>
+			<div class="at-share-copy-row">
+				<input type="text" id="at_share_url" value="<?php echo esc_url( get_permalink( $adventure_treks_trek_id ) ); ?>" readonly />
+				<button type="button" class="at-share-copy-btn" id="at_share_copy" data-copied="<?php esc_attr_e( 'Copied!', 'adventure-treks' ); ?>"><?php esc_html_e( 'Copy link', 'adventure-treks' ); ?></button>
 			</div>
 		</div>
+	</div>
 
+	<!-- ── HERO GALLERY LIGHTBOX (full, uncropped photo view) ──── -->
+	<?php if ( ! empty( $adventure_treks_hero_images ) ) : ?>
 		<div class="at-hero-lightbox" id="at_hero_lightbox">
 			<div class="at-hero-lightbox-overlay" data-lightbox-close></div>
 			<div class="at-hero-lightbox-content">

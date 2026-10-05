@@ -307,6 +307,15 @@ class TrekShortcodesController {
 			return '<p style="color:#666; font-style:italic;">' . esc_html__( 'Trek specifications have not been configured yet.', 'adventure-treks' ) . '</p>';
 		}
 
+		// Columns such as highlights and exclusions are nullable; a NULL must never reach esc_html() or
+		// esc_textarea() (PHP 8.1+ deprecation notice printed into the page).
+		$trek = array_map(
+			static function ( $value ) {
+				return null === $value ? '' : $value;
+			},
+			$trek
+		);
+
 		// 2. Fetch active departure cities to default the itinerary Day list
 		$table_cities = $wpdb->prefix . 'at_departure_cities';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
