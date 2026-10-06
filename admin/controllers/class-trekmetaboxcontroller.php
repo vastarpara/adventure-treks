@@ -341,10 +341,10 @@ class TrekMetaBoxController {
 		// Sanitize Policies.
 		$policies_data = array();
 		foreach ( self::get_policy_types() as $policy_key => $policy_type ) {
-			$field                       = 'at_policy_' . $policy_key;
+			$field                        = 'at_policy_' . $policy_key;
 			$policies_data[ $policy_key ] = isset( $_POST[ $field ] ) ? wp_kses_post( wp_unslash( $_POST[ $field ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by the caller.
 		}
-		$policies      = wp_json_encode( $policies_data );
+		$policies = wp_json_encode( $policies_data );
 
 		// Check if record exists.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter

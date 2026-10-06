@@ -244,7 +244,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<?php
 	// Only policies that have content are listed; with none, the whole section is hidden.
-	$adventure_treks_policy_types   = \AdventureTreks\Admin\Controllers\TrekMetaBoxController::get_policy_types();
+	$adventure_treks_policy_types    = \AdventureTreks\Admin\Controllers\TrekMetaBoxController::get_policy_types();
 	$adventure_treks_active_policies = array();
 	foreach ( $adventure_treks_policy_types as $adventure_treks_policy_key => $adventure_treks_policy ) {
 		if ( ! empty( $policies[ $adventure_treks_policy_key ] ) && '' !== trim( wp_strip_all_tags( $policies[ $adventure_treks_policy_key ] ) ) ) {
