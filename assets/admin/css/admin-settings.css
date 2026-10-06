@@ -31,3 +31,15 @@
 	background: #fff;
 	margin-bottom: 10px;
 }
+
+/* Tabs: no focus ring, underline or transition flash when clicked. */
+.nav-tab-wrapper .nav-tab,
+.nav-tab-wrapper .nav-tab:hover,
+.nav-tab-wrapper .nav-tab:focus,
+.nav-tab-wrapper .nav-tab:focus-visible,
+.nav-tab-wrapper .nav-tab:active {
+	text-decoration: none;
+	box-shadow: none;
+	outline: none;
+	transition: none;
+}

@@ -11,46 +11,27 @@
 	margin: 10px 0;
 	border-radius: 4px;
 	overflow: hidden;
+	/* Panels differ in height; stop the browser scrolling the page when one is swapped for another. */
+	overflow-anchor: none;
 }
 
-/* Tab Navigation */
+/* Tab Navigation: default WP .nav-tab styling, only spacing tweaks. */
 .at-meta-tabs-nav {
-	display: flex;
-	list-style: none;
-	margin: 0;
-	padding: 0;
+	padding: 9px 10px 0;
 	background: #f0f0f1;
-	border-bottom: 1px solid #ccd0d4;
 }
 
-.at-meta-tabs-nav li {
-	margin: 0;
-	padding: 0;
+/* No transition and no focus ring, so clicking a tab does not flash a line under it. */
+.at-meta-tabs-nav .nav-tab {
+	transition: none;
 }
 
-.at-meta-tabs-nav li a {
-	display: block;
-	padding: 15px 20px;
+.at-meta-tabs-nav .nav-tab:focus,
+.at-meta-tabs-nav .nav-tab:focus-visible,
+.at-meta-tabs-nav .nav-tab:active {
 	text-decoration: none;
-	color: #444;
-	font-weight: 600;
-	font-size: 13px;
-	border-right: 1px solid #ccd0d4;
-	outline: none;
 	box-shadow: none;
-	transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.at-meta-tabs-nav li a:hover {
-	background: #e4e4e6;
-	color: #000;
-}
-
-.at-meta-tabs-nav li.active a {
-	background: #ffffff;
-	color: #2271b1;
-	border-bottom: 2px solid #2271b1;
-	margin-bottom: -1px;
+	outline: none;
 }
 
 /* Tab Panels */

@@ -71,11 +71,11 @@ document.addEventListener('DOMContentLoaded', function() {
 				e.preventDefault();
 
 				// Remove active class from all tabs & panels
-				tabLinks.forEach(l => l.parentElement.classList.remove('active'));
+				tabLinks.forEach(l => l.classList.remove('nav-tab-active'));
 				tabPanels.forEach(p => p.classList.remove('active'));
 
 				// Add active class to clicked tab and corresponding panel
-				this.parentElement.classList.add('active');
+				this.classList.add('nav-tab-active');
 				const activePanelId = this.getAttribute('href');
 				const activePanel = document.querySelector(activePanelId);
 				if (activePanel) {

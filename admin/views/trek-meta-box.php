@@ -15,13 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div class="at-meta-tabs-wrapper">
 	<!-- Tab Navigation -->
-	<ul class="at-meta-tabs-nav">
-		<li class="active"><a href="#at-tab-general"><?php esc_html_e( 'General Info', 'adventure-treks' ); ?></a></li>
-		<li><a href="#at-tab-gallery"><?php esc_html_e( 'Gallery', 'adventure-treks' ); ?></a></li>
-		<li><a href="#at-tab-highlights"><?php esc_html_e( 'Inclusions, Exclusions & Packing', 'adventure-treks' ); ?></a></li>
-		<li><a href="#at-tab-faq"><?php esc_html_e( 'FAQ Repeater', 'adventure-treks' ); ?></a></li>
-		<li><a href="#at-tab-policies"><?php esc_html_e( 'Policies', 'adventure-treks' ); ?></a></li>
-	</ul>
+	<nav class="nav-tab-wrapper at-meta-tabs-nav">
+		<a href="#at-tab-general" class="nav-tab nav-tab-active"><?php esc_html_e( 'General Info', 'adventure-treks' ); ?></a>
+		<a href="#at-tab-gallery" class="nav-tab"><?php esc_html_e( 'Gallery', 'adventure-treks' ); ?></a>
+		<a href="#at-tab-highlights" class="nav-tab"><?php esc_html_e( 'Inclusions, Exclusions & Packing', 'adventure-treks' ); ?></a>
+		<a href="#at-tab-faq" class="nav-tab"><?php esc_html_e( 'FAQ Repeater', 'adventure-treks' ); ?></a>
+		<a href="#at-tab-policies" class="nav-tab"><?php esc_html_e( 'Policies', 'adventure-treks' ); ?></a>
+	</nav>
 
 	<!-- Tab Panels -->
 	<div class="at-meta-tabs-content">
