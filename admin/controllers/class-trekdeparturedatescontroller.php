@@ -47,7 +47,7 @@ class TrekDepartureDatesController {
 			'at-admin-dates-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-dates.js',
 			array(),
-			ADVENTURE_TREKS_VERSION,
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/js/admin-dates.js' ),
 			true
 		);
 
@@ -82,6 +82,9 @@ class TrekDepartureDatesController {
 	 */
 	public function ajax_get_dates() {
 		check_ajax_referer( 'at_dates_nonce_action', 'nonce' );
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
+		}
 
 		$city_id = isset( $_GET['city_id'] ) ? intval( $_GET['city_id'] ) : 0;
 		if ( ! $city_id ) {
@@ -176,10 +179,32 @@ class TrekDepartureDatesController {
 			wp_send_json_error( array( 'message' => __( 'Departure date is required', 'adventure-treks' ) ) );
 		}
 
+		if ( $adult_price < 0 || $child_price < 0 || $offer_price < 0 ) {
+			wp_send_json_error( array( 'message' => __( 'Prices cannot be negative.', 'adventure-treks' ) ) );
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified at the top of this handler.
+		foreach ( array( 'total_seats', 'booked_seats' ) as $seat_field ) {
+			if ( isset( $_POST[ $seat_field ] ) && ! preg_match( '/^\d+$/', trim( sanitize_text_field( wp_unslash( $_POST[ $seat_field ] ) ) ) ) ) {
+				wp_send_json_error( array( 'message' => __( 'Seats must be whole numbers.', 'adventure-treks' ) ) );
+			}
+		}
+		if ( $total_seats < 1 || $booked_seats < 0 || $booked_seats > $total_seats ) {
+			wp_send_json_error( array( 'message' => __( 'Seat numbers are not valid: total seats must be at least 1 and booked seats cannot be negative or more than the total.', 'adventure-treks' ) ) );
+		}
+
 		global $wpdb;
 		$table_dates = $wpdb->prefix . 'at_departure_dates';
 		$table_avail = $wpdb->prefix . 'at_availability';
 		$table_price = $wpdb->prefix . 'at_pricing';
+
+		// Past dates can't be newly set; an existing date may keep its current value when edited.
+		if ( $departure_date < current_time( 'Y-m-d' ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			$current_date = $id ? $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM $table_dates WHERE id = %d", $id ) ) : '';
+			if ( $current_date !== $departure_date ) {
+				wp_send_json_error( array( 'message' => __( 'Departure date cannot be in the past', 'adventure-treks' ) ) );
+			}
+		}
 
 		$date_data = array(
 			'city_id'        => $city_id,

@@ -25,6 +25,129 @@ class TrekMetaBoxController {
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_box' ) );
 		add_action( 'save_post_adventure_trek', array( $this, 'save_trek_details' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'admin_notices', array( $this, 'render_age_notice' ) );
+	}
+
+	/**
+	 * Parse an Age Limit label such as "10+ years" or "10 - 55 Years" into min / max ages.
+	 *
+	 * @param string $age_limit Age limit text.
+	 * @return array{min:int|null,max:int|null}
+	 */
+	public static function parse_age_limit( $age_limit ) {
+		preg_match_all( '/\d+/', (string) $age_limit, $matches );
+		$numbers = array_map( 'intval', $matches[0] );
+
+		return array(
+			'min' => isset( $numbers[0] ) ? $numbers[0] : null,
+			'max' => isset( $numbers[1] ) ? $numbers[1] : null,
+		);
+	}
+
+	/**
+	 * Read a short spec field from the request as a plain label.
+	 *
+	 * Letters, numbers, spaces and / - , . only (plus "+" for age fields such as "10+ years"); anything else is stripped.
+	 *
+	 * @param string $key        POST key.
+	 * @param bool   $allow_plus Whether "+" is allowed.
+	 * @return string
+	 */
+	private static function plain_text_field( $key, $allow_plus = false ) {
+		$value = isset( $_POST[ $key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by the caller.
+		$regex = $allow_plus ? '/[^\p{L}\p{N}\s\/\-,.+]/u' : '/[^\p{L}\p{N}\s\/\-,.]/u';
+		return trim( (string) preg_replace( $regex, '', $value ) );
+	}
+
+	/**
+	 * Validate the Adults / Children age labels against the trek's Age Limit.
+	 *
+	 * Adults: "12" or "12+", never below the minimum age (nor above the maximum).
+	 * Children: a range "a-b", starting at or above the minimum age and ending before the adults age.
+	 * Blank values are valid (built-in defaults apply).
+	 *
+	 * @param string $age_limit Age limit text.
+	 * @param string $adult_age Adults age label.
+	 * @param string $child_age Children age label.
+	 * @return array{adult:string,child:string} Error message per field, empty string when valid.
+	 */
+	public static function validate_ages( $age_limit, $adult_age, $child_age ) {
+		$limit  = self::parse_age_limit( $age_limit );
+		$errors = array(
+			'adult' => '',
+			'child' => '',
+		);
+		$adult  = null;
+
+		$adult_age = trim( (string) $adult_age );
+		if ( '' !== $adult_age ) {
+			if ( ! preg_match( '/^(\d{1,2})\+?$/', $adult_age, $m ) ) {
+				$errors['adult'] = __( 'Adults age must be a number, optionally followed by +, e.g. 12+.', 'adventure-treks' );
+			} else {
+				$adult = (int) $m[1];
+				if ( null !== $limit['min'] && $adult < $limit['min'] ) {
+					/* translators: 1: entered adults age, 2: trek minimum age. */
+					$errors['adult'] = sprintf( __( 'Adults age (%1$d) cannot be below the trek minimum age (%2$d).', 'adventure-treks' ), $adult, $limit['min'] );
+				} elseif ( null !== $limit['max'] && $adult > $limit['max'] ) {
+					/* translators: 1: entered adults age, 2: trek maximum age. */
+					$errors['adult'] = sprintf( __( 'Adults age (%1$d) cannot be above the trek maximum age (%2$d).', 'adventure-treks' ), $adult, $limit['max'] );
+				}
+			}
+		}
+
+		$child_age = trim( (string) $child_age );
+		if ( '' !== $child_age ) {
+			if ( ! preg_match( '/^(\d{1,2})\s*-\s*(\d{1,2})$/', $child_age, $m ) ) {
+				$errors['child'] = __( 'Children age must be a range, e.g. 10-11.', 'adventure-treks' );
+			} else {
+				$from = (int) $m[1];
+				$to   = (int) $m[2];
+				if ( $from > $to ) {
+					$errors['child'] = __( 'Children age range must go from the lower age to the higher age, e.g. 10-11.', 'adventure-treks' );
+				} elseif ( null !== $limit['min'] && $from < $limit['min'] ) {
+					/* translators: 1: children range start, 2: trek minimum age. */
+					$errors['child'] = sprintf( __( 'Children age cannot start at %1$d, the trek minimum age is %2$d.', 'adventure-treks' ), $from, $limit['min'] );
+				} elseif ( null !== $adult && $to >= $adult ) {
+					/* translators: %d: adults age. */
+					$errors['child'] = sprintf( __( 'Children age range must end before the adults age (%d).', 'adventure-treks' ), $adult );
+				}
+			}
+		}
+
+		return $errors;
+	}
+
+	/**
+	 * Default Adults / Children age labels that respect the trek's minimum age.
+	 *
+	 * @param string $age_limit Age limit text.
+	 * @return array{adult:string,child:string} Child is empty when there is no room for a children range.
+	 */
+	public static function default_ages( $age_limit ) {
+		$min   = self::parse_age_limit( $age_limit )['min'];
+		$adult = max( 12, (int) $min );
+		$from  = max( 5, (int) $min );
+		$to    = $adult - 1;
+
+		return array(
+			'adult' => $adult . '+',
+			'child' => $from <= $to ? $from . '-' . $to : '',
+		);
+	}
+
+	/**
+	 * Show the age validation message saved by the last trek update.
+	 *
+	 * @return void
+	 */
+	public function render_age_notice() {
+		$key     = 'at_age_notice_' . get_current_user_id();
+		$message = get_transient( $key );
+		if ( ! $message ) {
+			return;
+		}
+		delete_transient( $key );
+		echo '<div class="notice notice-error is-dismissible"><p>' . esc_html( $message ) . '</p></div>';
 	}
 
 	/**
@@ -63,14 +186,14 @@ class TrekMetaBoxController {
 			'at-admin-meta-box-css',
 			ADVENTURE_TREKS_URL . 'assets/admin/css/admin-meta-box.css',
 			array(),
-			ADVENTURE_TREKS_VERSION
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/css/admin-meta-box.css' )
 		);
 
 		wp_enqueue_script(
 			'at-admin-meta-box-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-meta-box.js',
 			array(),
-			ADVENTURE_TREKS_VERSION,
+			ADVENTURE_TREKS_VERSION . '.' . filemtime( ADVENTURE_TREKS_PATH . 'assets/admin/js/admin-meta-box.js' ),
 			true
 		);
 	}
@@ -109,12 +232,22 @@ class TrekMetaBoxController {
 				'age_limit'       => '',
 				'group_size'      => '',
 				'highlights'      => '',
+				'exclusions'      => '',
 				'things_to_carry' => '',
 				'faq'             => '',
 				'policies'        => '',
 				'gallery'         => '',
 			);
 		}
+
+		// Columns such as highlights and exclusions are nullable; a NULL must never reach esc_html() or
+		// esc_textarea() (PHP 8.1+ deprecation notice printed into the page).
+		$trek = array_map(
+			static function ( $value ) {
+				return null === $value ? '' : $value;
+			},
+			$trek
+		);
 
 		// Parse JSON fields to associative arrays for form use.
 		$faq_items = ! empty( $trek['faq'] ) ? json_decode( $trek['faq'], true ) : array();
@@ -124,12 +257,7 @@ class TrekMetaBoxController {
 
 		$policies_decoded = ! empty( $trek['policies'] ) ? json_decode( $trek['policies'], true ) : array();
 		$policies         = array_merge(
-			array(
-				'cancellation' => '',
-				'refund'       => '',
-				'medical'      => '',
-				'terms'        => '',
-			),
+			array_fill_keys( array_keys( self::get_policy_types() ), '' ),
 			is_array( $policies_decoded ) ? $policies_decoded : array()
 		);
 
@@ -167,18 +295,40 @@ class TrekMetaBoxController {
 		$table_name = $wpdb->prefix . 'at_treks';
 
 		// Sanitize standard text inputs.
+		// Short spec fields are plain labels (e.g. "5 Days / 4 Nights"): letters, numbers, spaces and / - , . only
+		// (plus "+" for the age limit, as in "10+ years"). Anything else, such as !@#$%^&*()=, is stripped.
 		$difficulty    = isset( $_POST['at_difficulty'] ) ? sanitize_text_field( wp_unslash( $_POST['at_difficulty'] ) ) : '';
-		$duration      = isset( $_POST['at_duration'] ) ? sanitize_text_field( wp_unslash( $_POST['at_duration'] ) ) : '';
-		$altitude      = isset( $_POST['at_altitude'] ) ? sanitize_text_field( wp_unslash( $_POST['at_altitude'] ) ) : '';
-		$region        = isset( $_POST['at_region'] ) ? sanitize_text_field( wp_unslash( $_POST['at_region'] ) ) : '';
-		$season        = isset( $_POST['at_season'] ) ? sanitize_text_field( wp_unslash( $_POST['at_season'] ) ) : '';
-		$distance      = isset( $_POST['at_distance'] ) ? sanitize_text_field( wp_unslash( $_POST['at_distance'] ) ) : '';
+		$duration      = self::plain_text_field( 'at_duration' );
+		$altitude      = self::plain_text_field( 'at_altitude' );
+		$region        = self::plain_text_field( 'at_region' );
+		$season        = self::plain_text_field( 'at_season' );
+		$distance      = self::plain_text_field( 'at_distance' );
 		$fitness_level = isset( $_POST['at_fitness_level'] ) ? sanitize_text_field( wp_unslash( $_POST['at_fitness_level'] ) ) : '';
-		$age_limit     = isset( $_POST['at_age_limit'] ) ? sanitize_text_field( wp_unslash( $_POST['at_age_limit'] ) ) : '';
-		$group_size    = isset( $_POST['at_group_size'] ) ? sanitize_text_field( wp_unslash( $_POST['at_group_size'] ) ) : '';
+		$age_limit     = self::plain_text_field( 'at_age_limit', true );
+		$group_size    = self::plain_text_field( 'at_group_size' );
 
-		// Highlights and carry list (saved as newline separated in form, serialized/processed cleanly).
+		// Age labels shown next to Adults / Children in the booking widget (blank = built-in defaults).
+		$adult_age   = self::plain_text_field( 'at_adult_age', true );
+		$child_age   = self::plain_text_field( 'at_child_age', true );
+		$age_errors  = self::validate_ages( $age_limit, $adult_age, $child_age );
+		$age_message = array();
+		if ( '' !== $age_errors['adult'] ) {
+			$adult_age     = '';
+			$age_message[] = $age_errors['adult'];
+		}
+		if ( '' !== $age_errors['child'] ) {
+			$child_age     = '';
+			$age_message[] = $age_errors['child'];
+		}
+		if ( ! empty( $age_message ) ) {
+			set_transient( 'at_age_notice_' . get_current_user_id(), __( 'Some age settings were not saved:', 'adventure-treks' ) . ' ' . implode( ' ', $age_message ), 60 );
+		}
+		update_post_meta( $post_id, '_at_adult_age', $adult_age );
+		update_post_meta( $post_id, '_at_child_age', $child_age );
+
+		// Highlights, exclusions and carry list (saved as newline separated in form, serialized/processed cleanly).
 		$highlights      = isset( $_POST['at_highlights'] ) ? sanitize_textarea_field( wp_unslash( $_POST['at_highlights'] ) ) : '';
+		$exclusions      = isset( $_POST['at_exclusions'] ) ? sanitize_textarea_field( wp_unslash( $_POST['at_exclusions'] ) ) : '';
 		$things_to_carry = isset( $_POST['at_things_to_carry'] ) ? sanitize_textarea_field( wp_unslash( $_POST['at_things_to_carry'] ) ) : '';
 		$gallery         = isset( $_POST['at_gallery'] ) ? sanitize_text_field( wp_unslash( $_POST['at_gallery'] ) ) : '';
 
@@ -188,24 +338,30 @@ class TrekMetaBoxController {
 		$faq_data  = array();
 		if ( is_array( $faq_input ) ) {
 			foreach ( $faq_input as $item ) {
-				if ( ! empty( $item['q'] ) || ! empty( $item['a'] ) ) {
-					$faq_data[] = array(
-						'q' => sanitize_text_field( $item['q'] ),
-						'a' => sanitize_textarea_field( $item['a'] ),
-					);
+				$question = isset( $item['q'] ) ? sanitize_text_field( $item['q'] ) : '';
+				$answer   = isset( $item['a'] ) ? sanitize_textarea_field( $item['a'] ) : '';
+				if ( '' === $question && '' === $answer ) {
+					continue;
 				}
+				// An FAQ needs both a question and an answer.
+				if ( '' === trim( $question ) || '' === trim( $answer ) ) {
+					continue;
+				}
+				$faq_data[] = array(
+					'q' => $question,
+					'a' => $answer,
+				);
 			}
 		}
 		$faq = ! empty( $faq_data ) ? wp_json_encode( $faq_data ) : '';
 
 		// Sanitize Policies.
-		$policies_data = array(
-			'cancellation' => isset( $_POST['at_policy_cancellation'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_cancellation'] ) ) : '',
-			'refund'       => isset( $_POST['at_policy_refund'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_refund'] ) ) : '',
-			'medical'      => isset( $_POST['at_policy_medical'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_medical'] ) ) : '',
-			'terms'        => isset( $_POST['at_policy_terms'] ) ? wp_kses_post( wp_unslash( $_POST['at_policy_terms'] ) ) : '',
-		);
-		$policies      = wp_json_encode( $policies_data );
+		$policies_data = array();
+		foreach ( self::get_policy_types() as $policy_key => $policy_type ) {
+			$field                        = 'at_policy_' . $policy_key;
+			$policies_data[ $policy_key ] = isset( $_POST[ $field ] ) ? wp_kses_post( wp_unslash( $_POST[ $field ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by the caller.
+		}
+		$policies = wp_json_encode( $policies_data );
 
 		// Check if record exists.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -223,6 +379,7 @@ class TrekMetaBoxController {
 			'age_limit'       => $age_limit,
 			'group_size'      => $group_size,
 			'highlights'      => $highlights,
+			'exclusions'      => $exclusions,
 			'things_to_carry' => $things_to_carry,
 			'faq'             => $faq,
 			'policies'        => $policies,
@@ -235,7 +392,7 @@ class TrekMetaBoxController {
 				$table_name,
 				$db_data,
 				array( 'post_id' => $post_id ),
-				array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
+				array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
 				array( '%d' )
 			);
 		} else {
@@ -243,10 +400,36 @@ class TrekMetaBoxController {
 			$wpdb->insert(
 				$table_name,
 				$db_data,
-				array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
+				array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
 			);
 		}
 
 		return $post_id;
+	}
+
+	/**
+	 * The policies a trek can have, in display order.
+	 *
+	 * @return array[] Policy key => array( label, description ).
+	 */
+	public static function get_policy_types() {
+		return array(
+			'cancellation' => array(
+				'label' => __( 'Cancellation Policy', 'adventure-treks' ),
+				'icon'  => 'dashicons-warning',
+			),
+			'refund'       => array(
+				'label' => __( 'Refund Policy', 'adventure-treks' ),
+				'icon'  => 'dashicons-money-alt',
+			),
+			'medical'      => array(
+				'label' => __( 'Medical Disclaimer', 'adventure-treks' ),
+				'icon'  => 'dashicons-heart',
+			),
+			'terms'        => array(
+				'label' => __( 'Terms & Conditions', 'adventure-treks' ),
+				'icon'  => 'dashicons-media-text',
+			),
+		);
 	}
 }

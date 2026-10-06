@@ -1,0 +1,45 @@
+/**
+ * Settings page styles.
+ */
+
+.at-settings-form-card {
+	background: #fff;
+	padding: 20px;
+	border-radius: 5px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	margin-top: 20px;
+}
+
+.at-qr-code-preview-img {
+	display: block;
+	max-width: 150px;
+	max-height: 150px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: 4px;
+	background: #fff;
+	margin-bottom: 10px;
+}
+
+.at-logo-preview-img {
+	display: block;
+	max-width: 220px;
+	max-height: 100px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: 4px;
+	background: #fff;
+	margin-bottom: 10px;
+}
+
+/* Tabs: no focus ring, underline or transition flash when clicked. */
+.nav-tab-wrapper .nav-tab,
+.nav-tab-wrapper .nav-tab:hover,
+.nav-tab-wrapper .nav-tab:focus,
+.nav-tab-wrapper .nav-tab:focus-visible,
+.nav-tab-wrapper .nav-tab:active {
+	text-decoration: none;
+	box-shadow: none;
+	outline: none;
+	transition: none;
+}

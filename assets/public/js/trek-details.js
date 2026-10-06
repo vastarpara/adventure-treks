@@ -5,28 +5,99 @@
 document.addEventListener('DOMContentLoaded', function() {
 
 	// ==========================================
-	// 1. Tab switching logic
+	// 0. Offset sticky elements below the theme header when it's itself
+	//    sticky (e.g. Elementor's "sticky: top" option pins it with
+	//    position:fixed/top:0 above everything). Without this, our own
+	//    `top: 0` sticky elements end up stuck hidden underneath it instead
+	//    of below it. Height is measured (not hardcoded) since it varies by
+	//    breakpoint and whenever the header is edited in Elementor.
+	// ==========================================
+	function at_sync_sticky_header_offset() {
+		const header = document.querySelector('header[data-elementor-type="header"]');
+		let isSticky = false;
+
+		if (header) {
+			header.querySelectorAll('[data-settings]').forEach(function(el) {
+				try {
+					const settings = JSON.parse(el.getAttribute('data-settings'));
+					if (settings && settings.sticky === 'top') {
+						isSticky = true;
+					}
+				} catch (e) {}
+			});
+		}
+
+		const offset = isSticky ? Math.round(header.getBoundingClientRect().height) : 0;
+		document.documentElement.style.setProperty('--at-header-offset', offset + 'px');
+	}
+	at_sync_sticky_header_offset();
+	window.addEventListener('resize', at_sync_sticky_header_offset);
+	window.addEventListener('load', at_sync_sticky_header_offset);
+
+	// ==========================================
+	// 1. Tab switching: click a nav tab, only that section shows
 	// ==========================================
 	const tabLinks = document.querySelectorAll('.at-details-tabs-nav a');
 	const tabPanels = document.querySelectorAll('.at-details-tab-panel');
 
-	if (tabLinks.length > 0) {
+	if (tabLinks.length > 0 && tabPanels.length > 0) {
 		tabLinks.forEach(function(link) {
 			link.addEventListener('click', function(e) {
 				e.preventDefault();
 
-				// Remove active class from all tabs & panels
-				tabLinks.forEach(l => l.parentElement.classList.remove('active'));
-				tabPanels.forEach(p => p.classList.remove('active'));
+				// If the tab bar has been scrolled out of view, a shorter tab would leave the
+				// reader stranded below its content; bring the bar back to the top first.
+				const nav = this.closest('.at-details-tabs-nav');
+				if (nav) {
+					const stickyOffset = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--at-header-offset'), 10) || 0;
+					const navTop = nav.getBoundingClientRect().top;
+					if (navTop < stickyOffset) {
+						window.scrollBy({ top: navTop - stickyOffset - 10, left: 0, behavior: 'instant' });
+					}
+				}
 
-				// Add active class to clicked tab and corresponding panel
+				tabLinks.forEach(function(l) { l.parentElement.classList.remove('active'); });
+				tabPanels.forEach(function(p) { p.classList.remove('active'); });
+
 				this.parentElement.classList.add('active');
-				const activePanelId = this.getAttribute('href');
-				const activePanel = document.querySelector(activePanelId);
-				if (activePanel) {
-					activePanel.classList.add('active');
+				const targetPanel = document.querySelector(this.getAttribute('href'));
+				if (targetPanel) {
+					targetPanel.classList.add('active');
 				}
 			});
+		});
+	}
+
+	// ==========================================
+	// 1b. Quick Links: Cancellation/Terms open their popup modals.
+	// ==========================================
+	const policyTriggers = document.querySelectorAll('[data-popup-target]');
+	if (policyTriggers.length > 0) {
+		function closePolicyModal(modal) {
+			modal.classList.remove('active');
+			document.body.style.overflow = '';
+		}
+
+		policyTriggers.forEach(function(btn) {
+			btn.addEventListener('click', function() {
+				const modal = document.getElementById(this.getAttribute('data-popup-target'));
+				if (modal) {
+					modal.classList.add('active');
+					document.body.style.overflow = 'hidden';
+				}
+			});
+		});
+
+		document.querySelectorAll('.at-policy-modal').forEach(function(modal) {
+			modal.querySelectorAll('[data-popup-close]').forEach(function(closer) {
+				closer.addEventListener('click', function() { closePolicyModal(modal); });
+			});
+		});
+
+		document.addEventListener('keydown', function(e) {
+			if (e.key === 'Escape') {
+				document.querySelectorAll('.at-policy-modal.active').forEach(closePolicyModal);
+			}
 		});
 	}
 
@@ -63,76 +134,32 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	// ==========================================
-	// 3. Gallery Lightbox Logic
+	// 3. Day-wise Itinerary: Show More / Show Less
 	// ==========================================
-	const galleryLinks = document.querySelectorAll('.at-gallery-lightbox-link');
-	if (galleryLinks.length > 0) {
-		// Create Lightbox DOM
-		const lightbox = document.createElement('div');
-		lightbox.id = 'at-gallery-lightbox';
-		lightbox.innerHTML = `
-			<div class="at-lightbox-overlay"></div>
-			<div class="at-lightbox-content">
-				<button class="at-lightbox-close" aria-label="Close">&times;</button>
-				<button class="at-lightbox-prev" aria-label="Previous">&#10094;</button>
-				<img id="at-lightbox-img" src="" alt="">
-				<button class="at-lightbox-next" aria-label="Next">&#10095;</button>
-			</div>
-		`;
-		document.body.appendChild(lightbox);
+	// Delegated on `document` because the itinerary markup is re-rendered via
+	// AJAX (innerHTML swap) whenever the departure city/date changes, which
+	// would detach any listeners bound directly to the day-toggle buttons.
+	document.addEventListener('click', function(e) {
+		const toggleBtn = e.target.closest('.at-day-toggle-btn');
+		if (!toggleBtn) return;
+		e.preventDefault();
 
-		const lightboxImg = lightbox.querySelector('#at-lightbox-img');
-		const closeBtn = lightbox.querySelector('.at-lightbox-close');
-		const prevBtn = lightbox.querySelector('.at-lightbox-prev');
-		const nextBtn = lightbox.querySelector('.at-lightbox-next');
-		
-		let currentIndex = 0;
-		const images = Array.from(galleryLinks).map(link => link.getAttribute('href'));
+		const dayBlock = toggleBtn.closest('.at-timeline-day-block');
+		const eventsEl = dayBlock ? dayBlock.querySelector('.at-timeline-events') : null;
+		if (!eventsEl) return;
 
-		function openLightbox(index) {
-			currentIndex = parseInt(index, 10);
-			lightboxImg.src = images[currentIndex];
-			lightbox.classList.add('active');
-			document.body.style.overflow = 'hidden'; // Prevent background scrolling
+		const label = toggleBtn.querySelector('.at-toggle-label');
+		const isExpanded = dayBlock.classList.contains('expanded');
+
+		if (isExpanded) {
+			eventsEl.style.maxHeight = '0px';
+			dayBlock.classList.remove('expanded');
+			if (label) label.textContent = toggleBtn.getAttribute('data-label-more');
+		} else {
+			eventsEl.style.maxHeight = eventsEl.scrollHeight + 'px';
+			dayBlock.classList.add('expanded');
+			if (label) label.textContent = toggleBtn.getAttribute('data-label-less');
 		}
-
-		function closeLightbox() {
-			lightbox.classList.remove('active');
-			document.body.style.overflow = '';
-		}
-
-		function showNext() {
-			currentIndex = (currentIndex + 1) % images.length;
-			lightboxImg.src = images[currentIndex];
-		}
-
-		function showPrev() {
-			currentIndex = (currentIndex - 1 + images.length) % images.length;
-			lightboxImg.src = images[currentIndex];
-		}
-
-		galleryLinks.forEach((link) => {
-			link.addEventListener('click', function(e) {
-				e.preventDefault();
-				const index = this.getAttribute('data-index');
-				openLightbox(index);
-			});
-		});
-
-		closeBtn.addEventListener('click', closeLightbox);
-		nextBtn.addEventListener('click', showNext);
-		prevBtn.addEventListener('click', showPrev);
-
-		// Close on overlay click
-		lightbox.querySelector('.at-lightbox-overlay').addEventListener('click', closeLightbox);
-
-		// Keyboard navigation
-		document.addEventListener('keydown', function(e) {
-			if (!lightbox.classList.contains('active')) return;
-			if (e.key === 'Escape') closeLightbox();
-			if (e.key === 'ArrowRight') showNext();
-			if (e.key === 'ArrowLeft') showPrev();
-		});
-	}
+	});
 
 });

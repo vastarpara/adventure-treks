@@ -26,19 +26,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<span class="spinner is-active"></span> <?php esc_html_e( 'Loading cities data...', 'adventure-treks' ); ?>
 	</div>
 
+	<!-- Next steps after adding a city (filled by admin-departures.js) -->
+	<div class="at-next-steps" id="at_city_next_steps" style="display:none;"></div>
+
 	<!-- Cities Grid List -->
 	<div class="at-cities-list-wrapper">
 		<table class="wp-list-table widefat fixed striped posts" id="at_cities_table">
 			<thead>
 				<tr>
-					<th class="column-order" style="width: 40px;"></th>
-					<th class="column-name"><?php esc_html_e( 'City Name', 'adventure-treks' ); ?></th>
-					<th class="column-price" style="width: 120px;"><?php esc_html_e( 'Base Price', 'adventure-treks' ); ?></th>
-					<th class="column-offer" style="width: 120px;"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></th>
-					<th class="column-transport" style="width: 150px;"><?php esc_html_e( 'Transport', 'adventure-treks' ); ?></th>
-					<th class="column-deadline" style="width: 120px;"><?php esc_html_e( 'Deadline (Days)', 'adventure-treks' ); ?></th>
-					<th class="column-status" style="width: 100px;"><?php esc_html_e( 'Status', 'adventure-treks' ); ?></th>
-					<th class="column-actions" style="width: 280px; text-align: right;"><?php esc_html_e( 'Actions', 'adventure-treks' ); ?></th>
+					<th class="column-order" style="width: 30px;"></th>
+					<th class="column-name" style="width: 200px;"><?php esc_html_e( 'City Name', 'adventure-treks' ); ?></th>
+					<th class="column-price" style="width: 90px;"><?php esc_html_e( 'Base Price', 'adventure-treks' ); ?></th>
+					<th class="column-offer" style="width: 90px;"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></th>
+					<th class="column-transport" style="width: 130px;"><?php esc_html_e( 'Transport', 'adventure-treks' ); ?></th>
+					<th class="column-deadline" style="width: 110px;"><?php esc_html_e( 'Deadline (Days)', 'adventure-treks' ); ?></th>
+					<th class="column-status" style="width: 90px;"><?php esc_html_e( 'Status', 'adventure-treks' ); ?></th>
+					<th class="column-actions" style="text-align: right;"><?php esc_html_e( 'Actions', 'adventure-treks' ); ?></th>
 				</tr>
 			</thead>
 			<tbody id="at_cities_tbody">
@@ -71,11 +74,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
 							<label for="at_form_base_price"><?php esc_html_e( 'Base Price', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
-							<input type="number" step="1" id="at_form_base_price" name="base_price" value="0" />
+							<input type="number" step="1" id="at_form_base_price" name="base_price" value="0" min="0" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_offer_price"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="1" id="at_form_offer_price" name="offer_price" value="0" />
+							<input type="number" step="1" id="at_form_offer_price" name="offer_price" value="0" min="0" />
 						</div>
 					</div>
 
@@ -98,7 +101,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
 							<label for="at_form_booking_deadline"><?php esc_html_e( 'Booking Deadline (Days Before)', 'adventure-treks' ); ?></label>
-							<input type="number" id="at_form_booking_deadline" name="booking_deadline" value="3" min="0" />
+							<input type="number" id="at_form_booking_deadline" name="booking_deadline" value="3" min="0" step="1" inputmode="numeric" data-at-integer="1" />
 							<span class="description"><?php esc_html_e( 'Close booking X days prior to departure.', 'adventure-treks' ); ?></span>
 						</div>
 						<div class="at-form-row">
@@ -175,11 +178,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-2">
 						<div class="at-form-row">
 							<label for="at_form_date_total_seats"><?php esc_html_e( 'Total Seats', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
-							<input type="number" id="at_form_date_total_seats" name="total_seats" value="30" min="1" />
+							<input type="number" id="at_form_date_total_seats" name="total_seats" value="30" min="1" step="1" inputmode="numeric" data-at-integer="1" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_date_booked_seats"><?php esc_html_e( 'Booked Seats', 'adventure-treks' ); ?></label>
-							<input type="number" id="at_form_date_booked_seats" name="booked_seats" value="0" min="0" />
+							<input type="number" id="at_form_date_booked_seats" name="booked_seats" value="0" min="0" step="1" inputmode="numeric" data-at-integer="1" />
 						</div>
 					</div>
 
@@ -188,10 +191,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<select id="at_form_date_status" name="status">
 							<option value="" disabled selected><?php esc_html_e( '-- Select Status --', 'adventure-treks' ); ?></option>
 							<option value="open"><?php esc_html_e( 'Open (Available)', 'adventure-treks' ); ?></option>
-							<option value="few_seats"><?php esc_html_e( 'Few Seats Remaining', 'adventure-treks' ); ?></option>
+							<option value="seat_count"><?php esc_html_e( 'Seat Count (Show Remaining Seats)', 'adventure-treks' ); ?></option>
+							<option value="few_seats"><?php esc_html_e( 'Few Seats Remaining (Hide Exact Count)', 'adventure-treks' ); ?></option>
 							<option value="sold_out"><?php esc_html_e( 'Sold Out', 'adventure-treks' ); ?></option>
 							<option value="cancelled"><?php esc_html_e( 'Cancelled', 'adventure-treks' ); ?></option>
 						</select>
+						<span class="description"><?php esc_html_e( 'Controls how availability is shown on the front-end. Total/Booked Seats above still manage the actual count.', 'adventure-treks' ); ?></span>
 					</div>
 
 					<div class="at-form-row">
@@ -206,15 +211,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="at-form-grid-3" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
 						<div class="at-form-row">
 							<label for="at_form_date_adult_price"><?php esc_html_e( 'Adult Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="1" id="at_form_date_adult_price" name="adult_price" value="0" />
+							<input type="number" step="1" id="at_form_date_adult_price" name="adult_price" value="0" min="0" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_date_child_price"><?php esc_html_e( 'Child Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="1" id="at_form_date_child_price" name="child_price" value="0" />
+							<input type="number" step="1" id="at_form_date_child_price" name="child_price" value="0" min="0" />
 						</div>
 						<div class="at-form-row">
 							<label for="at_form_date_offer_price"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></label>
-							<input type="number" step="1" id="at_form_date_offer_price" name="offer_price" value="0" />
+							<input type="number" step="1" id="at_form_date_offer_price" name="offer_price" value="0" min="0" />
 						</div>
 					</div>
 					<span class="description" style="display:block; margin-top:-5px; font-size:11px; color:#666;">
@@ -238,10 +243,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="at-modal-body" style="display: flex; gap: 20px; overflow: hidden; height: 100%; padding: 15px;">
 				
 				<!-- Left Column: Days List -->
-				<div style="width: 280px; display: flex; flex-direction: column; border-right: 1px solid #ddd; padding-right: 15px; height: 100%;">
-					<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-						<h4 style="margin: 0; font-size: 14px; font-weight: 600;"><?php esc_html_e( 'Itinerary Days', 'adventure-treks' ); ?></h4>
-						<button type="button" class="button button-small" id="at_add_day_btn">+ <?php esc_html_e( 'Add Day', 'adventure-treks' ); ?></button>
+				<div style="flex: 0 0 280px; width: 280px; min-width: 280px; box-sizing: border-box; display: flex; flex-direction: column; border-right: 1px solid #ddd; padding-right: 15px; height: 100%;">
+					<div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 15px;">
+						<h4 style="margin: 0; font-size: 14px; font-weight: 600; white-space: nowrap;"><?php esc_html_e( 'Itinerary Days', 'adventure-treks' ); ?></h4>
+						<button type="button" class="button button-small" id="at_add_day_btn" style="flex: 0 0 auto; white-space: nowrap;">+ <?php esc_html_e( 'Add Day', 'adventure-treks' ); ?></button>
 					</div>
 					<div id="at_itinerary_days_list" style="flex-grow: 1; overflow-y: auto; padding-right: 5px; display: flex; flex-direction: column; gap: 8px;">
 						<!-- Days populated via AJAX -->
@@ -263,8 +268,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<h4 id="at_selected_day_title" style="margin: 0; font-size: 15px; font-weight: 600;"></h4>
 								<p id="at_selected_day_desc" style="margin: 3px 0 0 0; font-size: 12px; color: #666; font-style: italic;"></p>
 							</div>
-							<div>
-								<button type="button" class="button" id="at_edit_selected_day_btn" style="margin-right:5px;"><?php esc_html_e( 'Edit Day Settings', 'adventure-treks' ); ?></button>
+							<div style="display:flex; align-items:center; gap:8px; flex-shrink:0; white-space:nowrap;">
+								<button type="button" class="button" id="at_edit_selected_day_btn"><?php esc_html_e( 'Edit Day Settings', 'adventure-treks' ); ?></button>
 								<button type="button" class="button button-primary" id="at_add_activity_btn">+ <?php esc_html_e( 'Add Activity', 'adventure-treks' ); ?></button>
 							</div>
 						</div>
@@ -295,7 +300,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					
 					<div class="at-form-row">
 						<label for="at_form_day_number"><?php esc_html_e( 'Day Number', 'adventure-treks' ); ?> <span style="color: #d63638;">*</span></label>
-						<input type="number" id="at_form_day_number" name="day_number" value="1" min="0" />
+						<input type="number" id="at_form_day_number" name="day_number" value="1" min="0" step="1" inputmode="numeric" data-at-integer="1" />
 						<span class="description"><?php esc_html_e( 'Use 0 for departure day assembly info, 1 for start, etc.', 'adventure-treks' ); ?></span>
 					</div>
 
@@ -429,6 +434,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 					<div id="at_optional_addons_list" style="margin-bottom: 20px;">
 						<!-- Add-ons list -->
+					</div>
+
+					<!-- Transportation Options Repeater -->
+					<div style="display:flex; justify-content:space-between; align-items:center; font-weight: bold; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 15px; color: #23282d; margin-top:20px;">
+						<span><?php esc_html_e( 'Transportation Options', 'adventure-treks' ); ?></span>
+						<button type="button" class="button button-small" id="at_add_transport_option_btn">+ <?php esc_html_e( 'Add Transportation Option', 'adventure-treks' ); ?></button>
+					</div>
+					<p class="description" style="margin: -10px 0 12px;"><?php esc_html_e( 'Shown to visitors as a single choice right after they pick this city. The additional price is added per person on top of the base fare.', 'adventure-treks' ); ?></p>
+					<div id="at_transport_options_list" style="margin-bottom: 20px;">
+						<!-- Transport options list -->
 					</div>
 
 				</div>

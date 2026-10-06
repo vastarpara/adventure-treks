@@ -52,7 +52,7 @@ class TrekItineraryController {
 			'at-admin-itinerary-js',
 			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-itinerary.js',
 			array(),
-			ADVENTURE_TREKS_VERSION,
+			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/js/admin-itinerary.js' ),
 			true
 		);
 
@@ -103,6 +103,9 @@ class TrekItineraryController {
 	 */
 	public function ajax_get_itinerary() {
 		check_ajax_referer( 'at_itinerary_nonce_action', 'nonce' );
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
+		}
 
 		$city_id = isset( $_GET['city_id'] ) ? intval( $_GET['city_id'] ) : 0;
 		if ( ! $city_id ) {
@@ -110,8 +113,7 @@ class TrekItineraryController {
 		}
 
 		global $wpdb;
-		$table_days  = $wpdb->prefix . 'at_itineraries';
-		$table_items = $wpdb->prefix . 'at_itinerary_items';
+		$table_days = $wpdb->prefix . 'at_itineraries';
 
 		// Fetch days.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -122,15 +124,12 @@ class TrekItineraryController {
 		);
 
 		// Hydrate days with timeline items.
+		$items_by_day = \AdventureTreks\Includes\Database::get_items_by_day( wp_list_pluck( $days, 'id' ), ARRAY_A );
 		foreach ( $days as &$day ) {
-			$day_id = intval( $day['id'] );
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$day['items'] = $wpdb->get_results(
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-				$wpdb->prepare( "SELECT * FROM $table_items WHERE itinerary_id = %d ORDER BY menu_order ASC", $day_id ),
-				ARRAY_A
-			);
+			$day_id       = intval( $day['id'] );
+			$day['items'] = isset( $items_by_day[ $day_id ] ) ? $items_by_day[ $day_id ] : array();
 		}
+		unset( $day );
 
 		wp_send_json_success( $days );
 	}

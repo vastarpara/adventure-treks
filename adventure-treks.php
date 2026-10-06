@@ -1,14 +1,14 @@
 <?php
 /**
  * Plugin Name:       Adventure Treks
- * Plugin URI:        https://wordpress.org/plugins/adventure-treks/
  * Description:       A premium trekking and adventure trip management plugin for WordPress.
- * Version:           1.0.0
+ * Version:           1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Nilesh Vastarpara
- * Author URI:        https://github.com/nileshvastarpara
- * License:           GPL-2.0+
+ * Author URI:        https://nileshvastarpara.com
+ * License:           GPL-2.0-or-later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       adventure-treks
  * Domain Path:       /languages
  *
@@ -23,7 +23,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Currently active version of the plugin.
  */
-define( 'ADVENTURE_TREKS_VERSION', '1.0.0' );
+define( 'ADVENTURE_TREKS_VERSION', '1.0' );
 
 /**
  * Base directory path for the plugin.

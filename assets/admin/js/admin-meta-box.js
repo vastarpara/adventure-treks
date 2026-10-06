@@ -15,7 +15,11 @@ document.addEventListener('DOMContentLoaded', function() {
 			document.body.appendChild(toast);
 		}
 		toast.className = 'at-toast show ' + type;
-		toast.innerHTML = '<span class="dashicons dashicons-warning"></span> ' + message;
+		toast.textContent = '';
+		const toastIcon = document.createElement('span');
+		toastIcon.className = 'dashicons dashicons-warning';
+		toast.appendChild(toastIcon);
+		toast.appendChild(document.createTextNode(' ' + message));
 		
 		setTimeout(() => {
 			toast.className = toast.className.replace('show', '');
@@ -71,11 +75,11 @@ document.addEventListener('DOMContentLoaded', function() {
 				e.preventDefault();
 
 				// Remove active class from all tabs & panels
-				tabLinks.forEach(l => l.parentElement.classList.remove('active'));
+				tabLinks.forEach(l => l.classList.remove('nav-tab-active'));
 				tabPanels.forEach(p => p.classList.remove('active'));
 
 				// Add active class to clicked tab and corresponding panel
-				this.parentElement.classList.add('active');
+				this.classList.add('nav-tab-active');
 				const activePanelId = this.getAttribute('href');
 				const activePanel = document.querySelector(activePanelId);
 				if (activePanel) {
@@ -91,6 +95,44 @@ document.addEventListener('DOMContentLoaded', function() {
 	const faqList = document.getElementById('at_faq_repeater_list');
 	const addFaqBtn = document.getElementById('at_add_faq_row_btn');
 
+	// An FAQ needs both a question and an answer. Flag half-filled rows and, in the block
+	// editor, lock saving until they are completed (the server drops incomplete rows anyway).
+	function validateFaqRows() {
+		if (!faqList) { return; }
+		let incomplete = 0;
+		faqList.querySelectorAll('.at-faq-repeater-row').forEach(function(row) {
+			const q = row.querySelector('input[type="text"]');
+			const a = row.querySelector('textarea');
+			const qFilled = !!(q && q.value.trim());
+			const aFilled = !!(a && a.value.trim());
+			const bad = (qFilled !== aFilled);
+			row.classList.toggle('at-faq-incomplete', bad);
+			let msg = row.querySelector('.at-faq-row-error');
+			if (bad) {
+				incomplete++;
+				if (!msg) {
+					msg = document.createElement('p');
+					msg.className = 'at-faq-row-error';
+					row.querySelector('.at-faq-row-fields').appendChild(msg);
+				}
+				msg.textContent = qFilled ? 'Please add an answer for this question.' : 'Please add a question for this answer.';
+			} else if (msg) {
+				msg.remove();
+			}
+		});
+		if (window.wp && wp.data && wp.data.dispatch) {
+			const editor = wp.data.dispatch('core/editor');
+			if (editor && editor.lockPostSaving) {
+				if (incomplete > 0) { editor.lockPostSaving('at-faq-incomplete'); } else { editor.unlockPostSaving('at-faq-incomplete'); }
+			}
+		}
+	}
+
+	if (faqList) {
+		faqList.addEventListener('input', validateFaqRows);
+		validateFaqRows();
+	}
+
 	if (addFaqBtn && faqList) {
 		addFaqBtn.addEventListener('click', function(e) {
 			e.preventDefault();
@@ -103,15 +145,16 @@ document.addEventListener('DOMContentLoaded', function() {
 				<div class="at-faq-repeater-row" data-index="${index}">
 					<span class="at-drag-handle">☰</span>
 					<div class="at-faq-row-fields">
-						<input type="text" name="at_faq[${index}][q]" placeholder="Question" class="large-text" />
-						<textarea name="at_faq[${index}][a]" rows="3" placeholder="Answer" class="large-text"></textarea>
+						<input type="text" name="at_faq[${index}][q]" placeholder="Question" aria-label="FAQ question" class="large-text" />
+						<textarea name="at_faq[${index}][a]" rows="3" placeholder="Answer" aria-label="FAQ answer" class="large-text"></textarea>
 					</div>
-					<a href="#" class="button at-remove-faq-row-btn">Remove</a>
+					<button type="button" class="button at-remove-faq-row-btn">Remove</button>
 				</div>
 			`;
 
 			// Append new row
 			faqList.insertAdjacentHTML('beforeend', rowHTML);
+			validateFaqRows();
 		});
 
 		// Delegate delete event for dynamically created rows
@@ -121,6 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				const row = e.target.closest('.at-faq-repeater-row');
 				if (row) {
 					row.remove();
+					validateFaqRows();
 				}
 			}
 		});
@@ -151,7 +195,19 @@ document.addEventListener('DOMContentLoaded', function() {
 				button: {
 					text: 'Use these images'
 				},
-				multiple: true
+				multiple: 'add' // plain clicks toggle images; no Ctrl/Shift needed.
+			});
+
+			// Start with the images already in the gallery selected, so choosing more adds to
+			// them. Without this the frame opens empty and "select" would replace the whole gallery.
+			galleryFrame.on('open', function() {
+				const selection = galleryFrame.state().get('selection');
+				selection.reset();
+				galleryIdsInput.value.split(',').filter(Boolean).forEach(function(id) {
+					const attachment = wp.media.attachment(id);
+					attachment.fetch();
+					selection.add(attachment);
+				});
 			});
 
 			// When images are selected in the media frame...
@@ -168,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					const thumbnail = (attachment.sizes && attachment.sizes.thumbnail) ? attachment.sizes.thumbnail.url : attachment.url;
 					const thumbHTML = `
 						<div class="at-gallery-thumb-item" data-id="${attachment.id}">
-							<img src="${thumbnail}" />
+							<img src="${thumbnail}" alt="" />
 							<a href="#" class="at-gallery-remove-btn" title="Remove">&times;</a>
 						</div>
 					`;
@@ -201,4 +257,135 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 
+});
+
+// ==========================================
+// Plain-text spec fields (Duration, Altitude, Region, ...): strip special characters
+// such as !@#$%^&*()= as the user types or pastes. "+" stays allowed on Age Limit only.
+// The server applies the same rule on save.
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
+	document.querySelectorAll('input[data-at-plain-text]').forEach(function(input) {
+		const allowPlus = input.getAttribute('data-at-plain-text') === 'plus';
+		const disallowed = allowPlus ? /[^\p{L}\p{N}\s\/\-,.+]/gu : /[^\p{L}\p{N}\s\/\-,.]/gu;
+		input.addEventListener('input', function() {
+			const cleaned = input.value.replace(disallowed, '');
+			if (cleaned !== input.value) {
+				const caret = input.selectionStart - (input.value.length - cleaned.length);
+				input.value = cleaned;
+				input.setSelectionRange(Math.max(caret, 0), Math.max(caret, 0));
+			}
+		});
+	});
+});
+
+// ==========================================
+// Age rules: Adults / Children age labels must fit the trek's Age Limit.
+//   Adults   "12" or "12+", not below the minimum age (nor above the maximum).
+//   Children "a-b", starting at/above the minimum age and ending before the adults age.
+// Mirrors TrekMetaBoxController::validate_ages() (the server re-checks on save).
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
+	const limitInput = document.getElementById('at_age_limit');
+	const adultInput = document.getElementById('at_adult_age');
+	const childInput = document.getElementById('at_child_age');
+	if (!limitInput || !adultInput || !childInput) {
+		return;
+	}
+
+	function parseLimit(text) {
+		const nums = (text.match(/\d+/g) || []).map(Number);
+		return { min: nums.length > 0 ? nums[0] : null, max: nums.length > 1 ? nums[1] : null };
+	}
+
+	function validate() {
+		const limit = parseLimit(limitInput.value);
+		const errors = { adult: '', child: '' };
+		let adult = null;
+
+		const adultText = adultInput.value.trim();
+		if (adultText !== '') {
+			const m = adultText.match(/^(\d{1,2})\+?$/);
+			if (!m) {
+				errors.adult = 'Adults age must be a number, optionally followed by +, e.g. 12+.';
+			} else {
+				adult = parseInt(m[1], 10);
+				if (limit.min !== null && adult < limit.min) {
+					errors.adult = 'Adults age (' + adult + ') cannot be below the trek minimum age (' + limit.min + ').';
+				} else if (limit.max !== null && adult > limit.max) {
+					errors.adult = 'Adults age (' + adult + ') cannot be above the trek maximum age (' + limit.max + ').';
+				}
+			}
+		}
+
+		const childText = childInput.value.trim();
+		if (childText !== '') {
+			const m = childText.match(/^(\d{1,2})\s*-\s*(\d{1,2})$/);
+			if (!m) {
+				errors.child = 'Children age must be a range, e.g. 10-11.';
+			} else {
+				const from = parseInt(m[1], 10);
+				const to = parseInt(m[2], 10);
+				if (from > to) {
+					errors.child = 'Children age range must go from the lower age to the higher age, e.g. 10-11.';
+				} else if (limit.min !== null && from < limit.min) {
+					errors.child = 'Children age cannot start at ' + from + ', the trek minimum age is ' + limit.min + '.';
+				} else if (adult !== null && to >= adult) {
+					errors.child = 'Children age range must end before the adults age (' + adult + ').';
+				}
+			}
+		}
+
+		return errors;
+	}
+
+	function showError(input, message) {
+		let el = input.parentNode.querySelector('.at-age-error');
+		if (!message) {
+			if (el) { el.remove(); }
+			input.style.borderColor = '';
+			return;
+		}
+		if (!el) {
+			el = document.createElement('p');
+			el.className = 'at-age-error';
+			el.style.cssText = 'color:#b32d2e; margin:4px 0 0; font-size:12px;';
+			input.parentNode.appendChild(el);
+		}
+		el.textContent = message;
+		input.style.borderColor = '#b32d2e';
+	}
+
+	function render() {
+		const errors = validate();
+		showError(adultInput, errors.adult);
+		showError(childInput, errors.child);
+		return !errors.adult && !errors.child;
+	}
+
+	[limitInput, adultInput, childInput].forEach(function(input) {
+		input.addEventListener('input', render);
+	});
+	render();
+
+	// Block "Update" / "Publish" until the ages fit the Age Limit.
+	const postForm = document.getElementById('post');
+	if (postForm) {
+		postForm.addEventListener('submit', function(e) {
+			if (!render()) {
+				e.preventDefault();
+				const tabLink = document.querySelector('.at-meta-tabs-nav a[href="#at-tab-general"]');
+				if (tabLink) { tabLink.click(); }
+				adultInput.scrollIntoView({ block: 'center' });
+				if (typeof window.at_admin_toast === 'function') {
+					window.at_admin_toast('Please fix the age settings before saving.');
+				}
+				// WordPress disables the submit button while saving; undo that so the editor can retry.
+				setTimeout(function() {
+					document.querySelectorAll('#publishing-action .spinner').forEach(function(s) { s.classList.remove('is-active'); });
+					document.querySelectorAll('#publish, #save-post').forEach(function(b) { b.classList.remove('disabled'); b.removeAttribute('disabled'); });
+				}, 50);
+			}
+		});
+	}
 });

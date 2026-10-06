@@ -116,15 +116,21 @@ class RestApi {
 		$table_name    = $wpdb->prefix . 'at_treks';
 		$response_data = array();
 
+		// Fetch every trek's details in one query instead of one per trek.
+		$specs_by_post = array();
+		$post_ids      = wp_list_pluck( $posts, 'ID' );
+		if ( ! empty( $post_ids ) ) {
+			$placeholders = implode( ',', array_fill( 0, count( $post_ids ), '%d' ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			$spec_rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE post_id IN ( $placeholders )", $post_ids ), ARRAY_A );
+			foreach ( (array) $spec_rows as $spec_row ) {
+				$specs_by_post[ (int) $spec_row['post_id'] ] = $spec_row;
+			}
+		}
+
 		foreach ( $posts as $post ) {
 			$post_id = $post->ID;
-			// Retrieve custom details.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$specs = $wpdb->get_row(
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-				$wpdb->prepare( "SELECT * FROM $table_name WHERE post_id = %d", $post_id ),
-				ARRAY_A
-			);
+			$specs   = isset( $specs_by_post[ $post_id ] ) ? $specs_by_post[ $post_id ] : null;
 
 			$response_data[] = array(
 				'id'            => $post_id,

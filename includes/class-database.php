@@ -46,6 +46,7 @@ class Database {
 			age_limit varchar(50) DEFAULT '' NOT NULL,
 			group_size varchar(50) DEFAULT '' NOT NULL,
 			highlights longtext DEFAULT NULL,
+			exclusions longtext DEFAULT NULL,
 			things_to_carry longtext DEFAULT NULL,
 			faq longtext DEFAULT NULL,
 			policies longtext DEFAULT NULL,
@@ -153,6 +154,7 @@ class Database {
 			group_discount longtext DEFAULT NULL,
 			extra_charges longtext DEFAULT NULL,
 			optional_addons longtext DEFAULT NULL,
+			transport_options longtext DEFAULT NULL,
 			PRIMARY KEY  (id),
 			KEY city_id (city_id),
 			KEY date_id (date_id),
@@ -188,15 +190,61 @@ class Database {
 			num_children int(11) DEFAULT 0 NOT NULL,
 			pickup_point varchar(255) DEFAULT '' NOT NULL,
 			addons longtext DEFAULT NULL,
+			transport_type varchar(150) DEFAULT '' NOT NULL,
+			transport_price decimal(10,2) DEFAULT '0.00' NOT NULL,
 			total_amount decimal(10,2) DEFAULT '0.00' NOT NULL,
 			status varchar(50) DEFAULT 'confirmed' NOT NULL,
+			payment_status varchar(20) DEFAULT 'pending' NOT NULL,
 			created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+			trashed_at datetime DEFAULT NULL,
 			PRIMARY KEY  (id),
 			KEY trek_id (trek_id),
 			KEY city_id (city_id),
 			KEY date_id (date_id)
 		) $charset_collate;";
 		dbDelta( $sql_bookings );
+	}
+
+	/**
+	 * Fetch the timeline items of several itinerary days in one query, grouped by day.
+	 *
+	 * @param int[]  $day_ids Itinerary day IDs.
+	 * @param string $output  OBJECT or ARRAY_A, as for wpdb::get_results().
+	 * @return array<int, array> Items keyed by itinerary (day) ID; days without items are absent.
+	 */
+	public static function get_items_by_day( array $day_ids, $output = OBJECT ) {
+		global $wpdb;
+
+		$grouped = array();
+		$day_ids = array_values( array_filter( array_map( 'intval', $day_ids ) ) );
+		if ( empty( $day_ids ) ) {
+			return $grouped;
+		}
+
+		$table        = $wpdb->prefix . 'at_itinerary_items';
+		$placeholders = implode( ',', array_fill( 0, count( $day_ids ), '%d' ) );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table WHERE itinerary_id IN ($placeholders) ORDER BY menu_order ASC", $day_ids ), $output );
+
+		foreach ( (array) $rows as $row ) {
+			$day_id               = (int) ( is_array( $row ) ? $row['itinerary_id'] : $row->itinerary_id );
+			$grouped[ $day_id ][] = $row;
+		}
+
+		return $grouped;
+	}
+
+	/**
+	 * Create the plugin tables for a site newly added to a Multisite network.
+	 *
+	 * @param \WP_Site $new_site The new site.
+	 * @return void
+	 */
+	public static function create_tables_for_new_site( $new_site ) {
+		switch_to_blog( (int) $new_site->blog_id );
+		self::create_tables();
+		restore_current_blog();
 	}
 
 	/**

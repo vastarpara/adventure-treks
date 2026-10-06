@@ -114,8 +114,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="at-details-tabs-wrapper">
 		<ul class="at-details-tabs-nav">
 			<li class="active"><a href="#at-f-tab-itinerary"><?php esc_html_e( 'Itinerary', 'adventure-treks' ); ?></a></li>
-			<?php if ( ! empty( $trek['highlights'] ) ) : ?>
-				<li><a href="#at-f-tab-highlights"><?php esc_html_e( 'Highlights', 'adventure-treks' ); ?></a></li>
+			<?php if ( ! empty( $trek['highlights'] ) || ! empty( $trek['exclusions'] ) ) : ?>
+				<li><a href="#at-f-tab-inclusions"><?php esc_html_e( 'Inclusions & Exclusions', 'adventure-treks' ); ?></a></li>
 			<?php endif; ?>
 			<?php if ( ! empty( $faq_items ) ) : ?>
 				<li><a href="#at-f-tab-faq"><?php esc_html_e( 'FAQs', 'adventure-treks' ); ?></a></li>
@@ -123,46 +123,72 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php if ( ! empty( $trek['things_to_carry'] ) ) : ?>
 				<li><a href="#at-f-tab-carry"><?php esc_html_e( 'Things To Carry', 'adventure-treks' ); ?></a></li>
 			<?php endif; ?>
-			<?php if ( ! empty( $policies ) ) : ?>
-				<li><a href="#at-f-tab-policies"><?php esc_html_e( 'Policies', 'adventure-treks' ); ?></a></li>
-			<?php endif; ?>
 		</ul>
 
 		<div class="at-details-tabs-content">
-			
-			<!-- Tab: Itinerary -->
+
+			<!-- Section: Itinerary -->
 			<div id="at-f-tab-itinerary" class="at-details-tab-panel active">
 				<div class="at-tab-inner-content">
 					<h3 class="at-tab-headline"><?php esc_html_e( 'Detailed Itinerary', 'adventure-treks' ); ?></h3>
 					<div id="trek_itinerary_container">
 						<?php
 						if ( $default_city_id ) {
-							echo do_shortcode( '[trek_itinerary city_id="' . $default_city_id . '"]' );
+							$at_itinerary_shortcode = '[adventure_itinerary city_id="' . intval( $default_city_id ) . '"';
+							if ( ! empty( $default_departure_date ) ) {
+								$at_itinerary_shortcode .= ' date="' . esc_attr( $default_departure_date ) . '"';
+							}
+							$at_itinerary_shortcode .= ']';
+							echo do_shortcode( $at_itinerary_shortcode );
 						} else {
-							echo '<p style="color:#666; font-style:italic;">' . esc_html__( 'Please select a departure city to load the itinerary.', 'adventure-treks' ) . '</p>';
+							echo '<p style="color:#666; font-style:italic;">' . esc_html__( 'No itinerary found. Please contact the admin for details.', 'adventure-treks' ) . '</p>';
 						}
 						?>
 					</div>
 				</div>
 			</div>
 
-			<!-- Tab: Highlights -->
-			<?php if ( ! empty( $trek['highlights'] ) ) : ?>
-				<div id="at-f-tab-highlights" class="at-details-tab-panel">
+			<!-- Section: Inclusions & Exclusions -->
+			<?php if ( ! empty( $trek['highlights'] ) || ! empty( $trek['exclusions'] ) ) : ?>
+				<div id="at-f-tab-inclusions" class="at-details-tab-panel">
 					<div class="at-tab-inner-content">
-						<h3 class="at-tab-headline"><?php esc_html_e( 'Trek Highlights', 'adventure-treks' ); ?></h3>
-						<div class="at-highlights-list-box">
-							<?php
-							$items = explode( "\n", str_replace( "\r", '', $trek['highlights'] ) );
-							echo '<ul>';
-							foreach ( $items as $item ) {
-								$item = trim( $item );
-								if ( ! empty( $item ) ) {
-									echo '<li><span class="dashicons dashicons-yes-alt" style="color:#137a7f; margin-right:8px; font-size:16px; width:16px; height:16px;"></span> ' . esc_html( $item ) . '</li>';
-								}
-							}
-							echo '</ul>';
-							?>
+						<h3 class="at-tab-headline"><?php esc_html_e( 'Inclusions & Exclusions', 'adventure-treks' ); ?></h3>
+						<div class="at-incl-excl-grid">
+
+							<?php if ( ! empty( $trek['highlights'] ) ) : ?>
+								<div class="at-highlights-list-box">
+									<h4 class="at-incl-excl-heading included"><?php esc_html_e( "What's Included", 'adventure-treks' ); ?></h4>
+									<ul>
+										<?php
+										$at_incl_items = explode( "\n", str_replace( "\r", '', $trek['highlights'] ) );
+										foreach ( $at_incl_items as $at_incl_item ) {
+											$at_incl_item = trim( $at_incl_item );
+											if ( ! empty( $at_incl_item ) ) {
+												echo '<li><span class="dashicons dashicons-yes-alt"></span> ' . esc_html( $at_incl_item ) . '</li>';
+											}
+										}
+										?>
+									</ul>
+								</div>
+							<?php endif; ?>
+
+							<?php if ( ! empty( $trek['exclusions'] ) ) : ?>
+								<div class="at-exclusions-list-box">
+									<h4 class="at-incl-excl-heading excluded"><?php esc_html_e( "What's Excluded", 'adventure-treks' ); ?></h4>
+									<ul>
+										<?php
+										$at_excl_items = explode( "\n", str_replace( "\r", '', $trek['exclusions'] ) );
+										foreach ( $at_excl_items as $at_excl_item ) {
+											$at_excl_item = trim( $at_excl_item );
+											if ( ! empty( $at_excl_item ) ) {
+												echo '<li><span class="dashicons dashicons-dismiss"></span> ' . esc_html( $at_excl_item ) . '</li>';
+											}
+										}
+										?>
+									</ul>
+								</div>
+							<?php endif; ?>
+
 						</div>
 					</div>
 				</div>
@@ -190,7 +216,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 			<?php endif; ?>
 
-			<!-- Tab: Things to Carry -->
+			<!-- Section: Things to Carry -->
 			<?php if ( ! empty( $trek['things_to_carry'] ) ) : ?>
 				<div id="at-f-tab-carry" class="at-details-tab-panel">
 					<div class="at-tab-inner-content">
@@ -202,7 +228,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								$c_item = trim( $c_item );
 								if ( ! empty( $c_item ) ) {
 									echo '<div class="at-carry-card">';
-									echo '  <span class="dashicons dashicons-saved" style="color:#137a7f; font-size:18px; width:18px; height:18px; line-height:1;"></span>';
+									echo '  <span class="dashicons dashicons-saved" style="color:var(--at-primary-color, #137a7f); font-size:18px; width:18px; height:18px; line-height:1;"></span>';
 									echo '  <span>' . esc_html( $c_item ) . '</span>';
 									echo '</div>';
 								}
@@ -213,73 +239,48 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 			<?php endif; ?>
 
-			<!-- Tab: Policies -->
-			<?php if ( ! empty( $policies ) ) : ?>
-				<div id="at-f-tab-policies" class="at-details-tab-panel">
-					<div class="at-tab-inner-content">
-						<h3 class="at-tab-headline"><?php esc_html_e( 'Policies, Guidelines & Disclaimers', 'adventure-treks' ); ?></h3>
-						<div class="at-policies-block-layout">
-							
-							<?php if ( ! empty( $policies['cancellation'] ) ) : ?>
-								<div class="at-policy-card">
-									<h5><?php esc_html_e( 'Cancellation Policy', 'adventure-treks' ); ?></h5>
-									<p><?php echo wp_kses_post( $policies['cancellation'] ); ?></p>
-								</div>
-							<?php endif; ?>
-
-							<?php if ( ! empty( $policies['refund'] ) ) : ?>
-								<div class="at-policy-card">
-									<h5><?php esc_html_e( 'Refund & Postponement Policy', 'adventure-treks' ); ?></h5>
-									<p><?php echo wp_kses_post( $policies['refund'] ); ?></p>
-								</div>
-							<?php endif; ?>
-
-							<?php if ( ! empty( $policies['medical'] ) ) : ?>
-								<div class="at-policy-card">
-									<h5><?php esc_html_e( 'Medical & Fitness Disclaimer', 'adventure-treks' ); ?></h5>
-									<p><?php echo wp_kses_post( $policies['medical'] ); ?></p>
-								</div>
-							<?php endif; ?>
-
-							<?php if ( ! empty( $policies['terms'] ) ) : ?>
-								<div class="at-policy-card">
-									<h5><?php esc_html_e( 'Terms & Conditions', 'adventure-treks' ); ?></h5>
-									<p><?php echo wp_kses_post( $policies['terms'] ); ?></p>
-								</div>
-							<?php endif; ?>
-
-						</div>
-					</div>
-				</div>
-			<?php endif; ?>
-
 		</div>
 	</div>
 
-	<!-- 3. Photo Gallery Grid -->
-	<?php if ( ! empty( $gallery ) ) : ?>
-		<div class="at-trek-photo-gallery-section">
-			<h4 class="at-gallery-section-title"><?php esc_html_e( 'Captured Moments & Visual Gallery', 'adventure-treks' ); ?></h4>
-			<div class="at-gallery-masonry-grid">
-				<?php
-				$img_index = 0; foreach ( $gallery as $attachment_id ) :
-					$img_url = wp_get_attachment_url( intval( $attachment_id ) );
-					$img_alt = get_post_meta( intval( $attachment_id ), '_wp_attachment_image_alt', true );
-					if ( ! $img_url ) {
-						continue;
-					}
-					?>
-					<div class="at-gallery-grid-card">
-						<a href="<?php echo esc_url( $img_url ); ?>" class="at-gallery-lightbox-link" data-index="<?php echo esc_attr( $img_index ); ?>">
-							<img src="<?php echo esc_url( $img_url ); ?>" alt="<?php echo esc_attr( $img_alt ); ?>" loading="lazy" />
-						</a>
-					</div>
-					<?php
-					++$img_index;
-endforeach;
-				?>
+	<?php
+	// Only policies that have content are listed; with none, the whole section is hidden.
+	$adventure_treks_policy_types    = \AdventureTreks\Admin\Controllers\TrekMetaBoxController::get_policy_types();
+	$adventure_treks_active_policies = array();
+	foreach ( $adventure_treks_policy_types as $adventure_treks_policy_key => $adventure_treks_policy ) {
+		if ( ! empty( $policies[ $adventure_treks_policy_key ] ) && '' !== trim( wp_strip_all_tags( $policies[ $adventure_treks_policy_key ] ) ) ) {
+			$adventure_treks_active_policies[ $adventure_treks_policy_key ] = $adventure_treks_policy;
+		}
+	}
+	?>
+
+	<!-- Quick Links & Policies - always visible below the tabs, not tied to any single tab's content -->
+	<?php if ( ! empty( $adventure_treks_active_policies ) ) : ?>
+		<div class="at-section-card at-quicklinks-card">
+			<h2><?php esc_html_e( 'Quick Links & Policies', 'adventure-treks' ); ?></h2>
+			<div class="at-quicklinks-row">
+				<?php foreach ( $adventure_treks_active_policies as $adventure_treks_policy_key => $adventure_treks_policy ) : ?>
+					<button type="button" class="at-quicklink-btn" data-popup-target="at-f-popup-<?php echo esc_attr( $adventure_treks_policy_key ); ?>">
+						<span class="at-quicklink-icon gray"><span class="dashicons <?php echo esc_attr( $adventure_treks_policy['icon'] ); ?>"></span></span>
+						<?php echo esc_html( $adventure_treks_policy['label'] ); ?>
+					</button>
+				<?php endforeach; ?>
 			</div>
 		</div>
-	<?php endif; ?>
 
+		<!-- Policy popups -->
+		<?php foreach ( $adventure_treks_active_policies as $adventure_treks_policy_key => $adventure_treks_policy ) : ?>
+			<div class="at-policy-modal" id="at-f-popup-<?php echo esc_attr( $adventure_treks_policy_key ); ?>">
+				<div class="at-policy-modal-overlay" data-popup-close></div>
+				<div class="at-policy-modal-box">
+					<div class="at-policy-modal-header">
+						<h3><?php echo esc_html( $adventure_treks_policy['label'] ); ?></h3>
+						<span class="at-policy-modal-close" data-popup-close>&times;</span>
+					</div>
+					<div class="at-policy-modal-body">
+						<?php echo wp_kses_post( wpautop( $policies[ $adventure_treks_policy_key ] ) ); ?>
+					</div>
+				</div>
+			</div>
+		<?php endforeach; ?>
+	<?php endif; ?>
 </div>

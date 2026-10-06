@@ -2,6 +2,15 @@
 <ruleset name="AdventureTreks">
 	<description>WPCS ruleset for the Adventure Treks plugin.</description>
 
+	<!-- Third-party and generated code is never checked (Composer dev dependencies, bundled libraries, assets). -->
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/includes/vendor/*</exclude-pattern>
+	<exclude-pattern>*/assets/*</exclude-pattern>
+	<exclude-pattern>*/.wordpress-org/*</exclude-pattern>
+	<exclude-pattern>*/build/*</exclude-pattern>
+	<exclude-pattern>*/dist/*</exclude-pattern>
+
 	<file>.</file>
 	<arg value="sp"/>
 	<arg name="extensions" value="php"/>
@@ -16,6 +25,7 @@
 	WordPress core resolves single post templates.
 	-->
 	<rule ref="WordPress.Files.FileName">
-		<exclude-pattern>public/Views/single-adventure_trek\.php</exclude-pattern>
+		<exclude-pattern>public/views/single-adventure_trek\.php</exclude-pattern>
+		<exclude-pattern>public/views/archive-adventure_trek\.php</exclude-pattern>
 	</rule>
 </ruleset>

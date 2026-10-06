@@ -7,6 +7,44 @@ document.addEventListener('DOMContentLoaded', function() {
 	var root = document.getElementById('at_departures_module_root');
 	if (!root) return;
 
+	// Number fields with min="0" (prices, seats, ...) never accept a minus sign or a negative value,
+	// whether typed, pasted or stepped with the spinner. Delegated so fields created later are covered too.
+	document.addEventListener('keydown', function(e) {
+		var t = e.target;
+		if (t && t.matches && t.matches('input[type="number"][min="0"]') && (e.key === '-' || e.key === 'e' || e.key === 'E')) {
+			e.preventDefault();
+		}
+	});
+	document.addEventListener('input', function(e) {
+		var t = e.target;
+		if (t && t.matches && t.matches('input[type="number"][min="0"]') && parseFloat(t.value) < 0) {
+			t.value = 0;
+		}
+	});
+
+	// Whole-number fields (seats, deadline, pax, day number) accept digits only: no decimal point, comma, sign or exponent.
+	document.addEventListener('keydown', function(e) {
+		var t = e.target;
+		if (t && t.matches && t.matches('input[data-at-integer]') && ['.', ',', '-', '+', 'e', 'E'].indexOf(e.key) !== -1) {
+			e.preventDefault();
+		}
+	});
+	document.addEventListener('input', function(e) {
+		var t = e.target;
+		if (t && t.matches && t.matches('input[data-at-integer]') && /[^0-9]/.test(t.value)) {
+			// Pasted "100.0000" becomes 100 (cut at the decimal point), not 1000000.
+			t.value = String(t.value).split(/[.,]/)[0].replace(/[^0-9]/g, '');
+		}
+	});
+
+	// In the block editor the meta box lives in a scrolling, clipped container, which breaks
+	// position:fixed overlays (modal cut off / offset). Re-parent every modal to <body> so they
+	// always cover the whole screen. Element identity is kept, so existing lookups still work.
+	root.querySelectorAll('.at-modal-overlay').forEach(function(modal) {
+		document.body.appendChild(modal);
+	});
+
+
 	var trekId  = root.getAttribute('data-trek-id');
 	var ajaxUrl = at_departures_obj.ajax_url;
 	var nonce   = at_departures_obj.nonce;
@@ -48,6 +86,104 @@ document.addEventListener('DOMContentLoaded', function() {
 			});
 	}
 
+	/* ---- setup progress: what each city still needs ---- */
+	function esc(text) {
+		return String(text == null ? '' : text).replace(/[&<>"']/g, function(ch) {
+			return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+		});
+	}
+
+	function setupSteps(city) {
+		var s = city.setup || {};
+		return [
+			{ key: 'dates', title: 'Departure dates', required: true, done: s.dates > 0,
+				text: 'Add at least one upcoming date and its seats. Customers cannot book a city that has no dates.', button: 'Add dates' },
+			{ key: 'pricing', title: 'Pricing', required: false, done: !!s.pricing,
+				text: 'Optional: child price, group discounts, add-ons, extra charges and transport options. Until you save it, the base price above is used.', button: 'Set pricing' },
+			{ key: 'pickups', title: 'Pickup points', required: false, done: s.pickups > 0,
+				text: 'Where trekkers are picked up, with time and a map link. Customers choose one while booking.', button: 'Add pickup points' },
+			{ key: 'itinerary', title: 'Itinerary', required: false, done: s.itinerary > 0,
+				text: 'The day-wise plan shown on the trek page for this city.', button: 'Build itinerary' }
+		];
+	}
+
+	function setupChips(city) {
+		var s = city.setup;
+		if (!s) return '';
+		function chip(key, label, ok, level) {
+			return '<a href="#" class="at-action-link at-setup-chip ' + key + ' ' + (ok ? 'ok' : level) + '" data-id="' + city.id + '" data-name="' + esc(city.city_name) + '">' + label + '</a>';
+		}
+		return '<div class="at-city-setup">'
+			+ chip('dates', s.dates > 0 ? 'Dates: ' + s.dates : 'Dates: none', s.dates > 0, 'missing')
+			+ chip('pricing', s.pricing ? 'Pricing: set' : 'Pricing: default', s.pricing, 'warn')
+			+ chip('pickups', s.pickups > 0 ? 'Pickups: ' + s.pickups : 'Pickups: none', s.pickups > 0, 'warn')
+			+ chip('itinerary', s.itinerary > 0 ? 'Itinerary: ' + s.itinerary + ' day' + (s.itinerary > 1 ? 's' : '') : 'Itinerary: none', s.itinerary > 0, 'warn')
+			+ '</div>';
+	}
+
+	/* Guide shown right after a new city is added; it follows the city until every step is done. */
+	var nextStepsCityId = 0;
+	var nextStepsPanel = document.getElementById('at_city_next_steps');
+
+	function renderNextSteps() {
+		if (!nextStepsPanel) return;
+		var city = nextStepsCityId ? citiesList.find(function(c){ return parseInt(c.id) === nextStepsCityId; }) : null;
+		if (!city) { nextStepsPanel.style.display = 'none'; return; }
+
+		var steps = setupSteps(city);
+		var pending = steps.filter(function(st){ return !st.done; });
+		var html = '<button type="button" class="at-next-steps-close" aria-label="Dismiss">&times;</button>';
+
+		if (!pending.length) {
+			html += '<h4>&#10003; ' + esc(city.city_name) + ' is fully set up</h4>'
+				+ '<p>Dates, pricing, pickup points and itinerary are all in place. Remember to <strong>Update</strong> the trek.</p>';
+		} else {
+			var doneCount = steps.length - pending.length;
+			html += '<h4>' + esc(city.city_name) + ' was added. Finish setting it up:</h4>'
+				+ '<p>Customers book through the departure city, so each city needs its own dates, pricing, pickup points and itinerary.</p>'
+				+ '<div class="at-next-steps-progress"><span class="at-next-steps-bar"><span style="width:' + Math.round(doneCount / steps.length * 100) + '%"></span></span><span class="at-next-steps-count">' + doneCount + ' of ' + steps.length + ' done</span></div>'
+				+ '<ol class="at-next-steps-list">';
+			steps.forEach(function(st) {
+				html += '<li class="' + (st.done ? 'done' : '') + '">'
+					+ '<span class="at-step-mark">' + (st.done ? '&#10003;' : '&#9675;') + '</span>'
+					+ '<span class="at-step-body"><strong>' + st.title + '</strong>'
+					+ (st.required ? ' <em class="at-step-req">required</em>' : ' <em class="at-step-opt">recommended</em>')
+					+ '<span class="at-step-text">' + st.text + '</span></span>'
+					+ (st.done ? '<span class="at-step-done">Done</span>' : '<button type="button" class="button button-primary button-small" data-step="' + st.key + '">' + st.button + '</button>')
+					+ '</li>';
+			});
+			html += '</ol>';
+		}
+		nextStepsPanel.innerHTML = html;
+		nextStepsPanel.style.display = 'block';
+	}
+
+	if (nextStepsPanel) {
+		nextStepsPanel.addEventListener('click', function(e) {
+			if (e.target.classList.contains('at-next-steps-close')) {
+				nextStepsCityId = 0;
+				renderNextSteps();
+				return;
+			}
+			var key = e.target.getAttribute && e.target.getAttribute('data-step');
+			if (!key || !nextStepsCityId) return;
+			var link = tbody.querySelector('.at-action-link.' + key + '[data-id="' + nextStepsCityId + '"]:not(.at-setup-chip)');
+			if (link) link.click();
+		});
+	}
+
+	/* Refresh the chips and the guide whenever a dates / pricing / pickups / itinerary dialog closes. */
+	['at_dates_modal', 'at_pricing_modal', 'at_pickups_modal', 'at_itinerary_modal'].forEach(function(id) {
+		var modal = document.getElementById(id);
+		if (!modal || typeof MutationObserver === 'undefined') return;
+		var wasOpen = false;
+		new MutationObserver(function() {
+			var open = modal.style.display !== 'none' && modal.style.display !== '';
+			if (wasOpen && !open) { fetchCities(); }
+			wasOpen = open;
+		}).observe(modal, { attributes: true, attributeFilter: ['style'] });
+	});
+
 	function renderCities() {
 		if (!citiesList.length) {
 			tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:#666;">No departure cities configured. Click the button above to add one.</td></tr>';
@@ -61,18 +197,18 @@ document.addEventListener('DOMContentLoaded', function() {
 			tr.setAttribute('data-id', city.id);
 			tr.setAttribute('data-index', index);
 			tr.innerHTML = '<td class="at-row-drag-handle" style="vertical-align:middle;">&#9776;</td>'
-				+ '<td style="font-weight:600;vertical-align:middle;">' + city.city_name + '</td>'
+				+ '<td style="font-weight:600;vertical-align:middle;">' + esc(city.city_name) + setupChips(city) + '</td>'
 				+ '<td style="vertical-align:middle;">' + parseInt(city.base_price || 0) + '</td>'
 				+ '<td style="vertical-align:middle;">' + (city.offer_price ? parseInt(city.offer_price) : '0') + '</td>'
-				+ '<td style="vertical-align:middle;">' + (city.transport_type || '-') + '</td>'
-				+ '<td style="vertical-align:middle;">' + city.booking_deadline + ' Days</td>'
-				+ '<td style="vertical-align:middle;"><span class="at-status-badge ' + (city.status === 'active' ? 'active' : 'inactive') + '">' + city.status + '</span></td>'
-				+ '<td style="text-align:right;vertical-align:middle;white-space:nowrap;">'
-				+ '<div style="display:flex;justify-content:flex-end;gap:4px;margin-bottom:4px;">'
-				+ '<a href="#" class="at-action-link dates button button-small" data-id="' + city.id + '" data-name="' + city.city_name + '" style="color:#2271b1;border-color:#2271b1;">Dates</a>'
-				+ '<a href="#" class="at-action-link itinerary button button-small" data-id="' + city.id + '" data-name="' + city.city_name + '" style="color:#137a7f;border-color:#137a7f;">Itinerary</a>'
-				+ '<a href="#" class="at-action-link pricing button button-small" data-id="' + city.id + '" data-name="' + city.city_name + '" style="color:#c65911;border-color:#c65911;">Pricing</a>'
-				+ '<a href="#" class="at-action-link pickups button button-small" data-id="' + city.id + '" data-name="' + city.city_name + '" style="color:#8f22b1;border-color:#8f22b1;">Pickups</a>'
+				+ '<td style="vertical-align:middle;">' + esc(city.transport_type || '-') + '</td>'
+				+ '<td style="vertical-align:middle;">' + esc(city.booking_deadline) + ' Days</td>'
+				+ '<td style="vertical-align:middle;"><span class="at-status-badge ' + (city.status === 'active' ? 'active' : 'inactive') + '">' + esc(city.status) + '</span></td>'
+				+ '<td style="text-align:right;vertical-align:middle;">'
+				+ '<div style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px;margin-bottom:4px;">'
+				+ '<a href="#" class="at-action-link dates button button-small" data-id="' + city.id + '" data-name="' + esc(city.city_name) + '" style="color:#2271b1;border-color:#2271b1;">Dates</a>'
+				+ '<a href="#" class="at-action-link itinerary button button-small" data-id="' + city.id + '" data-name="' + esc(city.city_name) + '" style="color:#137a7f;border-color:#137a7f;">Itinerary</a>'
+				+ '<a href="#" class="at-action-link pricing button button-small" data-id="' + city.id + '" data-name="' + esc(city.city_name) + '" style="color:#c65911;border-color:#c65911;">Pricing</a>'
+				+ '<a href="#" class="at-action-link pickups button button-small" data-id="' + city.id + '" data-name="' + esc(city.city_name) + '" style="color:#8f22b1;border-color:#8f22b1;">Pickups</a>'
 				+ '</div>'
 				+ '<div style="display:flex;justify-content:flex-end;gap:8px;font-size:12px;">'
 				+ '<a href="#" class="at-action-link edit" data-id="' + city.id + '" style="color:#2271b1;">Edit</a>'
@@ -83,6 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			tbody.appendChild(tr);
 		});
 		initDragAndDrop();
+		renderNextSteps();
 	}
 
 	/* ---- Add city button ---- */
@@ -175,7 +312,11 @@ document.addEventListener('DOMContentLoaded', function() {
 			fetch(ajaxUrl, { method:'POST', body:fd })
 				.then(function(r){ return r.json(); })
 				.then(function(data){
-					if (data.success) { fetchCities(); }
+					if (data.success) {
+						// A newly added city (no id was sent) starts the "next steps" guide.
+						if (!fd.get('id') && data.data && data.data.id) { nextStepsCityId = parseInt(data.data.id); }
+						fetchCities();
+					}
 					else { at_admin_toast('Error: ' + data.data.message); loading.style.display='none'; openCityModal(); }
 				})
 				.catch(function(){ at_admin_toast('Network error.'); loading.style.display='none'; openCityModal(); });

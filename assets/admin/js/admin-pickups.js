@@ -81,13 +81,19 @@ document.addEventListener('DOMContentLoaded', function() {
 					pickupsList = data.data;
 					renderPickups();
 				} else {
-					tbody.innerHTML = '<tr><td colspan="5" style="color:#b32d2e;text-align:center;">Error: ' + data.data.message + '</td></tr>';
+					tbody.innerHTML = '<tr><td colspan="5" style="color:#b32d2e;text-align:center;">Error: ' + esc(data.data.message) + '</td></tr>';
 				}
 			})
 			.catch(function() {
 				loading.style.display = 'none';
 				tbody.innerHTML = '<tr><td colspan="5" style="color:#b32d2e;text-align:center;">Network error.</td></tr>';
 			});
+	}
+
+	function esc(text) {
+		return String(text == null ? '' : text).replace(/[&<>"']/g, function(ch) {
+			return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+		});
 	}
 
 	function renderPickups() {
@@ -102,9 +108,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			tr.setAttribute('draggable', 'true');
 			tr.setAttribute('data-id', pick.id);
 			tr.innerHTML = '<td class="at-row-drag-handle" style="vertical-align:middle; cursor:move;">&#9776;</td>'
-				+ '<td style="vertical-align:middle; font-weight:600;">' + pick.location_name + '</td>'
-				+ '<td style="vertical-align:middle;">' + (pick.pickup_time || '-') + '</td>'
-				+ '<td style="vertical-align:middle;">' + (pick.google_maps_url ? '<a href="'+pick.google_maps_url+'" target="_blank">View Map</a>' : '-') + '</td>'
+				+ '<td style="vertical-align:middle; font-weight:600;">' + esc(pick.location_name) + '</td>'
+				+ '<td style="vertical-align:middle;">' + esc(pick.pickup_time || '-') + '</td>'
+				+ '<td style="vertical-align:middle;">' + (pick.google_maps_url ? '<a href="' + esc(pick.google_maps_url) + '" target="_blank" rel="noopener noreferrer">View Map</a>' : '-') + '</td>'
 				+ '<td style="text-align:right;vertical-align:middle;">'
 				+ '<a href="#" class="at-pickup-edit button button-small" data-id="' + pick.id + '">Edit</a> '
 				+ '<a href="#" class="at-pickup-delete button button-small" data-id="' + pick.id + '" style="color:#b32d2e;border-color:#b32d2e;">Delete</a>'

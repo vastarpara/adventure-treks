@@ -15,13 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div class="at-meta-tabs-wrapper">
 	<!-- Tab Navigation -->
-	<ul class="at-meta-tabs-nav">
-		<li class="active"><a href="#at-tab-general"><?php esc_html_e( 'General Info', 'adventure-treks' ); ?></a></li>
-		<li><a href="#at-tab-gallery"><?php esc_html_e( 'Gallery', 'adventure-treks' ); ?></a></li>
-		<li><a href="#at-tab-highlights"><?php esc_html_e( 'Highlights & Packing', 'adventure-treks' ); ?></a></li>
-		<li><a href="#at-tab-faq"><?php esc_html_e( 'FAQ Repeater', 'adventure-treks' ); ?></a></li>
-		<li><a href="#at-tab-policies"><?php esc_html_e( 'Policies', 'adventure-treks' ); ?></a></li>
-	</ul>
+	<nav class="nav-tab-wrapper at-meta-tabs-nav">
+		<a href="#at-tab-general" class="nav-tab nav-tab-active"><?php esc_html_e( 'General Info', 'adventure-treks' ); ?></a>
+		<a href="#at-tab-gallery" class="nav-tab"><?php esc_html_e( 'Gallery', 'adventure-treks' ); ?></a>
+		<a href="#at-tab-highlights" class="nav-tab"><?php esc_html_e( 'Inclusions, Exclusions & Packing', 'adventure-treks' ); ?></a>
+		<a href="#at-tab-faq" class="nav-tab"><?php esc_html_e( 'FAQ Repeater', 'adventure-treks' ); ?></a>
+		<a href="#at-tab-policies" class="nav-tab"><?php esc_html_e( 'Policies', 'adventure-treks' ); ?></a>
+	</nav>
 
 	<!-- Tab Panels -->
 	<div class="at-meta-tabs-content">
@@ -40,35 +40,55 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 				<div class="at-form-row">
 					<label for="at_duration"><?php esc_html_e( 'Duration (e.g. 5 Days / 4 Nights)', 'adventure-treks' ); ?></label>
-					<input type="text" name="at_duration" id="at_duration" value="<?php echo esc_attr( $trek['duration'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. 5 Days / 4 Nights', 'adventure-treks' ); ?>" />
+					<input type="text" name="at_duration" id="at_duration" data-at-plain-text="1" value="<?php echo esc_attr( $trek['duration'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. 5 Days / 4 Nights', 'adventure-treks' ); ?>" />
 				</div>
 				<div class="at-form-row">
 					<label for="at_altitude"><?php esc_html_e( 'Max Altitude (e.g. 12,500 ft)', 'adventure-treks' ); ?></label>
-					<input type="text" name="at_altitude" id="at_altitude" value="<?php echo esc_attr( $trek['altitude'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. 12,500 ft', 'adventure-treks' ); ?>" />
+					<input type="text" name="at_altitude" id="at_altitude" data-at-plain-text="1" value="<?php echo esc_attr( $trek['altitude'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. 12,500 ft', 'adventure-treks' ); ?>" />
 				</div>
 				<div class="at-form-row">
 					<label for="at_region"><?php esc_html_e( 'Region / State', 'adventure-treks' ); ?></label>
-					<input type="text" name="at_region" id="at_region" value="<?php echo esc_attr( $trek['region'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. Himachal Pradesh', 'adventure-treks' ); ?>" />
+					<input type="text" name="at_region" id="at_region" data-at-plain-text="1" value="<?php echo esc_attr( $trek['region'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. Himachal Pradesh', 'adventure-treks' ); ?>" />
 				</div>
 				<div class="at-form-row">
 					<label for="at_season"><?php esc_html_e( 'Best Season', 'adventure-treks' ); ?></label>
-					<input type="text" name="at_season" id="at_season" value="<?php echo esc_attr( $trek['season'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. May to October', 'adventure-treks' ); ?>" />
+					<input type="text" name="at_season" id="at_season" data-at-plain-text="1" value="<?php echo esc_attr( $trek['season'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. May to October', 'adventure-treks' ); ?>" />
 				</div>
 				<div class="at-form-row">
 					<label for="at_distance"><?php esc_html_e( 'Trekking Distance (e.g. 26 km)', 'adventure-treks' ); ?></label>
-					<input type="text" name="at_distance" id="at_distance" value="<?php echo esc_attr( $trek['distance'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. 26 km', 'adventure-treks' ); ?>" />
+					<input type="text" name="at_distance" id="at_distance" data-at-plain-text="1" value="<?php echo esc_attr( $trek['distance'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. 26 km', 'adventure-treks' ); ?>" />
 				</div>
 				<div class="at-form-row">
 					<label for="at_fitness_level"><?php esc_html_e( 'Fitness Level Required', 'adventure-treks' ); ?></label>
-					<input type="text" name="at_fitness_level" id="at_fitness_level" value="<?php echo esc_attr( $trek['fitness_level'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. Average / Good physical health', 'adventure-treks' ); ?>" />
+					<?php
+					$at_fitness_options = array( 'Beginner', 'Moderate', 'Good', 'High', 'Very High' );
+					// Keep a previously saved free-text value selectable instead of silently dropping it.
+					if ( '' !== $trek['fitness_level'] && ! in_array( $trek['fitness_level'], $at_fitness_options, true ) ) {
+						$at_fitness_options[] = $trek['fitness_level'];
+					}
+					?>
+					<select name="at_fitness_level" id="at_fitness_level" style="width:100%;">
+						<option value=""><?php esc_html_e( '— Select —', 'adventure-treks' ); ?></option>
+						<?php foreach ( $at_fitness_options as $at_fitness_option ) : ?>
+							<option value="<?php echo esc_attr( $at_fitness_option ); ?>" <?php selected( $trek['fitness_level'], $at_fitness_option ); ?>><?php echo esc_html( $at_fitness_option ); ?></option>
+						<?php endforeach; ?>
+					</select>
 				</div>
 				<div class="at-form-row">
 					<label for="at_age_limit"><?php esc_html_e( 'Age Limit (e.g. 10 - 55 Years)', 'adventure-treks' ); ?></label>
-					<input type="text" name="at_age_limit" id="at_age_limit" value="<?php echo esc_attr( $trek['age_limit'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. 10 to 60 Years', 'adventure-treks' ); ?>" />
+					<input type="text" name="at_age_limit" id="at_age_limit" data-at-plain-text="plus" value="<?php echo esc_attr( $trek['age_limit'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. 10 to 60 Years', 'adventure-treks' ); ?>" />
+				</div>
+				<div class="at-form-row">
+					<label for="at_adult_age"><?php esc_html_e( 'Adults Age (booking widget, e.g. 12+)', 'adventure-treks' ); ?></label>
+					<input type="text" name="at_adult_age" id="at_adult_age" data-at-plain-text="plus" value="<?php echo esc_attr( get_post_meta( $post->ID, '_at_adult_age', true ) ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( '12+', 'adventure-treks' ); ?>" />
+				</div>
+				<div class="at-form-row">
+					<label for="at_child_age"><?php esc_html_e( 'Children Age (booking widget, e.g. 5-11)', 'adventure-treks' ); ?></label>
+					<input type="text" name="at_child_age" id="at_child_age" data-at-plain-text="plus" value="<?php echo esc_attr( get_post_meta( $post->ID, '_at_child_age', true ) ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( '5-11', 'adventure-treks' ); ?>" />
 				</div>
 				<div class="at-form-row">
 					<label for="at_group_size"><?php esc_html_e( 'Ideal Group Size', 'adventure-treks' ); ?></label>
-					<input type="text" name="at_group_size" id="at_group_size" value="<?php echo esc_attr( $trek['group_size'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. 12 to 20 Trekkers', 'adventure-treks' ); ?>" />
+					<input type="text" name="at_group_size" id="at_group_size" data-at-plain-text="1" value="<?php echo esc_attr( $trek['group_size'] ); ?>" style="width:100%;" placeholder="<?php esc_attr_e( 'e.g. 12 to 20 Trekkers', 'adventure-treks' ); ?>" />
 				</div>
 			</div>
 		</div>
@@ -85,7 +105,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							$img_src = wp_get_attachment_image_src( $img_id, 'thumbnail' );
 							if ( $img_src ) {
 								echo '<div class="at-gallery-thumb-item" data-id="' . esc_attr( $img_id ) . '">';
-								echo '<img src="' . esc_url( $img_src[0] ) . '" />';
+								echo '<img src="' . esc_url( $img_src[0] ) . '" alt="" />';
 								echo '<a href="#" class="at-gallery-remove-btn" title="' . esc_attr__( 'Remove', 'adventure-treks' ) . '">&times;</a>';
 								echo '</div>';
 							}
@@ -104,9 +124,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div id="at-tab-highlights" class="at-meta-tab-panel">
 			<table class="form-table">
 				<tr>
-					<th><label for="at_highlights"><?php esc_html_e( 'Key Highlights (One per line)', 'adventure-treks' ); ?></label></th>
+					<th><label for="at_highlights"><?php esc_html_e( 'Inclusions / Key Highlights (One per line)', 'adventure-treks' ); ?></label></th>
 					<td>
 						<textarea name="at_highlights" id="at_highlights" rows="8" class="large-text" placeholder="<?php esc_attr_e( "Trek through lush green pine valleys\nExperience camping under starry sky\nStunning views of Mt. Trishul", 'adventure-treks' ); ?>"><?php echo esc_textarea( $trek['highlights'] ); ?></textarea>
+						<p class="description"><?php esc_html_e( 'Shown on the front-end as "Inclusions", with a green checkmark next to each line.', 'adventure-treks' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th><label for="at_exclusions"><?php esc_html_e( 'Exclusions (One per line)', 'adventure-treks' ); ?></label></th>
+					<td>
+						<textarea name="at_exclusions" id="at_exclusions" rows="8" class="large-text" placeholder="<?php esc_attr_e( "Personal trekking gear/equipment rental\nTravel insurance\nMeals not mentioned in the itinerary\nAny costs due to natural calamities or delays", 'adventure-treks' ); ?>"><?php echo esc_textarea( $trek['exclusions'] ); ?></textarea>
+						<p class="description"><?php esc_html_e( 'Shown next to Inclusions on the front-end, with a red cross next to each line.', 'adventure-treks' ); ?></p>
 					</td>
 				</tr>
 				<tr>
@@ -126,10 +154,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<div class="at-faq-repeater-row" data-index="<?php echo esc_attr( $index ); ?>">
 							<span class="at-drag-handle" style="cursor: move;">☰</span>
 							<div class="at-faq-row-fields">
-								<input type="text" name="at_faq[<?php echo esc_attr( $index ); ?>][q]" value="<?php echo esc_attr( $item['q'] ); ?>" placeholder="<?php esc_attr_e( 'Question', 'adventure-treks' ); ?>" class="large-text" />
-								<textarea name="at_faq[<?php echo esc_attr( $index ); ?>][a]" rows="3" placeholder="<?php esc_attr_e( 'Answer', 'adventure-treks' ); ?>" class="large-text"><?php echo esc_textarea( $item['a'] ); ?></textarea>
+								<input type="text" name="at_faq[<?php echo esc_attr( $index ); ?>][q]" value="<?php echo esc_attr( $item['q'] ); ?>" placeholder="<?php esc_attr_e( 'Question', 'adventure-treks' ); ?>" aria-label="<?php esc_attr_e( 'FAQ question', 'adventure-treks' ); ?>" class="large-text" />
+								<textarea name="at_faq[<?php echo esc_attr( $index ); ?>][a]" rows="3" placeholder="<?php esc_attr_e( 'Answer', 'adventure-treks' ); ?>" aria-label="<?php esc_attr_e( 'FAQ answer', 'adventure-treks' ); ?>" class="large-text"><?php echo esc_textarea( $item['a'] ); ?></textarea>
 							</div>
-							<a href="#" class="button at-remove-faq-row-btn"><?php esc_html_e( 'Remove', 'adventure-treks' ); ?></a>
+							<button type="button" class="button at-remove-faq-row-btn"><?php esc_html_e( 'Remove', 'adventure-treks' ); ?></button>
 						</div>
 					<?php endforeach; ?>
 				<?php endif; ?>
@@ -141,31 +169,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<!-- TAB 5: POLICIES -->
 		<div id="at-tab-policies" class="at-meta-tab-panel">
+			<p class="description"><?php esc_html_e( 'Leave a policy empty and it will not be shown on the trek page.', 'adventure-treks' ); ?></p>
 			<table class="form-table">
-				<tr>
-					<th><label for="at_policy_cancellation"><?php esc_html_e( 'Cancellation Policy', 'adventure-treks' ); ?></label></th>
-					<td>
-						<textarea name="at_policy_cancellation" id="at_policy_cancellation" rows="4" class="large-text"><?php echo esc_textarea( $policies['cancellation'] ); ?></textarea>
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_policy_refund"><?php esc_html_e( 'Refund Policy', 'adventure-treks' ); ?></label></th>
-					<td>
-						<textarea name="at_policy_refund" id="at_policy_refund" rows="4" class="large-text"><?php echo esc_textarea( $policies['refund'] ); ?></textarea>
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_policy_medical"><?php esc_html_e( 'Medical Disclaimer', 'adventure-treks' ); ?></label></th>
-					<td>
-						<textarea name="at_policy_medical" id="at_policy_medical" rows="4" class="large-text"><?php echo esc_textarea( $policies['medical'] ); ?></textarea>
-					</td>
-				</tr>
-				<tr>
-					<th><label for="at_policy_terms"><?php esc_html_e( 'Terms & Conditions', 'adventure-treks' ); ?></label></th>
-					<td>
-						<textarea name="at_policy_terms" id="at_policy_terms" rows="4" class="large-text"><?php echo esc_textarea( $policies['terms'] ); ?></textarea>
-					</td>
-				</tr>
+				<?php foreach ( \AdventureTreks\Admin\Controllers\TrekMetaBoxController::get_policy_types() as $adventure_treks_policy_key => $adventure_treks_policy ) : ?>
+					<tr>
+						<th><label for="at_policy_<?php echo esc_attr( $adventure_treks_policy_key ); ?>"><?php echo esc_html( $adventure_treks_policy['label'] ); ?></label></th>
+						<td>
+							<?php
+							wp_editor(
+								isset( $policies[ $adventure_treks_policy_key ] ) ? $policies[ $adventure_treks_policy_key ] : '',
+								'at_policy_' . $adventure_treks_policy_key,
+								array(
+									'textarea_name' => 'at_policy_' . $adventure_treks_policy_key,
+									'textarea_rows' => 8,
+									'media_buttons' => false,
+									'teeny'         => true,
+								)
+							);
+							?>
+							<p class="description"><?php esc_html_e( 'Shown to visitors in a popup below the trek details.', 'adventure-treks' ); ?></p>
+						</td>
+					</tr>
+				<?php endforeach; ?>
 			</table>
 		</div>
 

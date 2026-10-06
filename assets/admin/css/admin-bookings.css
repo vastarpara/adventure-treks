@@ -1,0 +1,121 @@
+/**
+ * Bookings admin screen styles.
+ * Modal shell classes (.at-modal-overlay, .at-modal-box, etc.) come from admin-departures.css.
+ */
+
+#at_booking_view_table th {
+	background: #f6f7f7;
+	padding: 8px 12px;
+	font-weight: 600;
+	color: #3c434a;
+}
+
+#at_booking_view_table td {
+	padding: 8px 12px;
+}
+
+#at_booking_view_loading {
+	text-align: center;
+	color: #666;
+	padding: 20px 0;
+}
+
+/* Bookings list table columns. */
+.wp-list-table .column-city_name {
+	width: 160px;
+	white-space: normal;
+	word-break: break-word;
+}
+
+/* Add/Edit Booking form. */
+.at-required {
+	color: #d63638;
+}
+
+.at-price-breakdown-box {
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: 10px 12px;
+	font-size: 13px;
+	max-width: 420px;
+}
+
+.at-price-breakdown-box p.description {
+	margin: 0;
+}
+
+.at-field-hint {
+	margin: 4px 0 0;
+}
+
+/* Travel date range picker */
+.flatpickr-calendar.rangeMode .flatpickr-day.selected,
+.flatpickr-calendar.rangeMode .flatpickr-day.startRange,
+.flatpickr-calendar.rangeMode .flatpickr-day.endRange {
+	background: #334155;
+	border-color: #334155;
+	color: #fff;
+}
+.flatpickr-calendar.rangeMode .flatpickr-day.inRange {
+	background: #e5e9f2;
+	border-color: #e5e9f2;
+	box-shadow: -5px 0 0 #e5e9f2, 5px 0 0 #e5e9f2;
+}
+
+/* Range picker header: WP admin input styles inflate flatpickr's month/year controls and clip them. */
+.flatpickr-calendar.rangeMode .flatpickr-months {
+	align-items: center;
+	height: 44px;
+	margin-bottom: 4px;
+}
+.flatpickr-calendar.rangeMode .flatpickr-month {
+	height: 44px;
+	overflow: visible;
+}
+.flatpickr-calendar.rangeMode .flatpickr-current-month {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	position: static;
+	width: 100%;
+	height: 44px;
+	padding: 0;
+	font-size: 15px;
+	line-height: 1;
+}
+.flatpickr-calendar.rangeMode .flatpickr-current-month .cur-month {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1;
+}
+.flatpickr-calendar.rangeMode .flatpickr-current-month .numInputWrapper {
+	display: inline-block;
+	width: 64px;
+	height: 28px;
+}
+.flatpickr-calendar.rangeMode .flatpickr-current-month input.cur-year {
+	height: 28px;
+	min-height: 0;
+	margin: 0;
+	padding: 0 14px 0 4px;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+	font-size: 15px;
+	font-weight: 400;
+	line-height: 28px;
+}
+.flatpickr-calendar.rangeMode .flatpickr-prev-month,
+.flatpickr-calendar.rangeMode .flatpickr-next-month {
+	top: 0;
+	height: 44px;
+	display: flex;
+	align-items: center;
+}
+.flatpickr-calendar.rangeMode span.flatpickr-weekday {
+	font-size: 12px;
+	font-weight: 600;
+}

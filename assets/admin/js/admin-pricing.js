@@ -24,11 +24,13 @@ document.addEventListener('DOMContentLoaded', function() {
 	const groupList = document.getElementById('at_group_discount_rules_list');
 	const extraList = document.getElementById('at_extra_charges_list');
 	const addonList = document.getElementById('at_optional_addons_list');
+	const transportList = document.getElementById('at_transport_options_list');
 
 	// Buttons
 	const addGroupBtn = document.getElementById('at_add_group_discount_rule_btn');
 	const addExtraBtn = document.getElementById('at_add_extra_charge_btn');
 	const addAddonBtn = document.getElementById('at_add_optional_addon_btn');
+	const addTransportBtn = document.getElementById('at_add_transport_option_btn');
 
 	let activeCityId = null;
 
@@ -66,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		groupList.innerHTML = '';
 		extraList.innerHTML = '';
 		addonList.innerHTML = '';
+		transportList.innerHTML = '';
 		activeCityId = null;
 	}
 
@@ -92,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					renderGroupDiscounts(p.group_discount || []);
 					renderExtraCharges(p.extra_charges || []);
 					renderOptionalAddons(p.optional_addons || []);
+					renderTransportOptions(p.transport_options || []);
 				} else {
 					at_admin_toast('Failed to load pricing data: ' + data.data.message);
 				}
@@ -117,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		row.innerHTML = `
 			<div>
-				<input type="number" name="group_discount[${idx}][min_seats]" value="${minSeats}" placeholder="Min Pax (e.g. 5)" style="width:100%;" min="1" />
+				<input type="number" name="group_discount[${idx}][min_seats]" value="${minSeats}" placeholder="Min Pax (e.g. 5)" style="width:100%;" min="1" step="1" inputmode="numeric" data-at-integer="1" />
 			</div>
 			<div>
 				<select name="group_discount[${idx}][type]" style="width:100%;">
@@ -210,6 +214,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	addAddonBtn.addEventListener('click', () => addOptionalAddonRow());
 
+	// --- Transportation Options ---
+	function renderTransportOptions(options) {
+		transportList.innerHTML = '';
+		options.forEach((option, idx) => {
+			addTransportOptionRow(option.name, option.price, idx);
+		});
+	}
+
+	function addTransportOptionRow(name = '', price = '', idx = Date.now()) {
+		const row = document.createElement('div');
+		row.className = 'at-pricing-row-item';
+		row.style.cssText = 'display:grid; grid-template-columns: 2fr 1fr auto; gap:10px; margin-bottom:10px; align-items:center;';
+
+		row.innerHTML = `
+			<div>
+				<input type="text" name="transport_options[${idx}][name]" value="${name}" placeholder="Transportation Name (e.g. 3AC Train)" style="width:100%;" />
+			</div>
+			<div>
+				<input type="number" step="0.01" name="transport_options[${idx}][price]" value="${price}" placeholder="Additional Price" style="width:100%;" min="0" />
+			</div>
+			<div>
+				<button type="button" class="button at-remove-pricing-row" style="color:#b32d2e; border-color:#b32d2e;">Remove</button>
+			</div>
+		`;
+		transportList.appendChild(row);
+	}
+
+	addTransportBtn.addEventListener('click', () => addTransportOptionRow());
+
 	// Remove row delegate
 	const removeRowHandler = function(e) {
 		if (e.target && e.target.classList.contains('at-remove-pricing-row')) {
@@ -221,6 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	groupList.addEventListener('click', removeRowHandler);
 	extraList.addEventListener('click', removeRowHandler);
 	addonList.addEventListener('click', removeRowHandler);
+	transportList.addEventListener('click', removeRowHandler);
 
 	// ==========================================
 	// 4. Save Pricing Data

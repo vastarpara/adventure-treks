@@ -33,7 +33,7 @@ class TrekBookingWidget extends \Elementor\Widget_Base {
 	 * @return string
 	 */
 	public function get_title() {
-		return esc_html__( 'Trek Booking Sidebar', 'adventure-treks' );
+		return esc_html__( 'Adventure Booking', 'adventure-treks' );
 	}
 
 	/**
@@ -52,6 +52,27 @@ class TrekBookingWidget extends \Elementor\Widget_Base {
 	 */
 	public function get_categories() {
 		return array( 'adventure-treks' );
+	}
+
+	/**
+	 * Declare the stylesheet this widget needs so Elementor loads it
+	 * reliably in both the editor preview and the live frontend, instead
+	 * of depending on the ad-hoc wp_enqueue_style() call inside render().
+	 *
+	 * @return array
+	 */
+	public function get_style_depends() {
+		return array( 'at-public-booking-css' );
+	}
+
+	/**
+	 * Declare the script the booking flow (checkout validation, success receipt) needs,
+	 * so Elementor loads it in the editor preview and on cached pages too.
+	 *
+	 * @return array
+	 */
+	public function get_script_depends() {
+		return array( 'at-public-booking-js' );
 	}
 
 	/**
@@ -106,7 +127,7 @@ class TrekBookingWidget extends \Elementor\Widget_Base {
 		}
 
 		if ( $trek_id && get_post_type( $trek_id ) === 'adventure_trek' ) {
-			echo do_shortcode( '[trek_booking id="' . $trek_id . '"]' );
+			echo do_shortcode( '[adventure_booking id="' . $trek_id . '"]' );
 		} else {
 			echo '<p style="color:#666; font-style:italic;">' . esc_html__( 'Please select a valid Trek CPT or insert this widget into a Trek single post page.', 'adventure-treks' ) . '</p>';
 		}
