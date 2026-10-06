@@ -492,7 +492,8 @@
 	/* Mobile reading order: title, about, then the booking steps, then the rest of
 		the trek details (specs, itinerary, FAQs...). .at-single-main dissolves into the
 		flex column so its children and the sidebar can be interleaved. */
-	.at-single-body { display: flex; flex-direction: column; gap: 0; }
+	/* align-items: stretch overrides the desktop "flex-start", which made each card shrink to its content width. */
+	.at-single-body { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
 	.at-single-main { display: contents; }
 	.at-single-main > * { order: 4; }
 	.at-single-main > *,
