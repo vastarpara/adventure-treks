@@ -11,6 +11,8 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px 15px;
 	margin-bottom: 15px;
 	background: #fff;
 	padding: 10px 15px;
@@ -21,6 +23,7 @@
 .at-departures-header p.description {
 	margin: 0;
 	font-style: italic;
+	flex: 1 1 220px;
 }
 
 /* Spinner */
@@ -132,6 +135,18 @@
 	line-height: normal;
 }
 
+/* WP admin caps selects at 25rem, which left the help text sitting beside the field. */
+.at-form-row select {
+	max-width: none;
+}
+
+.at-form-row .description {
+	display: block;
+	margin-top: 5px;
+	color: #646970;
+	font-size: 12px;
+}
+
 /* Style select placeholders (when invalid/empty option selected) */
 .at-form-row select:has(option[value=""]:checked) {
 	color: #646970;
@@ -152,9 +167,38 @@
 	overflow-x: auto;
 }
 
+/* Tables keep a readable minimum width and scroll sideways inside their box on small screens. */
+.at-table-scroll {
+	overflow-x: auto;
+}
+
 #at_cities_table {
 	table-layout: fixed;
 	width: 100%;
+	min-width: 1080px;
+}
+
+/* Wide enough for the four setup buttons (Dates, Itinerary, Pricing, Pickups) on one row. */
+#at_cities_table th.column-actions {
+	width: 310px;
+}
+
+#at_dates_table {
+	table-layout: fixed;
+	width: 100%;
+	min-width: 760px;
+}
+
+#at_pickups_table {
+	table-layout: fixed;
+	width: 100%;
+	min-width: 640px;
+}
+
+/* Table cells stay table cells on phones (WP's list-table rules stack them as blocks). */
+.at-admin-table td,
+.at-admin-table th {
+	word-wrap: break-word;
 }
 
 /* Reordering classes */
