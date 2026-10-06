@@ -1,5 +1,5 @@
 === Adventure Treks ===
-Contributors: vastarpara, techeshta, alkesh7
+Contributors: vastarpara, techeshta, alkesh7, bhaveshdesai
 Tags: trek, travel, booking, itinerary, tour
 Requires at least: 6.0
 Tested up to: 7.1
