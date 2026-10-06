@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<!-- Cities Grid List -->
 	<div class="at-cities-list-wrapper">
-		<table class="wp-list-table widefat fixed striped posts" id="at_cities_table">
+		<table class="widefat fixed striped at-admin-table" id="at_cities_table">
 			<thead>
 				<tr>
 					<th class="column-order" style="width: 30px;"></th>
@@ -136,7 +136,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="at-loading-spinner" id="at_dates_loading" style="display:none;">
 					<span class="spinner is-active"></span> <?php esc_html_e( 'Loading dates...', 'adventure-treks' ); ?>
 				</div>
-				<table class="wp-list-table widefat fixed striped posts" id="at_dates_table" style="margin-top:10px;">
+				<div class="at-table-scroll">
+					<table class="widefat fixed striped at-admin-table" id="at_dates_table" style="margin-top:10px;">
 					<thead>
 						<tr>
 							<th style="width: 130px;"><?php esc_html_e( 'Date', 'adventure-treks' ); ?></th>
@@ -151,6 +152,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<!-- Loaded via AJAX -->
 					</tbody>
 				</table>
+				</div>
 			</div>
 			<div class="at-modal-footer">
 				<button type="button" class="button" id="at_dates_modal_back_btn"><?php esc_html_e( 'Close', 'adventure-treks' ); ?></button>
@@ -473,7 +475,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<span class="spinner is-active"></span> <?php esc_html_e( 'Loading pickup points...', 'adventure-treks' ); ?>
 				</div>
 
-				<table class="wp-list-table widefat fixed striped posts" id="at_pickups_table" style="margin-top:10px;">
+				<div class="at-table-scroll">
+					<table class="widefat fixed striped at-admin-table" id="at_pickups_table" style="margin-top:10px;">
 					<thead>
 						<tr>
 							<th style="width: 40px;"></th>
@@ -487,6 +490,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<!-- Loaded via AJAX -->
 					</tbody>
 				</table>
+				</div>
 
 				<!-- Pickup Point Form (Hidden by default) -->
 				<div id="at_pickup_form_container" style="display: none; margin-top: 20px; padding: 15px; border: 1px solid #ccd0d4; background: #fff;">
