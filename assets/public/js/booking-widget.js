@@ -839,8 +839,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		const method = at_booking_obj.payment_method || 'cash';
 
 		if (method === 'upi') {
-			const upiId = at_booking_obj.upi_id || '';
-			const qrCode = at_booking_obj.upi_qr_code || '';
+			const upiId = atEscapeHtml(at_booking_obj.upi_id || '');
+			const qrCode = atEscapeHtml(at_booking_obj.upi_qr_code || '');
 
 			paymentMethodBox.innerHTML = `
 				<h5 style="margin:0 0 8px 0; font-size:12px; font-weight:600; color:#3c434a;">Pay via UPI</h5>

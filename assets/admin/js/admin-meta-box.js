@@ -15,7 +15,11 @@ document.addEventListener('DOMContentLoaded', function() {
 			document.body.appendChild(toast);
 		}
 		toast.className = 'at-toast show ' + type;
-		toast.innerHTML = '<span class="dashicons dashicons-warning"></span> ' + message;
+		toast.textContent = '';
+		const toastIcon = document.createElement('span');
+		toastIcon.className = 'dashicons dashicons-warning';
+		toast.appendChild(toastIcon);
+		toast.appendChild(document.createTextNode(' ' + message));
 		
 		setTimeout(() => {
 			toast.className = toast.className.replace('show', '');

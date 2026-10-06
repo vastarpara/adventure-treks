@@ -689,8 +689,7 @@ class TrekBookingController {
 	 */
 	private function generate_itinerary_html( $city_id, $departure_date = '' ) {
 		global $wpdb;
-		$table_days  = $wpdb->prefix . 'at_itineraries';
-		$table_items = $wpdb->prefix . 'at_itinerary_items';
+		$table_days = $wpdb->prefix . 'at_itineraries';
 
 		$has_valid_date = (bool) preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $departure_date );
 
@@ -704,14 +703,12 @@ class TrekBookingController {
 			return '<p style="color:#666; font-style:italic;">' . esc_html__( 'No itinerary found. Please contact the admin for details.', 'adventure-treks' ) . '</p>';
 		}
 
+		$items_by_day = \AdventureTreks\Includes\Database::get_items_by_day( wp_list_pluck( $days, 'id' ) );
+
 		$html = '<div class="at-frontend-itinerary-timeline">';
 		foreach ( $days as $day ) {
 			$day_id = intval( $day->id );
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$items = $wpdb->get_results(
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-				$wpdb->prepare( "SELECT * FROM $table_items WHERE itinerary_id = %d ORDER BY menu_order ASC", $day_id )
-			);
+			$items  = isset( $items_by_day[ $day_id ] ) ? $items_by_day[ $day_id ] : array();
 
 			if ( $has_valid_date ) {
 				$calendar_date = gmdate( 'd M Y', strtotime( $departure_date . ' +' . intval( $day->day_number ) . ' days' ) );
@@ -739,7 +736,7 @@ class TrekBookingController {
 
 				$html .= '  <div class="at-timeline-events">';
 				foreach ( $items as $item ) {
-					$img_html   = $item->image_url ? '<div class="at-event-media"><img src="' . esc_url( $item->image_url ) . '" /></div>' : '';
+					$img_html   = $item->image_url ? '<div class="at-event-media"><img src="' . esc_url( $item->image_url ) . '" alt="' . esc_attr( $item->title ) . '" /></div>' : '';
 					$icon_class = $item->icon ? $item->icon : 'dashicons-palmtree';
 					$html      .= '     <div class="at-timeline-event-card">';
 					$html      .= '        <div class="at-event-icon-wrapper"><span class="dashicons ' . esc_attr( $icon_class ) . '"></span></div>';

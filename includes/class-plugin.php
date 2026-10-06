@@ -95,6 +95,9 @@ class Plugin {
 		// Register Gutenberg blocks (Trek Details, Trek Booking, Trek Archive).
 		Blocks::register();
 
+		// Multisite: create the tables for each newly added sub-site.
+		add_action( 'wp_initialize_site', array( Database::class, 'create_tables_for_new_site' ), 20 );
+
 		// Self-healing database table check.
 		if ( is_admin() && get_option( 'adventure_treks_db_version' ) !== $this->version ) {
 			Database::create_tables();

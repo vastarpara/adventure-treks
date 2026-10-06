@@ -69,7 +69,6 @@ $at_child_age    = '' !== $at_child_age ? $at_child_age : $at_age_defaults['chil
 	<!-- Loader for Booking Details -->
 	<div class="at-loading-indicator" id="at_widget_details_loading" style="display:none; padding: 20px 0; justify-content: center; align-items: center; color: var(--at-primary-color, #137a7f); font-weight: 600;">
 		<span class="dashicons dashicons-update" style="animation: spin 2s linear infinite; margin-right: 8px;"></span> <?php esc_html_e( 'Loading booking details...', 'adventure-treks' ); ?>
-		<style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
 	</div>
 
 	<!-- Step 3: Details Panel & Booking Calculator (Hidden until Date is selected) -->

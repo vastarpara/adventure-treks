@@ -105,7 +105,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							$img_src = wp_get_attachment_image_src( $img_id, 'thumbnail' );
 							if ( $img_src ) {
 								echo '<div class="at-gallery-thumb-item" data-id="' . esc_attr( $img_id ) . '">';
-								echo '<img src="' . esc_url( $img_src[0] ) . '" />';
+								echo '<img src="' . esc_url( $img_src[0] ) . '" alt="" />';
 								echo '<a href="#" class="at-gallery-remove-btn" title="' . esc_attr__( 'Remove', 'adventure-treks' ) . '">&times;</a>';
 								echo '</div>';
 							}

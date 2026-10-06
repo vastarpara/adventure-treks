@@ -242,7 +242,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<div id="at_upi_qr_code_preview">
 								<?php $adventure_treks_qr_code_url = get_option( 'at_upi_qr_code', '' ); ?>
 								<?php if ( $adventure_treks_qr_code_url ) : ?>
-									<img src="<?php echo esc_url( $adventure_treks_qr_code_url ); ?>" class="at-qr-code-preview-img" />
+									<img src="<?php echo esc_url( $adventure_treks_qr_code_url ); ?>" class="at-qr-code-preview-img" alt="<?php esc_attr_e( 'UPI QR code preview', 'adventure-treks' ); ?>" />
 								<?php endif; ?>
 							</div>
 							<p>

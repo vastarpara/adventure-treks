@@ -88,9 +88,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	/* ---- setup progress: what each city still needs ---- */
 	function esc(text) {
-		var d = document.createElement('div');
-		d.textContent = text == null ? '' : String(text);
-		return d.innerHTML;
+		return String(text == null ? '' : text).replace(/[&<>"']/g, function(ch) {
+			return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+		});
 	}
 
 	function setupSteps(city) {
@@ -197,18 +197,18 @@ document.addEventListener('DOMContentLoaded', function() {
 			tr.setAttribute('data-id', city.id);
 			tr.setAttribute('data-index', index);
 			tr.innerHTML = '<td class="at-row-drag-handle" style="vertical-align:middle;">&#9776;</td>'
-				+ '<td style="font-weight:600;vertical-align:middle;">' + city.city_name + setupChips(city) + '</td>'
+				+ '<td style="font-weight:600;vertical-align:middle;">' + esc(city.city_name) + setupChips(city) + '</td>'
 				+ '<td style="vertical-align:middle;">' + parseInt(city.base_price || 0) + '</td>'
 				+ '<td style="vertical-align:middle;">' + (city.offer_price ? parseInt(city.offer_price) : '0') + '</td>'
-				+ '<td style="vertical-align:middle;">' + (city.transport_type || '-') + '</td>'
-				+ '<td style="vertical-align:middle;">' + city.booking_deadline + ' Days</td>'
-				+ '<td style="vertical-align:middle;"><span class="at-status-badge ' + (city.status === 'active' ? 'active' : 'inactive') + '">' + city.status + '</span></td>'
+				+ '<td style="vertical-align:middle;">' + esc(city.transport_type || '-') + '</td>'
+				+ '<td style="vertical-align:middle;">' + esc(city.booking_deadline) + ' Days</td>'
+				+ '<td style="vertical-align:middle;"><span class="at-status-badge ' + (city.status === 'active' ? 'active' : 'inactive') + '">' + esc(city.status) + '</span></td>'
 				+ '<td style="text-align:right;vertical-align:middle;">'
 				+ '<div style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px;margin-bottom:4px;">'
-				+ '<a href="#" class="at-action-link dates button button-small" data-id="' + city.id + '" data-name="' + city.city_name + '" style="color:#2271b1;border-color:#2271b1;">Dates</a>'
-				+ '<a href="#" class="at-action-link itinerary button button-small" data-id="' + city.id + '" data-name="' + city.city_name + '" style="color:#137a7f;border-color:#137a7f;">Itinerary</a>'
-				+ '<a href="#" class="at-action-link pricing button button-small" data-id="' + city.id + '" data-name="' + city.city_name + '" style="color:#c65911;border-color:#c65911;">Pricing</a>'
-				+ '<a href="#" class="at-action-link pickups button button-small" data-id="' + city.id + '" data-name="' + city.city_name + '" style="color:#8f22b1;border-color:#8f22b1;">Pickups</a>'
+				+ '<a href="#" class="at-action-link dates button button-small" data-id="' + city.id + '" data-name="' + esc(city.city_name) + '" style="color:#2271b1;border-color:#2271b1;">Dates</a>'
+				+ '<a href="#" class="at-action-link itinerary button button-small" data-id="' + city.id + '" data-name="' + esc(city.city_name) + '" style="color:#137a7f;border-color:#137a7f;">Itinerary</a>'
+				+ '<a href="#" class="at-action-link pricing button button-small" data-id="' + city.id + '" data-name="' + esc(city.city_name) + '" style="color:#c65911;border-color:#c65911;">Pricing</a>'
+				+ '<a href="#" class="at-action-link pickups button button-small" data-id="' + city.id + '" data-name="' + esc(city.city_name) + '" style="color:#8f22b1;border-color:#8f22b1;">Pickups</a>'
 				+ '</div>'
 				+ '<div style="display:flex;justify-content:flex-end;gap:8px;font-size:12px;">'
 				+ '<a href="#" class="at-action-link edit" data-id="' + city.id + '" style="color:#2271b1;">Edit</a>'

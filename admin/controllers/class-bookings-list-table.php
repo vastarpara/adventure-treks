@@ -119,6 +119,17 @@ class Bookings_List_Table extends \WP_List_Table {
 	}
 
 	/**
+	 * URL for a row action (trash, restore, delete) on a booking.
+	 *
+	 * @param object $item   Booking row.
+	 * @param string $action Action slug.
+	 * @return string
+	 */
+	private function booking_action_url( $item, $action ) {
+		return admin_url( sprintf( 'edit.php?post_type=adventure_trek&page=at-bookings&action=%s&booking=%d&_wpnonce=%s', $action, $item->id, wp_create_nonce( 'at_delete_booking' ) ) );
+	}
+
+	/**
 	 * Customer column.
 	 *
 	 * @param object $item Item.
@@ -129,21 +140,17 @@ class Bookings_List_Table extends \WP_List_Table {
 		$name .= '<br><a href="mailto:' . esc_attr( $item->cust_email ) . '">' . esc_html( $item->cust_email ) . '</a>';
 		$name .= '<br>' . esc_html( $item->cust_phone );
 
-		$action_nonce = wp_create_nonce( 'at_delete_booking' );
-		$base         = 'edit.php?post_type=adventure_trek&page=at-bookings';
-		$action_url   = static function ( $action ) use ( $base, $item, $action_nonce ) {
-			return admin_url( sprintf( '%s&action=%s&booking=%d&_wpnonce=%s', $base, $action, $item->id, $action_nonce ) );
-		};
+		$base = 'edit.php?post_type=adventure_trek&page=at-bookings';
 
 		if ( $this->is_trash_view() ) {
 			$actions = array(
-				'restore' => sprintf( '<a href="%s">%s</a>', esc_url( $action_url( 'restore' ) ), esc_html__( 'Restore', 'adventure-treks' ) ),
-				'delete'  => sprintf( '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>', esc_url( $action_url( 'delete' ) ), esc_attr__( 'Delete this booking permanently? This cannot be undone.', 'adventure-treks' ), esc_html__( 'Delete Permanently', 'adventure-treks' ) ),
+				'restore' => sprintf( '<a href="%s">%s</a>', esc_url( $this->booking_action_url( $item, 'restore' ) ), esc_html__( 'Restore', 'adventure-treks' ) ),
+				'delete'  => sprintf( '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>', esc_url( $this->booking_action_url( $item, 'delete' ) ), esc_attr__( 'Delete this booking permanently? This cannot be undone.', 'adventure-treks' ), esc_html__( 'Delete Permanently', 'adventure-treks' ) ),
 			);
 		} else {
 			$actions = array(
 				'edit'  => sprintf( '<a href="%s">%s</a>', esc_url( admin_url( sprintf( '%s&action=edit&booking=%d', $base, $item->id ) ) ), esc_html__( 'Edit', 'adventure-treks' ) ),
-				'trash' => sprintf( '<a href="%s" class="submitdelete">%s</a>', esc_url( $action_url( 'trash' ) ), esc_html__( 'Trash', 'adventure-treks' ) ),
+				'trash' => sprintf( '<a href="%s" class="submitdelete">%s</a>', esc_url( $this->booking_action_url( $item, 'trash' ) ), esc_html__( 'Trash', 'adventure-treks' ) ),
 			);
 		}
 		return $name . $this->row_actions( $actions );

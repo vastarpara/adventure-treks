@@ -1337,3 +1337,10 @@
 	text-align: center;
 	-moz-appearance: textfield;
 }
+
+/* Spinner used by the "Loading booking details..." indicator. */
+@keyframes spin {
+	100% {
+		transform: rotate(360deg);
+	}
+}

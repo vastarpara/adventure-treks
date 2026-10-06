@@ -224,7 +224,7 @@ class TrekListController {
 						),
 						admin_url( 'edit.php' )
 					);
-					echo '<a href="' . esc_url( $url ) . '">' . esc_html( (string) (int) $s['bookings']->total ) . '</a>';
+					echo '<a href="' . esc_url( $url ) . '">' . sprintf( esc_html__( 'View bookings (%d)', 'adventure-treks' ), (int) $s['bookings']->total ) . '</a>';
 					if ( (int) $s['bookings']->pending > 0 ) {
 						/* translators: %d: number of pending bookings */
 						echo '<span class="at-list-todo">' . esc_html( sprintf( __( '%d pending', 'adventure-treks' ), (int) $s['bookings']->pending ) ) . '</span>';

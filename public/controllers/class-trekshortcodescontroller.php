@@ -256,6 +256,23 @@ class TrekShortcodesController {
 			wp_enqueue_script( 'at-public-details-js' );
 		}
 
+		// Single trek page layout, gallery lightbox and share dialog.
+		if ( is_singular( 'adventure_trek' ) ) {
+			wp_enqueue_style(
+				'at-public-single-css',
+				ADVENTURE_TREKS_URL . 'assets/public/css/single-trek.css',
+				array( 'at-public-details-css' ),
+				\AdventureTreks\Includes\Plugin::asset_version( 'assets/public/css/single-trek.css' )
+			);
+			wp_enqueue_script(
+				'at-public-single-js',
+				ADVENTURE_TREKS_URL . 'assets/public/js/single-trek.js',
+				array(),
+				\AdventureTreks\Includes\Plugin::asset_version( 'assets/public/js/single-trek.js' ),
+				true
+			);
+		}
+
 		// Trek Archive stylesheet.
 		wp_register_style(
 			'at-public-archive-css',
@@ -468,8 +485,7 @@ class TrekShortcodesController {
 			return '<p style="color:#666; font-style:italic;">' . esc_html__( 'No active departure city configuration found to render itinerary.', 'adventure-treks' ) . '</p>';
 		}
 
-		$table_days  = $wpdb->prefix . 'at_itineraries';
-		$table_items = $wpdb->prefix . 'at_itinerary_items';
+		$table_days = $wpdb->prefix . 'at_itineraries';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$days = $wpdb->get_results(
@@ -481,17 +497,15 @@ class TrekShortcodesController {
 			return '<p style="color:#666; font-style:italic;">' . esc_html__( 'No itinerary found. Please contact the admin for details.', 'adventure-treks' ) . '</p>';
 		}
 
+		$items_by_day = \AdventureTreks\Includes\Database::get_items_by_day( wp_list_pluck( $days, 'id' ) );
+
 		ob_start();
 		?>
 		<div class="at-frontend-itinerary-timeline" id="trek_itinerary_container">
 			<?php
 			foreach ( $days as $day ) :
 				$day_id = intval( $day->id );
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-				$items = $wpdb->get_results(
-					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-					$wpdb->prepare( "SELECT * FROM $table_items WHERE itinerary_id = %d ORDER BY menu_order ASC", $day_id )
-				);
+				$items  = isset( $items_by_day[ $day_id ] ) ? $items_by_day[ $day_id ] : array();
 				?>
 				<div class="at-timeline-day-block">
 					<div class="at-timeline-day-header">
@@ -535,7 +549,7 @@ class TrekShortcodesController {
 											<p class="at-event-description"><?php echo wp_kses_post( $item->description ); ?></p>
 										<?php endif; ?>
 										<?php if ( ! empty( $item->image_url ) ) : ?>
-											<div class="at-event-media"><img src="<?php echo esc_url( $item->image_url ); ?>" /></div>
+											<div class="at-event-media"><img src="<?php echo esc_url( $item->image_url ); ?>" alt="<?php echo esc_attr( $item->title ); ?>" /></div>
 										<?php endif; ?>
 									</div>
 								</div>

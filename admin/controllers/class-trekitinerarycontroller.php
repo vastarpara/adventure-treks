@@ -113,8 +113,7 @@ class TrekItineraryController {
 		}
 
 		global $wpdb;
-		$table_days  = $wpdb->prefix . 'at_itineraries';
-		$table_items = $wpdb->prefix . 'at_itinerary_items';
+		$table_days = $wpdb->prefix . 'at_itineraries';
 
 		// Fetch days.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -125,15 +124,12 @@ class TrekItineraryController {
 		);
 
 		// Hydrate days with timeline items.
+		$items_by_day = \AdventureTreks\Includes\Database::get_items_by_day( wp_list_pluck( $days, 'id' ), ARRAY_A );
 		foreach ( $days as &$day ) {
-			$day_id = intval( $day['id'] );
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$day['items'] = $wpdb->get_results(
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-				$wpdb->prepare( "SELECT * FROM $table_items WHERE itinerary_id = %d ORDER BY menu_order ASC", $day_id ),
-				ARRAY_A
-			);
+			$day_id       = intval( $day['id'] );
+			$day['items'] = isset( $items_by_day[ $day_id ] ) ? $items_by_day[ $day_id ] : array();
 		}
+		unset( $day );
 
 		wp_send_json_success( $days );
 	}

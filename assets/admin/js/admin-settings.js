@@ -118,7 +118,12 @@ if (typeof jQuery !== 'undefined') {
 			qrFrame.on('select', function () {
 				const attachment = qrFrame.state().get('selection').first().toJSON();
 				qrInput.value = attachment.url;
-				qrPreview.innerHTML = '<img src="' + attachment.url + '" class="at-qr-code-preview-img" />';
+				qrPreview.textContent = '';
+				const qrImg = document.createElement('img');
+				qrImg.src = attachment.url;
+				qrImg.className = 'at-qr-code-preview-img';
+				qrImg.alt = '';
+				qrPreview.appendChild(qrImg);
 				if (qrRemoveBtn) {
 					qrRemoveBtn.style.display = '';
 				}

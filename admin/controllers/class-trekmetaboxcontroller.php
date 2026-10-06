@@ -45,6 +45,21 @@ class TrekMetaBoxController {
 	}
 
 	/**
+	 * Read a short spec field from the request as a plain label.
+	 *
+	 * Letters, numbers, spaces and / - , . only (plus "+" for age fields such as "10+ years"); anything else is stripped.
+	 *
+	 * @param string $key        POST key.
+	 * @param bool   $allow_plus Whether "+" is allowed.
+	 * @return string
+	 */
+	private static function plain_text_field( $key, $allow_plus = false ) {
+		$value = isset( $_POST[ $key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by the caller.
+		$regex = $allow_plus ? '/[^\p{L}\p{N}\s\/\-,.+]/u' : '/[^\p{L}\p{N}\s\/\-,.]/u';
+		return trim( (string) preg_replace( $regex, '', $value ) );
+	}
+
+	/**
 	 * Validate the Adults / Children age labels against the trek's Age Limit.
 	 *
 	 * Adults: "12" or "12+", never below the minimum age (nor above the maximum).
@@ -282,24 +297,19 @@ class TrekMetaBoxController {
 		// Sanitize standard text inputs.
 		// Short spec fields are plain labels (e.g. "5 Days / 4 Nights"): letters, numbers, spaces and / - , . only
 		// (plus "+" for the age limit, as in "10+ years"). Anything else, such as !@#$%^&*()=, is stripped.
-		$at_plain      = static function ( $key, $allow_plus = false ) {
-			$value = isset( $_POST[ $key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by the caller.
-			$regex = $allow_plus ? '/[^\p{L}\p{N}\s\/\-,.+]/u' : '/[^\p{L}\p{N}\s\/\-,.]/u';
-			return trim( (string) preg_replace( $regex, '', $value ) );
-		};
 		$difficulty    = isset( $_POST['at_difficulty'] ) ? sanitize_text_field( wp_unslash( $_POST['at_difficulty'] ) ) : '';
-		$duration      = $at_plain( 'at_duration' );
-		$altitude      = $at_plain( 'at_altitude' );
-		$region        = $at_plain( 'at_region' );
-		$season        = $at_plain( 'at_season' );
-		$distance      = $at_plain( 'at_distance' );
+		$duration      = self::plain_text_field( 'at_duration' );
+		$altitude      = self::plain_text_field( 'at_altitude' );
+		$region        = self::plain_text_field( 'at_region' );
+		$season        = self::plain_text_field( 'at_season' );
+		$distance      = self::plain_text_field( 'at_distance' );
 		$fitness_level = isset( $_POST['at_fitness_level'] ) ? sanitize_text_field( wp_unslash( $_POST['at_fitness_level'] ) ) : '';
-		$age_limit     = $at_plain( 'at_age_limit', true );
-		$group_size    = $at_plain( 'at_group_size' );
+		$age_limit     = self::plain_text_field( 'at_age_limit', true );
+		$group_size    = self::plain_text_field( 'at_group_size' );
 
 		// Age labels shown next to Adults / Children in the booking widget (blank = built-in defaults).
-		$adult_age   = $at_plain( 'at_adult_age', true );
-		$child_age   = $at_plain( 'at_child_age', true );
+		$adult_age   = self::plain_text_field( 'at_adult_age', true );
+		$child_age   = self::plain_text_field( 'at_child_age', true );
 		$age_errors  = self::validate_ages( $age_limit, $adult_age, $child_age );
 		$age_message = array();
 		if ( '' !== $age_errors['adult'] ) {
