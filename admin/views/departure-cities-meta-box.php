@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<thead>
 				<tr>
 					<th class="column-order" style="width: 30px;"></th>
-					<th class="column-name" style="width: 230px;"><?php esc_html_e( 'City Name', 'adventure-treks' ); ?></th>
+					<th class="column-name" style="width: 200px;"><?php esc_html_e( 'City Name', 'adventure-treks' ); ?></th>
 					<th class="column-price" style="width: 90px;"><?php esc_html_e( 'Base Price', 'adventure-treks' ); ?></th>
 					<th class="column-offer" style="width: 90px;"><?php esc_html_e( 'Offer Price', 'adventure-treks' ); ?></th>
 					<th class="column-transport" style="width: 130px;"><?php esc_html_e( 'Transport', 'adventure-treks' ); ?></th>

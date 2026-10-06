@@ -278,3 +278,8 @@
 .at-next-steps-bar { flex: 0 0 160px; height: 6px; border-radius: 3px; background: #dbe7f3; overflow: hidden; }
 .at-next-steps-bar > span { display: block; height: 100%; background: #2271b1; border-radius: 3px; }
 .at-next-steps-count { font-size: 12px; color: #50575e; }
+
+/* Button-style action links are spaced by the flex gap, not a left margin. */
+.at-action-link.button {
+	margin-left: 0;
+}
