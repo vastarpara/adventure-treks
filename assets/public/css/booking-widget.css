@@ -702,7 +702,6 @@
 	border-radius: 50%;
 	background: var(--at-primary-color, #137a7f);
 	box-shadow: 0 0 0 2px var(--at-primary-color, #137a7f);
-	/* z-index: 1; */
 }
 
 /* Connector from this day's dot down to the next one (none after the last day). */
