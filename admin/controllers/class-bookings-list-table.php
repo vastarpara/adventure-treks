@@ -83,7 +83,12 @@ class Bookings_List_Table extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_cb( $item ) {
-		return sprintf( '<input type="checkbox" name="booking_ids[]" value="%d" />', $item->id );
+		return sprintf(
+			'<label class="screen-reader-text" for="cb-select-%1$d">%2$s</label><input type="checkbox" id="cb-select-%1$d" name="booking_ids[]" value="%1$d" />',
+			$item->id,
+			/* translators: %d: booking ID */
+			esc_html( sprintf( __( 'Select booking %d', 'adventure-treks' ), $item->id ) )
+		);
 	}
 
 	/**

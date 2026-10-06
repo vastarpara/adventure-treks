@@ -630,7 +630,7 @@ class TrekBookingsController {
 		);
 
 		$from_name  = get_option( 'at_from_name', get_bloginfo( 'name' ) );
-		$from_email = get_option( 'at_booking_email', get_option( 'admin_email' ) );
+		$from_email = get_option( 'at_booking_email', get_bloginfo( 'admin_email' ) );
 
 		$headers = array(
 			'Content-Type: text/html; charset=UTF-8',

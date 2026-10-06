@@ -95,6 +95,44 @@ document.addEventListener('DOMContentLoaded', function() {
 	const faqList = document.getElementById('at_faq_repeater_list');
 	const addFaqBtn = document.getElementById('at_add_faq_row_btn');
 
+	// An FAQ needs both a question and an answer. Flag half-filled rows and, in the block
+	// editor, lock saving until they are completed (the server drops incomplete rows anyway).
+	function validateFaqRows() {
+		if (!faqList) { return; }
+		let incomplete = 0;
+		faqList.querySelectorAll('.at-faq-repeater-row').forEach(function(row) {
+			const q = row.querySelector('input[type="text"]');
+			const a = row.querySelector('textarea');
+			const qFilled = !!(q && q.value.trim());
+			const aFilled = !!(a && a.value.trim());
+			const bad = (qFilled !== aFilled);
+			row.classList.toggle('at-faq-incomplete', bad);
+			let msg = row.querySelector('.at-faq-row-error');
+			if (bad) {
+				incomplete++;
+				if (!msg) {
+					msg = document.createElement('p');
+					msg.className = 'at-faq-row-error';
+					row.querySelector('.at-faq-row-fields').appendChild(msg);
+				}
+				msg.textContent = qFilled ? 'Please add an answer for this question.' : 'Please add a question for this answer.';
+			} else if (msg) {
+				msg.remove();
+			}
+		});
+		if (window.wp && wp.data && wp.data.dispatch) {
+			const editor = wp.data.dispatch('core/editor');
+			if (editor && editor.lockPostSaving) {
+				if (incomplete > 0) { editor.lockPostSaving('at-faq-incomplete'); } else { editor.unlockPostSaving('at-faq-incomplete'); }
+			}
+		}
+	}
+
+	if (faqList) {
+		faqList.addEventListener('input', validateFaqRows);
+		validateFaqRows();
+	}
+
 	if (addFaqBtn && faqList) {
 		addFaqBtn.addEventListener('click', function(e) {
 			e.preventDefault();
@@ -107,15 +145,16 @@ document.addEventListener('DOMContentLoaded', function() {
 				<div class="at-faq-repeater-row" data-index="${index}">
 					<span class="at-drag-handle">☰</span>
 					<div class="at-faq-row-fields">
-						<input type="text" name="at_faq[${index}][q]" placeholder="Question" class="large-text" />
-						<textarea name="at_faq[${index}][a]" rows="3" placeholder="Answer" class="large-text"></textarea>
+						<input type="text" name="at_faq[${index}][q]" placeholder="Question" aria-label="FAQ question" class="large-text" />
+						<textarea name="at_faq[${index}][a]" rows="3" placeholder="Answer" aria-label="FAQ answer" class="large-text"></textarea>
 					</div>
-					<a href="#" class="button at-remove-faq-row-btn">Remove</a>
+					<button type="button" class="button at-remove-faq-row-btn">Remove</button>
 				</div>
 			`;
 
 			// Append new row
 			faqList.insertAdjacentHTML('beforeend', rowHTML);
+			validateFaqRows();
 		});
 
 		// Delegate delete event for dynamically created rows
@@ -125,6 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				const row = e.target.closest('.at-faq-repeater-row');
 				if (row) {
 					row.remove();
+					validateFaqRows();
 				}
 			}
 		});
@@ -155,7 +195,19 @@ document.addEventListener('DOMContentLoaded', function() {
 				button: {
 					text: 'Use these images'
 				},
-				multiple: true
+				multiple: 'add' // plain clicks toggle images; no Ctrl/Shift needed.
+			});
+
+			// Start with the images already in the gallery selected, so choosing more adds to
+			// them. Without this the frame opens empty and "select" would replace the whole gallery.
+			galleryFrame.on('open', function() {
+				const selection = galleryFrame.state().get('selection');
+				selection.reset();
+				galleryIdsInput.value.split(',').filter(Boolean).forEach(function(id) {
+					const attachment = wp.media.attachment(id);
+					attachment.fetch();
+					selection.add(attachment);
+				});
 			});
 
 			// When images are selected in the media frame...
@@ -172,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					const thumbnail = (attachment.sizes && attachment.sizes.thumbnail) ? attachment.sizes.thumbnail.url : attachment.url;
 					const thumbHTML = `
 						<div class="at-gallery-thumb-item" data-id="${attachment.id}">
-							<img src="${thumbnail}" />
+							<img src="${thumbnail}" alt="" />
 							<a href="#" class="at-gallery-remove-btn" title="Remove">&times;</a>
 						</div>
 					`;

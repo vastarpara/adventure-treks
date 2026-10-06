@@ -648,7 +648,7 @@ class TrekBookingController {
 		$subject = sprintf( 'Booking Pending' );
 
 		$from_name  = get_option( 'at_from_name', get_bloginfo( 'name' ) );
-		$from_email = get_option( 'at_booking_email', get_option( 'admin_email' ) );
+		$from_email = get_option( 'at_booking_email', get_bloginfo( 'admin_email' ) );
 
 		$headers = array(
 			'Content-Type: text/html; charset=UTF-8',
@@ -659,7 +659,7 @@ class TrekBookingController {
 		wp_mail( $cust_email, $subject, $customer_message, $headers );
 
 		// Send admin notice alert.
-		$admin_email = get_option( 'at_booking_email', get_option( 'admin_email' ) );
+		$admin_email = get_option( 'at_booking_email', get_bloginfo( 'admin_email' ) );
 		wp_mail( $admin_email, 'New Booking Received', $admin_message, $headers );
 
 		// Return booking summary receipt.

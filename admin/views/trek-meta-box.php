@@ -154,10 +154,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<div class="at-faq-repeater-row" data-index="<?php echo esc_attr( $index ); ?>">
 							<span class="at-drag-handle" style="cursor: move;">☰</span>
 							<div class="at-faq-row-fields">
-								<input type="text" name="at_faq[<?php echo esc_attr( $index ); ?>][q]" value="<?php echo esc_attr( $item['q'] ); ?>" placeholder="<?php esc_attr_e( 'Question', 'adventure-treks' ); ?>" class="large-text" />
-								<textarea name="at_faq[<?php echo esc_attr( $index ); ?>][a]" rows="3" placeholder="<?php esc_attr_e( 'Answer', 'adventure-treks' ); ?>" class="large-text"><?php echo esc_textarea( $item['a'] ); ?></textarea>
+								<input type="text" name="at_faq[<?php echo esc_attr( $index ); ?>][q]" value="<?php echo esc_attr( $item['q'] ); ?>" placeholder="<?php esc_attr_e( 'Question', 'adventure-treks' ); ?>" aria-label="<?php esc_attr_e( 'FAQ question', 'adventure-treks' ); ?>" class="large-text" />
+								<textarea name="at_faq[<?php echo esc_attr( $index ); ?>][a]" rows="3" placeholder="<?php esc_attr_e( 'Answer', 'adventure-treks' ); ?>" aria-label="<?php esc_attr_e( 'FAQ answer', 'adventure-treks' ); ?>" class="large-text"><?php echo esc_textarea( $item['a'] ); ?></textarea>
 							</div>
-							<a href="#" class="button at-remove-faq-row-btn"><?php esc_html_e( 'Remove', 'adventure-treks' ); ?></a>
+							<button type="button" class="button at-remove-faq-row-btn"><?php esc_html_e( 'Remove', 'adventure-treks' ); ?></button>
 						</div>
 					<?php endforeach; ?>
 				<?php endif; ?>

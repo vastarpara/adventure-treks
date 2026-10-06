@@ -338,12 +338,19 @@ class TrekMetaBoxController {
 		$faq_data  = array();
 		if ( is_array( $faq_input ) ) {
 			foreach ( $faq_input as $item ) {
-				if ( ! empty( $item['q'] ) || ! empty( $item['a'] ) ) {
-					$faq_data[] = array(
-						'q' => sanitize_text_field( $item['q'] ),
-						'a' => sanitize_textarea_field( $item['a'] ),
-					);
+				$question = isset( $item['q'] ) ? sanitize_text_field( $item['q'] ) : '';
+				$answer   = isset( $item['a'] ) ? sanitize_textarea_field( $item['a'] ) : '';
+				if ( '' === $question && '' === $answer ) {
+					continue;
 				}
+				// An FAQ needs both a question and an answer.
+				if ( '' === trim( $question ) || '' === trim( $answer ) ) {
+					continue;
+				}
+				$faq_data[] = array(
+					'q' => $question,
+					'a' => $answer,
+				);
 			}
 		}
 		$faq = ! empty( $faq_data ) ? wp_json_encode( $faq_data ) : '';

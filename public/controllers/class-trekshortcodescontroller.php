@@ -364,6 +364,14 @@ class TrekShortcodesController {
 
 		// Decode lists.
 		$faq_items = ! empty( $trek['faq'] ) ? json_decode( $trek['faq'], true ) : array();
+		$faq_items = is_array( $faq_items ) ? array_values(
+			array_filter(
+				$faq_items,
+				function ( $faq ) {
+					return ! empty( $faq['q'] ) && ! empty( $faq['a'] );
+				}
+			)
+		) : array();
 		$policies  = ! empty( $trek['policies'] ) ? json_decode( $trek['policies'], true ) : array();
 
 		ob_start();

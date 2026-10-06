@@ -59,7 +59,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="at-modal-overlay" id="at_booking_view_modal" style="display:none;">
 		<div class="at-modal-box" style="max-width:600px;">
 			<div class="at-modal-header">
-				<h3><?php esc_html_e( 'Booking Details', 'adventure-treks' ); ?> - <span id="at_booking_view_ref"></span></h3>
+				<h2><?php esc_html_e( 'Booking Details', 'adventure-treks' ); ?> - <span id="at_booking_view_ref"></span></h2>
 				<span class="at-modal-close" id="at_booking_view_close_btn">&times;</span>
 			</div>
 			<div class="at-modal-body">

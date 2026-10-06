@@ -272,7 +272,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<label for="at_booking_email"><?php esc_html_e( 'Notification Email', 'adventure-treks' ); ?></label>
 						</th>
 						<td>
-							<input name="at_booking_email" type="email" id="at_booking_email" value="<?php echo esc_attr( get_option( 'at_booking_email', get_option( 'admin_email' ) ) ); ?>" class="regular-text" required />
+							<input name="at_booking_email" type="email" id="at_booking_email" value="<?php echo esc_attr( get_option( 'at_booking_email', get_bloginfo( 'admin_email' ) ) ); ?>" class="regular-text" required />
 							<p class="description"><?php esc_html_e( 'Email address that will receive reservation alerts, and used as the sender address on booking emails.', 'adventure-treks' ); ?></p>
 						</td>
 					</tr>
@@ -300,7 +300,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
 			<input type="hidden" name="action" value="at_import_treks" />
 			<?php wp_nonce_field( 'at_import_treks' ); ?>
-			<p><input type="file" name="at_import_file" accept=".json,application/json" required /></p>
+			<p><input type="file" name="at_import_file" accept=".json,application/json" aria-label="<?php esc_attr_e( 'Export file to import', 'adventure-treks' ); ?>" required /></p>
 			<?php submit_button( __( 'Import Treks', 'adventure-treks' ), 'primary', 'submit', false ); ?>
 		</form>
 	</div>

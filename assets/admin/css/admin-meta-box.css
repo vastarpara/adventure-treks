@@ -244,3 +244,15 @@ input.at-timepicker[readonly] {
 .at-meta-tab-panel textarea {
 	min-height: 90px;
 }
+
+/* FAQ rows with only a question or only an answer. */
+.at-faq-repeater-row.at-faq-incomplete input[type="text"],
+.at-faq-repeater-row.at-faq-incomplete textarea {
+	border-color: #b32d2e;
+}
+
+.at-faq-row-error {
+	margin: 4px 0 0;
+	color: #b32d2e;
+	font-size: 12px;
+}

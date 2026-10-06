@@ -149,7 +149,7 @@ class AdminController {
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_email',
-				'default'           => get_option( 'admin_email' ),
+				'default'           => get_bloginfo( 'admin_email' ),
 			)
 		);
 

@@ -135,12 +135,12 @@ while ( have_posts() ) :
 			</div>
 			<p class="at-share-sub"><?php echo esc_html( get_the_title() ); ?></p>
 			<div class="at-share-grid">
-				<a class="at-share-option" data-share="whatsapp" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-whatsapp"><span class="dashicons dashicons-whatsapp"></span></span>WhatsApp</a>
-				<a class="at-share-option" data-share="facebook" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-facebook"><span class="dashicons dashicons-facebook-alt"></span></span>Facebook</a>
-				<a class="at-share-option" data-share="x" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></span>X</a>
-				<a class="at-share-option" data-share="linkedin" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-linkedin"><span class="dashicons dashicons-linkedin"></span></span>LinkedIn</a>
-				<a class="at-share-option" data-share="reddit" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-reddit"><span class="dashicons dashicons-reddit"></span></span>Reddit</a>
-				<a class="at-share-option" data-share="email"><span class="at-share-icon at-share-email"><span class="dashicons dashicons-email-alt"></span></span><?php esc_html_e( 'Email', 'adventure-treks' ); ?></a>
+				<a href="#" class="at-share-option" data-share="whatsapp" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-whatsapp"><span class="dashicons dashicons-whatsapp"></span></span>WhatsApp</a>
+				<a href="#" class="at-share-option" data-share="facebook" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-facebook"><span class="dashicons dashicons-facebook-alt"></span></span>Facebook</a>
+				<a href="#" class="at-share-option" data-share="x" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></span>X</a>
+				<a href="#" class="at-share-option" data-share="linkedin" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-linkedin"><span class="dashicons dashicons-linkedin"></span></span>LinkedIn</a>
+				<a href="#" class="at-share-option" data-share="reddit" target="_blank" rel="noopener noreferrer"><span class="at-share-icon at-share-reddit"><span class="dashicons dashicons-reddit"></span></span>Reddit</a>
+				<a href="#" class="at-share-option" data-share="email"><span class="at-share-icon at-share-email"><span class="dashicons dashicons-email-alt"></span></span><?php esc_html_e( 'Email', 'adventure-treks' ); ?></a>
 			</div>
 			<div class="at-share-copy-row">
 				<input type="text" id="at_share_url" value="<?php echo esc_url( get_permalink( $adventure_treks_trek_id ) ); ?>" readonly />
