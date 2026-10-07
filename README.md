@@ -1,6 +1,6 @@
-# Adventure Treks
+# TrekPilot
 
-[![CI](https://github.com/vastarpara/adventure-treks/actions/workflows/ci.yml/badge.svg)](https://github.com/vastarpara/adventure-treks/actions/workflows/ci.yml)
+[![CI](https://github.com/vastarpara/trekpilot/actions/workflows/ci.yml/badge.svg)](https://github.com/vastarpara/trekpilot/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-GPL--2.0--or--later-blue)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-777bb4)
 ![WordPress](https://img.shields.io/badge/WordPress-6.0%20to%207.1-21759b)
@@ -9,7 +9,7 @@ Trekking and adventure trip management for WordPress: treks, departure cities an
 
 Works with the block editor, shortcodes and Elementor.
 
-[Try it in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/vastarpara/adventure-treks/main/blueprint.json)
+[Try it in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/vastarpara/trekpilot/main/blueprint.json)
 
 ## Features
 
@@ -21,7 +21,7 @@ Works with the block editor, shortcodes and Elementor.
 - **Import / Export** treks (with cities, itineraries, dates and pricing) as JSON.
 - **Gutenberg blocks**: Trek Details, Trek Booking and Trek Archive. Elementor widgets and shortcodes are available too.
 - **Settings**: currency format, payment method, email sender, logo, theme-friendly colors.
-- **REST API** (read-only) under `adventure-treks/v1`.
+- **REST API** (read-only) under `trekpilot/v1`.
 
 ## Requirements
 
@@ -33,8 +33,8 @@ Works with the block editor, shortcodes and Elementor.
 
 ## Installation
 
-1. Download the latest release zip, or clone this repository into `wp-content/plugins/adventure-treks`.
-2. Activate **Adventure Treks** in **Plugins**.
+1. Download the latest release zip, or clone this repository into `wp-content/plugins/trekpilot`.
+2. Activate **TrekPilot** in **Plugins**.
 3. Open **Treks > Settings** and configure currency, payment and email.
 4. Add a trek under **Treks > Add New** and fill in its **Departure Cities**.
 
@@ -48,10 +48,10 @@ Search for "Trek" in the block inserter: **Trek Details**, **Trek Booking**, **T
 
 | Shortcode | Purpose | Main attributes |
 |---|---|---|
-| `[adventure_list]` (alias `[trek_archive]`) | Grid of treks | `posts_per_page`, `columns`, `orderby`, `order`, `include`, `show_excerpt`, `show_price`, `pagination` |
-| `[adventure_details]` (alias `[trek_details]`) | Full trek details | `id` |
-| `[adventure_booking]` (alias `[trek_booking]`) | Booking widget | `id` |
-| `[adventure_itinerary]` (alias `[trek_itinerary]`) | Day-wise itinerary | `trek_id`, `city_id`, `date` |
+| `[trekpilot_list]` | Grid of treks | `posts_per_page`, `columns`, `orderby`, `order`, `include`, `show_excerpt`, `show_price`, `pagination` |
+| `[trekpilot_details]` | Full trek details | `id` |
+| `[trekpilot_booking]` | Booking widget | `id` |
+| `[trekpilot_itinerary]` | Day-wise itinerary | `trek_id`, `city_id`, `date` |
 
 ## Development
 

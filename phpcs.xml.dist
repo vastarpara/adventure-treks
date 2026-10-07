@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="AdventureTreks">
-	<description>WPCS ruleset for the Adventure Treks plugin.</description>
+<ruleset name="TrekPilot">
+	<description>WPCS ruleset for the TrekPilot plugin.</description>
 
 	<!-- Third-party and generated code is never checked (Composer dev dependencies, bundled libraries, assets). -->
 	<exclude-pattern>*/vendor/*</exclude-pattern>
@@ -18,14 +18,14 @@
 	<rule ref="WordPress"/>
 
 	<!--
-	single-adventure_trek.php intentionally keeps the underscore: its name
+	single-trekpilot_trek.php intentionally keeps the underscore: its name
 	must match the "single-{post_type}.php" WordPress template-hierarchy
-	convention for the "adventure_trek" CPT slug (registered in
+	convention for the "trekpilot_trek" CPT slug (registered in
 	includes/class-posttypes.php) so themes can override it the same way
 	WordPress core resolves single post templates.
 	-->
 	<rule ref="WordPress.Files.FileName">
-		<exclude-pattern>public/views/single-adventure_trek\.php</exclude-pattern>
-		<exclude-pattern>public/views/archive-adventure_trek\.php</exclude-pattern>
+		<exclude-pattern>public/views/single-trekpilot_trek\.php</exclude-pattern>
+		<exclude-pattern>public/views/archive-trekpilot_trek\.php</exclude-pattern>
 	</rule>
 </ruleset>

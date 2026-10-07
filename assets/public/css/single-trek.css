@@ -3,7 +3,7 @@
  */
 
 /* - Single Trek Layout - */
-.at-single-trek-wrap {
+.trekpilot-single-trek-wrap {
 	max-width: 1200px;
 	margin: 30px auto;
 	padding: 0 20px;
@@ -12,10 +12,10 @@
 
 /* Hero photo gallery — Airbnb-style mosaic: one large image + a 2x2 grid of
 	smaller ones, with a "View All Images" overlay when there are more than 5. */
-.at-hero-gallery-card {
+.trekpilot-hero-gallery-card {
 	margin-bottom: 24px;
 }
-.at-hero-mosaic {
+.trekpilot-hero-mosaic {
 	display: grid;
 	grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
 	grid-template-rows: minmax(0, 1fr);
@@ -24,19 +24,19 @@
 	border-radius: 16px;
 	overflow: hidden;
 }
-.at-mosaic-main {
+.trekpilot-mosaic-main {
 	grid-column: 1;
 	grid-row: 1;
 }
-.at-mosaic-main,
-.at-mosaic-cell {
+.trekpilot-mosaic-main,
+.trekpilot-mosaic-cell {
 	min-height: 0;
 	overflow: hidden;
 	cursor: zoom-in;
 	background: #f1f3f5;
 }
-.at-mosaic-main img,
-.at-mosaic-cell img {
+.trekpilot-mosaic-main img,
+.trekpilot-mosaic-cell img {
 	width: 100% !important;
 	max-width: none !important;
 	height: 100% !important;
@@ -44,39 +44,39 @@
 	display: block;
 	transition: transform .3s;
 }
-.at-mosaic-main:hover img,
-.at-mosaic-cell:hover img {
+.trekpilot-mosaic-main:hover img,
+.trekpilot-mosaic-cell:hover img {
 	transform: scale(1.04);
 }
-.at-mosaic-side {
+.trekpilot-mosaic-side {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	grid-template-rows: repeat(2, minmax(0, 1fr));
 	gap: 8px;
 	height: 100%;
 }
-.at-mosaic-side[data-count="1"] .at-mosaic-cell:nth-child(1) {
+.trekpilot-mosaic-side[data-count="1"] .trekpilot-mosaic-cell:nth-child(1) {
 	grid-column: 1 / -1;
 	grid-row: 1 / -1;
 }
-.at-mosaic-side[data-count="2"] .at-mosaic-cell {
+.trekpilot-mosaic-side[data-count="2"] .trekpilot-mosaic-cell {
 	grid-row: 1 / -1;
 }
-.at-mosaic-side[data-count="2"] .at-mosaic-cell:nth-child(1) {
+.trekpilot-mosaic-side[data-count="2"] .trekpilot-mosaic-cell:nth-child(1) {
 	grid-column: 1;
 }
-.at-mosaic-side[data-count="2"] .at-mosaic-cell:nth-child(2) {
+.trekpilot-mosaic-side[data-count="2"] .trekpilot-mosaic-cell:nth-child(2) {
 	grid-column: 2;
 }
-.at-mosaic-side[data-count="3"] .at-mosaic-cell:nth-child(1) {
+.trekpilot-mosaic-side[data-count="3"] .trekpilot-mosaic-cell:nth-child(1) {
 	grid-row: 1 / -1;
 	grid-column: 1;
 }
-.at-mosaic-side[data-count="3"] .at-mosaic-cell:nth-child(2) {
+.trekpilot-mosaic-side[data-count="3"] .trekpilot-mosaic-cell:nth-child(2) {
 	grid-column: 2;
 	grid-row: 1;
 }
-.at-mosaic-side[data-count="3"] .at-mosaic-cell:nth-child(3) {
+.trekpilot-mosaic-side[data-count="3"] .trekpilot-mosaic-cell:nth-child(3) {
 	grid-column: 2;
 	grid-row: 2;
 }
@@ -84,7 +84,7 @@
 	it does NOT overlap by default. So the 4th cell needs the *same* explicit
 	grid-column/row as the "View All Images" button below, or auto-placement pushes
 	it into a new row instead of letting the two share the cell. */
-.at-mosaic-side[data-count="4"] .at-mosaic-cell:nth-child(4) {
+.trekpilot-mosaic-side[data-count="4"] .trekpilot-mosaic-cell:nth-child(4) {
 	grid-column: 2;
 	grid-row: 2;
 }
@@ -96,7 +96,7 @@
 	stacking context, so the button still needs an explicit z-index to stay on top
 	through the hover animation — DOM order alone isn't reliable once a sibling's
 	descendant is transformed. */
-.at-mosaic-viewall-btn {
+.trekpilot-mosaic-viewall-btn {
 	grid-column: 2;
 	grid-row: 2;
 	align-self: end;
@@ -118,28 +118,28 @@
 	white-space: nowrap;
 	box-shadow: 0 2px 8px rgba(0,0,0,.15);
 }
-.at-mosaic-viewall-btn .dashicons {
+.trekpilot-mosaic-viewall-btn .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
-.at-mosaic-viewall-btn:hover,
-.at-mosaic-viewall-btn:focus {
+.trekpilot-mosaic-viewall-btn:hover,
+.trekpilot-mosaic-viewall-btn:focus {
 	background: #f6f7f7 !important;
-	color: var(--at-secondary-color, #0f6165) !important;
+	color: var(--trekpilot-secondary-color, #0f6165) !important;
 	text-decoration: none;
 }
 /* Mobile: a 5-panel mosaic doesn't fit a narrow screen, so collapse to just the
 	main image with an always-visible "View All Images" affordance instead. This
-	button is a grid sibling of .at-mosaic-main, sharing its (only) grid cell. */
-.at-mosaic-viewall-mobile {
+	button is a grid sibling of .trekpilot-mosaic-main, sharing its (only) grid cell. */
+.trekpilot-mosaic-viewall-mobile {
 	display: none;
 }
 /* Single photo: no side tiles, so one full-width column with the button on top. */
-.at-hero-mosaic--single {
+.trekpilot-hero-mosaic--single {
 	grid-template-columns: 1fr;
 }
-.at-hero-mosaic--single .at-mosaic-viewall-mobile {
+.trekpilot-hero-mosaic--single .trekpilot-mosaic-viewall-mobile {
 	display: flex;
 	grid-column: 1;
 	grid-row: 1;
@@ -147,31 +147,31 @@
 @media (max-width: 767px) {
 	/* Mobile keeps the same mosaic: wide main photo on top, 2x2 grid below,
 		with the "View All Images" button on the last tile. */
-	.at-hero-mosaic {
+	.trekpilot-hero-mosaic {
 		grid-template-columns: 1fr;
 		grid-template-rows: 220px auto;
 		height: auto;
 	}
-	.at-mosaic-side {
+	.trekpilot-mosaic-side {
 		grid-template-rows: repeat(2, 120px);
 		height: auto;
 	}
-	.at-hero-mosaic--single {
+	.trekpilot-hero-mosaic--single {
 		grid-template-rows: 260px;
 	}
-	.at-mosaic-viewall-btn {
+	.trekpilot-mosaic-viewall-btn {
 		margin: 6px;
 		padding: 6px 10px;
 		font-size: 12px;
 		gap: 4px;
 	}
-	.at-mosaic-viewall-mobile {
+	.trekpilot-mosaic-viewall-mobile {
 		display: none;
 	}
 }
 
 /* Share dialog: choose where to share (WhatsApp, Facebook, X, LinkedIn...) */
-.at-share-modal {
+.trekpilot-share-modal {
 	display: none;
 	position: fixed;
 	inset: 0;
@@ -181,10 +181,10 @@
 	padding: 16px;
 	background: rgba(0, 0, 0, .55);
 }
-.at-share-modal.active {
+.trekpilot-share-modal.active {
 	display: flex;
 }
-.at-share-dialog {
+.trekpilot-share-dialog {
 	width: 100%;
 	max-width: 420px;
 	background: #fff;
@@ -193,19 +193,19 @@
 	box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
 	box-sizing: border-box;
 }
-.at-share-head {
+.trekpilot-share-head {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	margin-bottom: 4px;
 }
-.at-share-head h3 {
+.trekpilot-share-head h3 {
 	margin: 0;
 	font-size: 18px;
 	font-weight: 700;
 	color: #1a1a1a;
 }
-.at-share-close {
+.trekpilot-share-close {
 	background: transparent !important;
 	border: 0 !important;
 	box-shadow: none !important;
@@ -214,22 +214,22 @@
 	cursor: pointer;
 	line-height: 1;
 }
-.at-share-close:hover,
-.at-share-close:focus {
-	color: var(--at-secondary-color, #0f6165) !important;
+.trekpilot-share-close:hover,
+.trekpilot-share-close:focus {
+	color: var(--trekpilot-secondary-color, #0f6165) !important;
 }
-.at-share-sub {
+.trekpilot-share-sub {
 	margin: 0 0 18px;
 	font-size: 13px;
 	color: #6b7280;
 }
-.at-share-grid {
+.trekpilot-share-grid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 14px 8px;
 	margin-bottom: 18px;
 }
-.at-share-option {
+.trekpilot-share-option {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -244,11 +244,11 @@
 	text-decoration: none !important;
 	cursor: pointer;
 }
-.at-share-option:hover,
-.at-share-option:focus {
-	color: var(--at-secondary-color, #0f6165) !important;
+.trekpilot-share-option:hover,
+.trekpilot-share-option:focus {
+	color: var(--trekpilot-secondary-color, #0f6165) !important;
 }
-.at-share-icon {
+.trekpilot-share-icon {
 	width: 52px;
 	height: 52px;
 	border-radius: 50%;
@@ -258,30 +258,30 @@
 	color: #fff;
 	transition: transform .15s ease;
 }
-.at-share-option:hover .at-share-icon {
+.trekpilot-share-option:hover .trekpilot-share-icon {
 	transform: translateY(-2px);
 }
-.at-share-icon .dashicons {
+.trekpilot-share-icon .dashicons {
 	font-size: 26px;
 	width: 26px;
 	height: 26px;
 }
-.at-share-icon svg {
+.trekpilot-share-icon svg {
 	width: 22px;
 	height: 22px;
 	fill: currentColor;
 }
-.at-share-whatsapp { background: #25d366; }
-.at-share-facebook { background: #1877f2; }
-.at-share-x { background: #000; }
-.at-share-linkedin { background: #0a66c2; }
-.at-share-reddit { background: #ff4500; }
-.at-share-email { background: #6b7280; }
-.at-share-copy-row {
+.trekpilot-share-whatsapp { background: #25d366; }
+.trekpilot-share-facebook { background: #1877f2; }
+.trekpilot-share-x { background: #000; }
+.trekpilot-share-linkedin { background: #0a66c2; }
+.trekpilot-share-reddit { background: #ff4500; }
+.trekpilot-share-email { background: #6b7280; }
+.trekpilot-share-copy-row {
 	display: flex;
 	gap: 8px;
 }
-.at-share-copy-row input {
+.trekpilot-share-copy-row input {
 	flex: 1;
 	min-width: 0;
 	padding: 9px 12px;
@@ -291,24 +291,24 @@
 	color: #444;
 	background: #f6f7f7;
 }
-.at-share-copy-btn {
+.trekpilot-share-copy-btn {
 	flex-shrink: 0;
 	padding: 9px 16px !important;
 	border: 0 !important;
 	border-radius: 8px !important;
-	background: var(--at-primary-color, #137a7f) !important;
+	background: var(--trekpilot-primary-color, #137a7f) !important;
 	color: #fff !important;
 	font-size: 13px;
 	font-weight: 700;
 	cursor: pointer;
 }
-.at-share-copy-btn:hover,
-.at-share-copy-btn:focus {
-	background: var(--at-secondary-color, #0f6165) !important;
+.trekpilot-share-copy-btn:hover,
+.trekpilot-share-copy-btn:focus {
+	background: var(--trekpilot-secondary-color, #0f6165) !important;
 }
 
 /* Hero gallery lightbox — full, uncropped view of the tapped photo */
-.at-hero-lightbox {
+.trekpilot-hero-lightbox {
 	display: none;
 	position: fixed;
 	inset: 0;
@@ -316,16 +316,16 @@
 	align-items: center;
 	justify-content: center;
 }
-.at-hero-lightbox.active {
+.trekpilot-hero-lightbox.active {
 	display: flex;
 }
-.at-hero-lightbox-overlay {
+.trekpilot-hero-lightbox-overlay {
 	position: absolute;
 	inset: 0;
 	background: rgba(0,0,0,.9);
 	cursor: pointer;
 }
-.at-hero-lightbox-content {
+.trekpilot-hero-lightbox-content {
 	position: relative;
 	z-index: 1;
 	max-width: 92vw;
@@ -334,14 +334,14 @@
 	align-items: center;
 	justify-content: center;
 }
-.at-hero-lightbox-content img {
+.trekpilot-hero-lightbox-content img {
 	max-width: 100%;
 	max-height: 90vh;
 	object-fit: contain;
 	border-radius: 4px;
 	box-shadow: 0 5px 25px rgba(0,0,0,.5);
 }
-.at-hero-lightbox-counter {
+.trekpilot-hero-lightbox-counter {
 	position: absolute;
 	left: 50%;
 	bottom: -34px;
@@ -352,9 +352,9 @@
 	font-weight: 600;
 	opacity: .85;
 }
-.at-hero-lightbox-close,
-.at-hero-lightbox-prev,
-.at-hero-lightbox-next {
+.trekpilot-hero-lightbox-close,
+.trekpilot-hero-lightbox-prev,
+.trekpilot-hero-lightbox-next {
 	position: absolute;
 	z-index: 2;
 	background: transparent !important;
@@ -367,13 +367,13 @@
 	filter: drop-shadow(0 1px 4px rgba(0,0,0,.7));
 	transition: opacity .2s;
 }
-.at-hero-lightbox-close:hover,
-.at-hero-lightbox-prev:hover,
-.at-hero-lightbox-next:hover {
+.trekpilot-hero-lightbox-close:hover,
+.trekpilot-hero-lightbox-prev:hover,
+.trekpilot-hero-lightbox-next:hover {
 	background: transparent !important;
 	opacity: .75;
 }
-.at-hero-lightbox-close {
+.trekpilot-hero-lightbox-close {
 	top: -46px;
 	right: 0;
 	width: 36px;
@@ -381,8 +381,8 @@
 	font-size: 26px;
 	border-radius: 50%;
 }
-.at-hero-lightbox-prev,
-.at-hero-lightbox-next {
+.trekpilot-hero-lightbox-prev,
+.trekpilot-hero-lightbox-next {
 	top: 50%;
 	transform: translateY(-50%);
 	width: 46px;
@@ -390,17 +390,17 @@
 	font-size: 22px;
 	border-radius: 50%;
 }
-.at-hero-lightbox-prev { left: -60px; }
-.at-hero-lightbox-next { right: -60px; }
+.trekpilot-hero-lightbox-prev { left: -60px; }
+.trekpilot-hero-lightbox-next { right: -60px; }
 @media (max-width: 768px) {
-	.at-hero-lightbox-close { top: -40px; right: 0; }
-	.at-hero-lightbox-prev { left: 6px; }
-	.at-hero-lightbox-next { right: 6px; }
+	.trekpilot-hero-lightbox-close { top: -40px; right: 0; }
+	.trekpilot-hero-lightbox-prev { left: 6px; }
+	.trekpilot-hero-lightbox-next { right: 6px; }
 }
 
 /* Trek title card — sits as the first card in the left column, so the sidebar
 	starts at the same height, instead of a full-width block above both columns. */
-.at-hero-heading-card {
+.trekpilot-hero-heading-card {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
@@ -412,30 +412,30 @@
 	margin-bottom: 24px;
 	box-shadow: 0 2px 8px rgba(0,0,0,.05);
 }
-.at-hero-heading-text {
+.trekpilot-hero-heading-text {
 	min-width: 0;
 }
-.at-hero-duration {
+.trekpilot-hero-duration {
 	display: block;
 	font-size: 13px;
 	color: #6b7280;
 	font-weight: 600;
 	margin-bottom: 6px;
 }
-.at-hero-heading-card h1 {
-	color: var(--at-primary-color, #137a7f);
+.trekpilot-hero-heading-card h1 {
+	color: var(--trekpilot-primary-color, #137a7f);
 	font-size: clamp(22px, 3.4vw, 32px);
 	font-weight: 800;
 	margin: 0 0 8px;
 	line-height: 1.2;
 }
-.at-hero-heading-card .at-hero-excerpt {
+.trekpilot-hero-heading-card .trekpilot-hero-excerpt {
 	color: #4b5563;
 	font-size: 15px;
 	margin: 0;
 	line-height: 1.6;
 }
-.at-hero-share-btn {
+.trekpilot-hero-share-btn {
 	flex-shrink: 0;
 	display: flex !important;
 	align-items: center;
@@ -451,60 +451,60 @@
 	cursor: pointer;
 	white-space: nowrap;
 }
-.at-hero-share-btn:hover,
-.at-hero-share-btn:focus {
+.trekpilot-hero-share-btn:hover,
+.trekpilot-hero-share-btn:focus {
 	background: #f6f7f7 !important;
-	color: var(--at-secondary-color, #0f6165) !important;
+	color: var(--trekpilot-secondary-color, #0f6165) !important;
 	text-decoration: none !important;
 }
-.at-hero-share-btn .dashicons {
+.trekpilot-hero-share-btn .dashicons {
 	font-size: 18px;
 	width: 18px;
 	height: 18px;
-	color: var(--at-primary-color, #137a7f);
+	color: var(--trekpilot-primary-color, #137a7f);
 }
-.at-hero-share-btn:hover .dashicons,
-.at-hero-share-btn:focus .dashicons {
-	color: var(--at-secondary-color, #0f6165);
+.trekpilot-hero-share-btn:hover .dashicons,
+.trekpilot-hero-share-btn:focus .dashicons {
+	color: var(--trekpilot-secondary-color, #0f6165);
 }
 @media (max-width: 600px) {
-	.at-hero-heading-card {
+	.trekpilot-hero-heading-card {
 		flex-direction: column;
 		align-items: stretch;
 		padding: 20px;
 	}
-	.at-hero-share-btn {
+	.trekpilot-hero-share-btn {
 		justify-content: center;
 	}
 }
 
 /* Two-column body */
-.at-single-body {
+.trekpilot-single-body {
 	display: grid;
 	grid-template-columns: 1fr 360px;
 	gap: 32px;
 	align-items: flex-start;
 }
 @media (max-width: 900px) {
-	.at-single-body { grid-template-columns: minmax(0, 1fr); }
+	.trekpilot-single-body { grid-template-columns: minmax(0, 1fr); }
 	/* Stacked layout: a sticky sidebar would pin over the content below it. */
-	.at-single-sidebar { position: static; }
+	.trekpilot-single-sidebar { position: static; }
 	/* Mobile reading order: title, about, then the booking steps, then the rest of
-		the trek details (specs, itinerary, FAQs...). .at-single-main dissolves into the
+		the trek details (specs, itinerary, FAQs...). .trekpilot-single-main dissolves into the
 		flex column so its children and the sidebar can be interleaved. */
 	/* align-items: stretch overrides the desktop "flex-start", which made each card shrink to its content width. */
-	.at-single-body { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
-	.at-single-main { display: contents; }
-	.at-single-main > * { order: 4; }
-	.at-single-main > *,
-	.at-single-sidebar { min-width: 0; max-width: 100%; box-sizing: border-box; }
-	.at-single-main > .at-hero-heading-card { order: 1; }
-	.at-single-main > .at-about-card { order: 2; }
-	.at-single-sidebar { order: 3; }
-	.at-hero-heading-card,
-	.at-about-card { margin-bottom: 16px; }
+	.trekpilot-single-body { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
+	.trekpilot-single-main { display: contents; }
+	.trekpilot-single-main > * { order: 4; }
+	.trekpilot-single-main > *,
+	.trekpilot-single-sidebar { min-width: 0; max-width: 100%; box-sizing: border-box; }
+	.trekpilot-single-main > .trekpilot-hero-heading-card { order: 1; }
+	.trekpilot-single-main > .trekpilot-about-card { order: 2; }
+	.trekpilot-single-sidebar { order: 3; }
+	.trekpilot-hero-heading-card,
+	.trekpilot-about-card { margin-bottom: 16px; }
 	/* Each booking step is its own rounded card instead of one big box. */
-	.at-single-sidebar .at-booking-widget-wrapper {
+	.trekpilot-single-sidebar .trekpilot-booking-widget-wrapper {
 		max-width: none;
 		margin: 0;
 		padding: 0;
@@ -513,8 +513,8 @@
 		box-shadow: none;
 		overflow: visible;
 	}
-	.at-single-sidebar .at-widget-header,
-	.at-single-sidebar .at-widget-section {
+	.trekpilot-single-sidebar .trekpilot-widget-header,
+	.trekpilot-single-sidebar .trekpilot-widget-section {
 		background: #fff;
 		border: 1px solid #e5e7eb;
 		border-radius: 12px;
@@ -522,41 +522,41 @@
 		padding: 20px 16px;
 		margin: 0 0 16px;
 	}
-	.at-single-sidebar .at-widget-header h3 { margin: 0 0 4px; }
+	.trekpilot-single-sidebar .trekpilot-widget-header h3 { margin: 0 0 4px; }
 }
 
 /* Main content — min-width:0 lets wide children (tabs, tables) shrink/scroll instead of stretching the grid. */
-.at-single-main,
-.at-single-sidebar {
+.trekpilot-single-main,
+.trekpilot-single-sidebar {
 	min-width: 0;
 }
 @media (max-width: 600px) {
-	.at-section-card { padding: 20px 16px; }
+	.trekpilot-section-card { padding: 20px 16px; }
 }
 
 /* Sidebar sticky (side-by-side layout only) */
 @media (min-width: 901px) {
-	.at-single-sidebar {
+	.trekpilot-single-sidebar {
 		position: sticky;
-		top: calc(var(--at-header-offset, 0px) + 30px);
+		top: calc(var(--trekpilot-header-offset, 0px) + 30px);
 		/* Never taller than the viewport (minus the fixed bottom Book Now bar): a sticky
 			box taller than the screen rides its row's bottom edge, so it shifts whenever the
 			main column changes height (Show More, tab switch). Scroll inside it instead. */
-		max-height: calc(100vh - var(--at-header-offset, 0px) - 100px);
+		max-height: calc(100vh - var(--trekpilot-header-offset, 0px) - 100px);
 		overflow-y: auto;
 		overscroll-behavior: contain;
 		/* Still scrollable with wheel / touch / keyboard, just without the visible scrollbar. */
 		scrollbar-width: none;
 		-ms-overflow-style: none;
 	}
-	.at-single-sidebar::-webkit-scrollbar {
+	.trekpilot-single-sidebar::-webkit-scrollbar {
 		display: none;
 		width: 0;
 	}
 }
 
 /* Section Cards */
-.at-section-card {
+.trekpilot-section-card {
 	background: #fff;
 	border: 1px solid #e5e7eb;
 	border-radius: 12px;
@@ -564,7 +564,7 @@
 	margin-bottom: 24px;
 	box-shadow: 0 2px 8px rgba(0,0,0,.05);
 }
-.at-section-card h2 {
+.trekpilot-section-card h2 {
 	font-size: 18px;
 	font-weight: 700;
 	color: #1a3c5e;
@@ -575,7 +575,7 @@
 	align-items: center;
 	gap: 10px;
 }
-.at-section-card h2 .dashicons {
+.trekpilot-section-card h2 .dashicons {
 	color: #2a7ae2;
 	font-size: 20px;
 	width: 20px;
@@ -583,18 +583,18 @@
 }
 
 /* Post content */
-.at-post-content {
+.trekpilot-post-content {
 	color: #374151;
 	font-size: 16px;
 	line-height: 1.75;
 }
-.at-post-content p { margin-bottom: 16px; }
-.at-post-content-wrap { position: relative; }
+.trekpilot-post-content p { margin-bottom: 16px; }
+.trekpilot-post-content-wrap { position: relative; }
 /* Teaser (first 250 characters) is shown until "Show More" swaps it for the full text. */
-.at-post-content-wrap.at-collapsible .at-about-full { display: none; }
-.at-post-content-wrap.at-collapsible.at-expanded .at-about-full { display: block; }
-.at-post-content-wrap.at-collapsible.at-expanded .at-about-short { display: none; }
-.at-show-more-btn {
+.trekpilot-post-content-wrap.trekpilot-collapsible .trekpilot-about-full { display: none; }
+.trekpilot-post-content-wrap.trekpilot-collapsible.trekpilot-expanded .trekpilot-about-full { display: block; }
+.trekpilot-post-content-wrap.trekpilot-collapsible.trekpilot-expanded .trekpilot-about-short { display: none; }
+.trekpilot-show-more-btn {
 	display: none;
 	align-items: center;
 	gap: 6px;
@@ -604,24 +604,24 @@
 	border: none !important;
 	border-radius: 0 !important;
 	box-shadow: none !important;
-	color: var(--at-primary-color, #137a7f) !important;
+	color: var(--trekpilot-primary-color, #137a7f) !important;
 	font-size: 14px;
 	font-weight: 700;
 	text-transform: none;
 	cursor: pointer;
 }
-.at-show-more-btn:hover,
-.at-show-more-btn:focus {
+.trekpilot-show-more-btn:hover,
+.trekpilot-show-more-btn:focus {
 	background: transparent !important;
-	color: var(--at-secondary-color, #0f6165) !important;
+	color: var(--trekpilot-secondary-color, #0f6165) !important;
 	outline: none !important;
 	box-shadow: none !important;
 }
-.at-show-more-btn .dashicons {
+.trekpilot-show-more-btn .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 	transition: transform .2s ease;
 }
-.at-post-content-wrap.at-expanded + .at-show-more-btn .dashicons { transform: rotate(180deg); }
-.at-post-content-wrap.at-collapsible + .at-show-more-btn { display: inline-flex; }
+.trekpilot-post-content-wrap.trekpilot-expanded + .trekpilot-show-more-btn .dashicons { transform: rotate(180deg); }
+.trekpilot-post-content-wrap.trekpilot-collapsible + .trekpilot-show-more-btn { display: inline-flex; }

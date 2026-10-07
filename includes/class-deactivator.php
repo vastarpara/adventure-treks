@@ -2,12 +2,12 @@
 /**
  * Fired during plugin deactivation
  *
- * @package    AdventureTreks
- * @subpackage AdventureTreks/Includes
+ * @package    TrekPilot
+ * @subpackage TrekPilot/Includes
  * @author     Nilesh Vastarpara
  */
 
-namespace AdventureTreks\Includes;
+namespace TrekPilot\Includes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.

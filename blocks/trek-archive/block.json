@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "adventure-treks/trek-archive",
+	"name": "trekpilot/trek-archive",
 	"title": "Trek Archive",
-	"category": "adventure-treks",
+	"category": "trekpilot",
 	"icon": "grid-view",
 	"description": "A grid of treks, either all treks or a hand-picked selection.",
 	"keywords": [ "trek", "archive", "list", "grid", "adventure" ],
-	"textdomain": "adventure-treks",
+	"textdomain": "trekpilot",
 	"attributes": {
 		"source": { "type": "string", "default": "all" },
 		"selectedTreks": { "type": "array", "items": { "type": "number" }, "default": [] },

@@ -5,12 +5,12 @@
  * Dynamic (server-rendered) blocks that reuse the plugin's shortcodes, so the output is
  * identical to the shortcodes and the Elementor widgets. No build step is required.
  *
- * @package    AdventureTreks
- * @subpackage AdventureTreks/Includes
+ * @package    TrekPilot
+ * @subpackage TrekPilot/Includes
  * @author     Nilesh Vastarpara
  */
 
-namespace AdventureTreks\Includes;
+namespace TrekPilot\Includes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -33,7 +33,7 @@ class Blocks {
 	}
 
 	/**
-	 * Add the "Adventure Treks" block category (first in the inserter).
+	 * Add the "TrekPilot" block category (first in the inserter).
 	 *
 	 * @param array $categories Existing categories.
 	 * @return array
@@ -42,8 +42,8 @@ class Blocks {
 		array_unshift(
 			$categories,
 			array(
-				'slug'  => 'adventure-treks',
-				'title' => __( 'Adventure Treks', 'adventure-treks' ),
+				'slug'  => 'trekpilot',
+				'title' => __( 'TrekPilot', 'trekpilot' ),
 				'icon'  => 'palmtree',
 			)
 		);
@@ -57,13 +57,13 @@ class Blocks {
 	 */
 	public static function register_blocks() {
 		wp_register_script(
-			'at-blocks-editor',
-			ADVENTURE_TREKS_URL . 'assets/blocks/blocks.js',
+			'trekpilot-blocks-editor',
+			TREKPILOT_URL . 'assets/blocks/blocks.js',
 			array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-i18n' ),
-			ADVENTURE_TREKS_VERSION . '.' . filemtime( ADVENTURE_TREKS_PATH . 'assets/blocks/blocks.js' ),
+			TREKPILOT_VERSION . '.' . filemtime( TREKPILOT_PATH . 'assets/blocks/blocks.js' ),
 			true
 		);
-		wp_set_script_translations( 'at-blocks-editor', 'adventure-treks' );
+		wp_set_script_translations( 'trekpilot-blocks-editor', 'trekpilot' );
 
 		$blocks = array(
 			'trek-details' => 'render_details',
@@ -72,9 +72,9 @@ class Blocks {
 		);
 		foreach ( $blocks as $dir => $callback ) {
 			register_block_type(
-				ADVENTURE_TREKS_PATH . 'blocks/' . $dir,
+				TREKPILOT_PATH . 'blocks/' . $dir,
 				array(
-					'editor_script'   => 'at-blocks-editor',
+					'editor_script'   => 'trekpilot-blocks-editor',
 					'render_callback' => array( __CLASS__, $callback ),
 				)
 			);
@@ -92,20 +92,20 @@ class Blocks {
 		}
 
 		$styles = array(
-			'at-blocks-details-css' => 'trek-details.css',
-			'at-blocks-booking-css' => 'booking-widget.css',
-			'at-blocks-archive-css' => 'trek-archive.css',
+			'trekpilot-blocks-details-css' => 'trek-details.css',
+			'trekpilot-blocks-booking-css' => 'booking-widget.css',
+			'trekpilot-blocks-archive-css' => 'trek-archive.css',
 		);
 		foreach ( $styles as $handle => $file ) {
 			wp_enqueue_style(
 				$handle,
-				ADVENTURE_TREKS_URL . 'assets/public/css/' . $file,
+				TREKPILOT_URL . 'assets/public/css/' . $file,
 				array( 'dashicons' ),
-				ADVENTURE_TREKS_VERSION . '.' . filemtime( ADVENTURE_TREKS_PATH . 'assets/public/css/' . $file )
+				TREKPILOT_VERSION . '.' . filemtime( TREKPILOT_PATH . 'assets/public/css/' . $file )
 			);
 			wp_add_inline_style( $handle, Plugin::get_dynamic_color_css() );
 		}
-		wp_add_inline_style( 'at-blocks-booking-css', '.at-block-preview{pointer-events:none;}' );
+		wp_add_inline_style( 'trekpilot-blocks-booking-css', '.trekpilot-block-preview{pointer-events:none;}' );
 	}
 
 	/**
@@ -123,7 +123,7 @@ class Blocks {
 		if ( ! $trek_id ) {
 			$trek_id = (int) get_the_ID();
 		}
-		return ( $trek_id && 'adventure_trek' === get_post_type( $trek_id ) ) ? $trek_id : 0;
+		return ( $trek_id && 'trekpilot_trek' === get_post_type( $trek_id ) ) ? $trek_id : 0;
 	}
 
 	/**
@@ -132,7 +132,7 @@ class Blocks {
 	 * @return string
 	 */
 	private static function no_trek_notice() {
-		return '<p style="color:#666; font-style:italic;">' . esc_html__( 'Please select a valid Trek or place this block on a Trek page.', 'adventure-treks' ) . '</p>';
+		return '<p style="color:#666; font-style:italic;">' . esc_html__( 'Please select a valid Trek or place this block on a Trek page.', 'trekpilot' ) . '</p>';
 	}
 
 	/**
@@ -158,7 +158,7 @@ class Blocks {
 		if ( ! $trek_id ) {
 			return self::wrap( self::no_trek_notice() );
 		}
-		return self::wrap( do_shortcode( '[adventure_details id="' . $trek_id . '"]' ) );
+		return self::wrap( do_shortcode( '[trekpilot_details id="' . $trek_id . '"]' ) );
 	}
 
 	/**
@@ -174,7 +174,7 @@ class Blocks {
 		if ( ! $trek_id ) {
 			return self::wrap( self::no_trek_notice() );
 		}
-		return self::wrap( do_shortcode( '[adventure_booking id="' . $trek_id . '"]' ) );
+		return self::wrap( do_shortcode( '[trekpilot_booking id="' . $trek_id . '"]' ) );
 	}
 
 	/**
@@ -192,10 +192,10 @@ class Blocks {
 		if ( isset( $attributes['source'] ) && 'manual' === $attributes['source'] ) {
 			$ids = array_filter( array_map( 'absint', (array) ( isset( $attributes['selectedTreks'] ) ? $attributes['selectedTreks'] : array() ) ) );
 			if ( empty( $ids ) ) {
-				return self::wrap( '<p style="color:#666; font-style:italic;">' . esc_html__( 'Select at least one trek to show.', 'adventure-treks' ) . '</p>' );
+				return self::wrap( '<p style="color:#666; font-style:italic;">' . esc_html__( 'Select at least one trek to show.', 'trekpilot' ) . '</p>' );
 			}
 			$shortcode = sprintf(
-				'[adventure_list include="%1$s" columns="%2$d" show_excerpt="%3$s" show_price="%4$s" pagination="no"]',
+				'[trekpilot_list include="%1$s" columns="%2$d" show_excerpt="%3$s" show_price="%4$s" pagination="no"]',
 				implode( ',', $ids ),
 				$columns,
 				$yes_no( ! isset( $attributes['showExcerpt'] ) || $attributes['showExcerpt'] ),
@@ -203,7 +203,7 @@ class Blocks {
 			);
 		} else {
 			$shortcode = sprintf(
-				'[adventure_list posts_per_page="%1$d" columns="%2$d" orderby="%3$s" order="%4$s" show_excerpt="%5$s" show_price="%6$s" pagination="%7$s"]',
+				'[trekpilot_list posts_per_page="%1$d" columns="%2$d" orderby="%3$s" order="%4$s" show_excerpt="%5$s" show_price="%6$s" pagination="%7$s"]',
 				isset( $attributes['postsPerPage'] ) ? (int) $attributes['postsPerPage'] : 9,
 				$columns,
 				sanitize_key( isset( $attributes['orderby'] ) ? $attributes['orderby'] : 'date' ),

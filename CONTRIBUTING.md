@@ -1,6 +1,6 @@
-# Contributing to Adventure Treks
+# Contributing to TrekPilot
 
-Thanks for helping improve Adventure Treks. This guide explains how to report problems, propose
+Thanks for helping improve TrekPilot. This guide explains how to report problems, propose
 changes and get a pull request merged.
 
 ## Reporting bugs and requesting features
@@ -12,7 +12,7 @@ instead (see the author link in the plugin header).
 
 ## Development setup
 
-1. Clone the repository into `wp-content/plugins/adventure-treks` of a local WordPress site.
+1. Clone the repository into `wp-content/plugins/trekpilot` of a local WordPress site.
 2. Run `composer install`.
 3. Turn on `WP_DEBUG` and `WP_DEBUG_LOG` in `wp-config.php`.
 
@@ -32,9 +32,9 @@ There is no JavaScript build step. Edit the files in `assets/` directly.
   repairs most formatting problems.
 - Every class, method and function has a DocBlock describing what it does, its `@param` and
   `@return`. Add short comments where the reason for the code is not obvious.
-- Prefix global names with `adventure_treks_` (variables in templates included at global scope
-  too). Class names live in the `AdventureTreks` namespace.
-- All text is translatable and uses the `adventure-treks` text domain.
+- Prefix global names with `trekpilot_` (variables in templates included at global scope
+  too). Class names live in the `TrekPilot` namespace.
+- All text is translatable and uses the `trekpilot` text domain.
 
 ## Security checklist
 

@@ -2,7 +2,7 @@
  * Stylesheet for Frontend Booking Widget UI
  */
 
-.at-booking-widget-wrapper {
+.trekpilot-booking-widget-wrapper {
 	background: #ffffff;
 	border: 1px solid #e0e0e0;
 	border-radius: 12px;
@@ -17,26 +17,26 @@
 	overflow-x: hidden;
 }
 
-.at-booking-widget-wrapper * {
+.trekpilot-booking-widget-wrapper * {
 	box-sizing: border-box;
 	min-width: 0;
 }
 
 /* Header */
-.at-widget-header {
+.trekpilot-widget-header {
 	margin-bottom: 20px;
 	border-bottom: 1px solid #f0f0f0;
 	padding-bottom: 15px;
 }
 
-.at-widget-header h3 {
+.trekpilot-widget-header h3 {
 	margin: 0 0 5px 0;
 	font-size: 20px;
 	font-weight: 700;
 	color: #1a1a1a;
 }
 
-.at-widget-subtitle {
+.trekpilot-widget-subtitle {
 	margin: 0;
 	font-size: 13px;
 	color: #666;
@@ -44,11 +44,11 @@
 }
 
 /* Sections */
-.at-widget-section {
+.trekpilot-widget-section {
 	margin-bottom: 25px;
 }
 
-.at-section-title {
+.trekpilot-section-title {
 	margin: 0 0 15px 0;
 	font-size: 14px;
 	font-weight: 600;
@@ -60,11 +60,11 @@
 	gap: 8px;
 }
 
-.at-step-badge {
+.trekpilot-step-badge {
 	display: inline-block;
 	width: 20px;
 	height: 20px;
-	background: var(--at-primary-color, #137a7f);
+	background: var(--trekpilot-primary-color, #137a7f);
 	color: #fff;
 	font-size: 11px;
 	font-weight: 700;
@@ -74,13 +74,13 @@
 }
 
 /* City pills */
-.at-city-pills-grid {
+.trekpilot-city-pills-grid {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
 }
 
-.at-city-pill-btn {
+.trekpilot-city-pill-btn {
 	background: #f6f7f7;
 	border: 1px solid #dcdcdc;
 	color: #444;
@@ -96,22 +96,22 @@
 	outline: none;
 }
 
-.at-city-pill-btn:hover,
-.at-city-pill-btn.active:hover {
-	background: var(--at-secondary-color, #0f6165);
-	border-color: var(--at-secondary-color, #0f6165);
+.trekpilot-city-pill-btn:hover,
+.trekpilot-city-pill-btn.active:hover {
+	background: var(--trekpilot-secondary-color, #0f6165);
+	border-color: var(--trekpilot-secondary-color, #0f6165);
 	color: #fff;
 }
 
-.at-city-pill-btn.active {
-	background: var(--at-primary-color, #137a7f);
-	border-color: var(--at-primary-color, #137a7f);
+.trekpilot-city-pill-btn.active {
+	background: var(--trekpilot-primary-color, #137a7f);
+	border-color: var(--trekpilot-primary-color, #137a7f);
 	color: #ffffff;
 	box-shadow: 0 2px 8px rgba(19, 122, 127, 0.3);
 }
 
 /* Loading indicators */
-.at-loading-indicator {
+.trekpilot-loading-indicator {
 	font-size: 13px;
 	color: #666;
 	display: flex;
@@ -120,13 +120,13 @@
 }
 
 /* Dates selector grid */
-.at-dates-grid {
+.trekpilot-dates-grid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 10px;
 }
 
-.at-date-select-btn {
+.trekpilot-date-select-btn {
 	background: #fff;
 	border: 1px solid #dcdcdc;
 	border-radius: 8px;
@@ -140,30 +140,30 @@
 	outline: none;
 }
 
-.at-date-select-btn:hover {
-	border-color: var(--at-secondary-color, #0f6165);
+.trekpilot-date-select-btn:hover {
+	border-color: var(--trekpilot-secondary-color, #0f6165);
 	background: #fafafa;
 }
 
-.at-date-select-btn.active {
-	border-color: var(--at-primary-color, #137a7f);
-	background: color-mix(in srgb, var(--at-primary-color, #137a7f) 8%, white);
-	box-shadow: 0 0 0 1px var(--at-primary-color, #137a7f);
+.trekpilot-date-select-btn.active {
+	border-color: var(--trekpilot-primary-color, #137a7f);
+	background: color-mix(in srgb, var(--trekpilot-primary-color, #137a7f) 8%, white);
+	box-shadow: 0 0 0 1px var(--trekpilot-primary-color, #137a7f);
 }
 
-.at-date-select-btn.sold-out {
+.trekpilot-date-select-btn.sold-out {
 	opacity: 0.5;
 	cursor: not-allowed;
 	background: #f5f5f5;
 }
 
-.at-date-val {
+.trekpilot-date-val {
 	font-size: 13px;
 	font-weight: 700;
 	color: #222;
 }
 
-.at-date-status-badge {
+.trekpilot-date-status-badge {
 	font-size: 9px;
 	font-weight: 700;
 	text-transform: uppercase;
@@ -172,30 +172,30 @@
 	display: inline-block;
 }
 
-.at-date-status-badge.open {
+.trekpilot-date-status-badge.open {
 	background: #e2f0d9;
 	color: #385723;
 }
 
-.at-date-status-badge.few {
+.trekpilot-date-status-badge.few {
 	background: #fff2cc;
 	color: #d68100;
 }
 
-.at-date-status-badge.sold {
+.trekpilot-date-status-badge.sold {
 	background: #fce4d6;
 	color: #b32d2e;
 }
 
 /* Details grid */
-.at-widget-details-grid {
+.trekpilot-widget-details-grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
 	gap: 8px;
 	margin-bottom: 15px;
 }
 
-.at-detail-card {
+.trekpilot-detail-card {
 	background: #fafafa;
 	border: 1px solid #e5e5e5;
 	padding: 10px 8px;
@@ -203,7 +203,7 @@
 	text-align: center;
 }
 
-.at-detail-label {
+.trekpilot-detail-label {
 	display: block;
 	font-size: 10px;
 	color: #666;
@@ -212,7 +212,7 @@
 	font-weight: 600;
 }
 
-.at-detail-value {
+.trekpilot-detail-value {
 	font-size: 11px;
 	font-weight: 700;
 	color: #222;
@@ -220,45 +220,45 @@
 }
 
 /* Pricing Info box */
-.at-pricing-infobox {
-	background: color-mix(in srgb, var(--at-primary-color, #137a7f) 8%, white);
-	border: 1px dashed var(--at-primary-color, #137a7f);
+.trekpilot-pricing-infobox {
+	background: color-mix(in srgb, var(--trekpilot-primary-color, #137a7f) 8%, white);
+	border: 1px dashed var(--trekpilot-primary-color, #137a7f);
 	padding: 15px;
 	border-radius: 6px;
 	margin-bottom: 20px;
 }
 
 /* Pax calculator */
-.at-pax-calculator {
+.trekpilot-pax-calculator {
 	border-top: 1px solid #f0f0f0;
 	border-bottom: 1px solid #f0f0f0;
 	padding: 15px 0;
 	margin-bottom: 20px;
 }
 
-.at-pax-row {
+.trekpilot-pax-row {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 12px;
 }
 
-.at-pax-row:last-child {
+.trekpilot-pax-row:last-child {
 	margin-bottom: 0;
 }
 
-.at-pax-label strong {
+.trekpilot-pax-label strong {
 	display: block;
 	font-size: 13px;
 	color: #222;
 }
 
-.at-pax-label .description {
+.trekpilot-pax-label .description {
 	font-size: 11px;
 	color: #666;
 }
 
-.at-pax-counter {
+.trekpilot-pax-counter {
 	display: flex;
 	align-items: center;
 	border: 1px solid #ccd0d4;
@@ -267,7 +267,7 @@
 	height: 30px;
 }
 
-.at-counter-btn {
+.trekpilot-counter-btn {
 	background: #f6f7f7;
 	border: none;
 	width: 30px;
@@ -284,12 +284,12 @@
 	margin: 0;
 }
 
-.at-counter-btn:hover {
+.trekpilot-counter-btn:hover {
 	background: #efefef;
-	color: var(--at-secondary-color, #0f6165);
+	color: var(--trekpilot-secondary-color, #0f6165);
 }
 
-.at-pax-counter input {
+.trekpilot-pax-counter input {
 	border: none;
 	width: 40px;
 	text-align: center;
@@ -303,18 +303,18 @@
 	-moz-appearance: textfield;
 }
 
-.at-pax-counter input::-webkit-outer-spin-button,
-.at-pax-counter input::-webkit-inner-spin-button {
+.trekpilot-pax-counter input::-webkit-outer-spin-button,
+.trekpilot-pax-counter input::-webkit-inner-spin-button {
 	-webkit-appearance: none;
 	margin: 0;
 }
 
 /* Addons section */
-.at-widget-addons-container {
+.trekpilot-widget-addons-container {
 	margin-bottom: 20px;
 }
 
-.at-addon-checkbox-item {
+.trekpilot-addon-checkbox-item {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
@@ -327,7 +327,7 @@
 	margin-bottom: 8px;
 }
 
-.at-addon-checkbox-item label {
+.trekpilot-addon-checkbox-item label {
 	display: flex;
 	align-items: flex-start;
 	gap: 8px;
@@ -337,11 +337,11 @@
 	color: #333;
 }
 
-.at-addon-checkbox-item label input {
+.trekpilot-addon-checkbox-item label input {
 	margin-top: 3px;
 }
 
-.at-addon-checkbox-item label span.addon-desc {
+.trekpilot-addon-checkbox-item label span.addon-desc {
 	display: block;
 	font-size: 10px;
 	color: #666;
@@ -349,20 +349,20 @@
 	margin-top: 2px;
 }
 
-.at-addon-price-label {
+.trekpilot-addon-price-label {
 	font-size: 12px;
 	font-weight: 700;
-	color: var(--at-primary-color, #137a7f);
+	color: var(--trekpilot-primary-color, #137a7f);
 }
 
 /* Transportation Type options */
-.at-transport-options-list {
+.trekpilot-transport-options-list {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
 }
 
-.at-transport-option-item {
+.trekpilot-transport-option-item {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -375,17 +375,17 @@
 	transition: border-color 0.2s, background 0.2s;
 }
 
-.at-transport-option-item:has(input:checked) {
-	border-color: var(--at-primary-color, #137a7f);
-	background: color-mix(in srgb, var(--at-primary-color, #137a7f) 6%, white);
+.trekpilot-transport-option-item:has(input:checked) {
+	border-color: var(--trekpilot-primary-color, #137a7f);
+	background: color-mix(in srgb, var(--trekpilot-primary-color, #137a7f) 6%, white);
 }
 
-.at-transport-option-item input[type="radio"] {
+.trekpilot-transport-option-item input[type="radio"] {
 	margin: 0;
 	flex-shrink: 0;
 }
 
-.at-transport-option-name {
+.trekpilot-transport-option-name {
 	flex-grow: 1;
 	font-size: 13px;
 	font-weight: 600;
@@ -393,15 +393,15 @@
 	overflow-wrap: break-word;
 }
 
-.at-transport-option-price {
+.trekpilot-transport-option-price {
 	font-size: 12px;
 	font-weight: 700;
-	color: var(--at-primary-color, #137a7f);
+	color: var(--trekpilot-primary-color, #137a7f);
 	flex-shrink: 0;
 }
 
 /* Receipt breakdown */
-.at-booking-receipt {
+.trekpilot-booking-receipt {
 	background: #f9f9f9;
 	border: 1px solid #e5e5e5;
 	border-radius: 8px;
@@ -409,7 +409,7 @@
 	margin-bottom: 20px;
 }
 
-.at-receipt-rows {
+.trekpilot-receipt-rows {
 	font-size: 12px;
 	color: #555;
 	display: flex;
@@ -421,21 +421,21 @@
 }
 
 /* Each line item is injected from JS as an inline-styled flex row (label + amount)
-   shared by both the widget and payment-modal receipts (same .at-receipt-rows class,
+   shared by both the widget and payment-modal receipts (same .trekpilot-receipt-rows class,
    different IDs); these rules add the wrap/shrink behavior the inline styles don't
    set, so a long label ("Adults Price (3 x ₹1599.00)") never forces the widget
    wider than its box. */
-.at-receipt-rows > div {
+.trekpilot-receipt-rows > div {
 	flex-wrap: wrap;
 	row-gap: 2px;
 }
 
-.at-receipt-rows > div > span:first-child {
+.trekpilot-receipt-rows > div > span:first-child {
 	overflow-wrap: break-word;
 	word-break: break-word;
 }
 
-.at-receipt-total {
+.trekpilot-receipt-total {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -446,13 +446,13 @@
 	color: #222;
 }
 
-.at-receipt-total strong {
-	color: var(--at-primary-color, #137a7f);
+.trekpilot-receipt-total strong {
+	color: var(--trekpilot-primary-color, #137a7f);
 	font-size: 18px;
 }
 
 /* Payment step */
-.at-payment-method-box {
+.trekpilot-payment-method-box {
 	background: #f9f9f9;
 	border: 1px solid #e5e5e5;
 	border-radius: 8px;
@@ -460,7 +460,7 @@
 	text-align: center;
 }
 
-.at-payment-qr-img {
+.trekpilot-payment-qr-img {
 	display: block;
 	max-width: 180px;
 	width: 100%;
@@ -472,13 +472,13 @@
 	padding: 6px;
 }
 
-.at-payment-upi-id {
+.trekpilot-payment-upi-id {
 	font-size: 13px;
 	color: #222;
 	margin: 0 0 6px 0;
 }
 
-.at-upi-copy-btn {
+.trekpilot-upi-copy-btn {
 	-webkit-appearance: none;
 	appearance: none;
 	display: inline-flex;
@@ -493,33 +493,33 @@
 	padding: 0;
 	margin: 0 0 0 4px;
 	cursor: pointer;
-	color: var(--at-primary-color, #137a7f);
+	color: var(--trekpilot-primary-color, #137a7f);
 	vertical-align: middle;
 	box-shadow: none;
 	line-height: 1;
 }
 
-.at-upi-copy-btn .dashicons {
+.trekpilot-upi-copy-btn .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 	line-height: 1;
 }
 
-.at-upi-copy-btn:hover,
-.at-upi-copy-btn:focus {
+.trekpilot-upi-copy-btn:hover,
+.trekpilot-upi-copy-btn:focus {
 	background: rgba(19, 122, 127, 0.08);
-	color: var(--at-secondary-color, #0f6165);
+	color: var(--trekpilot-secondary-color, #0f6165);
 	outline: none;
 }
 
-.at-upi-copy-btn.copied {
+.trekpilot-upi-copy-btn.copied {
 	color: #385723;
 }
 
 /* Submit buttons */
-.at-book-now-btn {
-	background: var(--at-primary-color, #137a7f);
+.trekpilot-book-now-btn {
+	background: var(--trekpilot-primary-color, #137a7f);
 	border: none;
 	color: #fff;
 	font-weight: 700;
@@ -535,17 +535,17 @@
 	outline: none;
 }
 
-.at-book-now-btn:hover {
-	background: var(--at-secondary-color, #0f6165);
+.trekpilot-book-now-btn:hover {
+	background: var(--trekpilot-secondary-color, #0f6165);
 	box-shadow: 0 4px 15px rgba(19, 122, 127, 0.35);
 }
 
-.at-book-now-btn:active {
+.trekpilot-book-now-btn:active {
 	transform: scale(0.99);
 }
 
 /* Modals Overlay */
-.at-booking-modal {
+.trekpilot-booking-modal {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -560,7 +560,7 @@
 	padding: 20px;
 }
 
-.at-booking-modal-content {
+.trekpilot-booking-modal-content {
 	background: #ffffff;
 	border-radius: 10px;
 	width: 100%;
@@ -571,7 +571,7 @@
 	flex-direction: column;
 }
 
-.at-booking-modal-header {
+.trekpilot-booking-modal-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -580,29 +580,29 @@
 	background: #fbfbfb;
 }
 
-.at-booking-modal-header h4 {
+.trekpilot-booking-modal-header h4 {
 	margin: 0;
 	font-size: 15px;
 	font-weight: 700;
 	color: #222;
 }
 
-.at-booking-modal-close {
+.trekpilot-booking-modal-close {
 	font-size: 24px;
 	cursor: pointer;
 	color: #999;
 	font-weight: bold;
 }
 
-.at-booking-modal-close:hover {
+.trekpilot-booking-modal-close:hover {
 	color: #222;
 }
 
-.at-booking-modal-body {
+.trekpilot-booking-modal-body {
 	padding: 20px;
 }
 
-.at-booking-modal-footer {
+.trekpilot-booking-modal-footer {
 	display: flex;
 	justify-content: flex-end;
 	gap: 10px;
@@ -611,7 +611,7 @@
 	border-top: 1px solid #eaeaea;
 }
 
-.at-modal-btn {
+.trekpilot-modal-btn {
 	border: 1px solid #ccd0d4;
 	padding: 8px 16px;
 	font-size: 13px;
@@ -620,38 +620,38 @@
 	cursor: pointer;
 }
 
-.at-modal-btn.cancel {
+.trekpilot-modal-btn.cancel {
 	background: #fff;
 	color: #444;
 }
 
-.at-modal-btn.cancel:hover {
+.trekpilot-modal-btn.cancel:hover {
 	background: #fafafa;
-	color: var(--at-secondary-color, #0f6165);
-	border-color: var(--at-secondary-color, #0f6165);
+	color: var(--trekpilot-secondary-color, #0f6165);
+	border-color: var(--trekpilot-secondary-color, #0f6165);
 }
 
-.at-modal-btn.confirm {
-	background: var(--at-primary-color, #137a7f);
-	border-color: var(--at-primary-color, #137a7f);
+.trekpilot-modal-btn.confirm {
+	background: var(--trekpilot-primary-color, #137a7f);
+	border-color: var(--trekpilot-primary-color, #137a7f);
 	color: #fff;
 }
 
-.at-modal-btn.confirm:hover {
-	background: var(--at-secondary-color, #0f6165);
+.trekpilot-modal-btn.confirm:hover {
+	background: var(--trekpilot-secondary-color, #0f6165);
 }
 
-.at-modal-btn.confirm:disabled {
+.trekpilot-modal-btn.confirm:disabled {
 	background: #a7bdbe;
 	border-color: #a7bdbe;
 	cursor: not-allowed;
 }
 
-.at-form-field {
+.trekpilot-form-field {
 	margin-bottom: 15px;
 }
 
-.at-form-field label {
+.trekpilot-form-field label {
 	display: block;
 	font-weight: 600;
 	font-size: 12px;
@@ -659,10 +659,10 @@
 	margin-bottom: 5px;
 }
 
-.at-form-field input[type="text"],
-.at-form-field input[type="email"],
-.at-form-field input[type="tel"],
-.at-form-field select {
+.trekpilot-form-field input[type="text"],
+.trekpilot-form-field input[type="email"],
+.trekpilot-form-field input[type="tel"],
+.trekpilot-form-field select {
 	width: 100%;
 	padding: 10px;
 	border: 1px solid #ccd0d4;
@@ -670,27 +670,27 @@
 	font-size: 13px;
 }
 
-.at-form-field input:focus,
-.at-form-field select:focus {
-	border-color: var(--at-primary-color, #137a7f);
+.trekpilot-form-field input:focus,
+.trekpilot-form-field select:focus {
+	border-color: var(--trekpilot-primary-color, #137a7f);
 	outline: none;
-	box-shadow: 0 0 0 1px var(--at-primary-color, #137a7f);
+	box-shadow: 0 0 0 1px var(--trekpilot-primary-color, #137a7f);
 }
 
 /* Timeline Layout for Itinerary integration on page */
-.at-frontend-itinerary-timeline {
+.trekpilot-frontend-itinerary-timeline {
 	position: relative;
 	margin: 20px 0;
 	padding-left: 32px;
 }
 
-.at-timeline-day-block {
+.trekpilot-timeline-day-block {
 	position: relative;
 	margin-bottom: 30px;
 }
 
 /* Day marker: a filled dot on the timeline, centred on the day badge/title row. */
-.at-timeline-day-block::after {
+.trekpilot-timeline-day-block::after {
 	content: "";
 	position: absolute;
 	left: -32px;
@@ -700,12 +700,12 @@
 	box-sizing: border-box;
 	border: 3px solid #fff;
 	border-radius: 50%;
-	background: var(--at-primary-color, #137a7f);
-	box-shadow: 0 0 0 2px var(--at-primary-color, #137a7f);
+	background: var(--trekpilot-primary-color, #137a7f);
+	box-shadow: 0 0 0 2px var(--trekpilot-primary-color, #137a7f);
 }
 
 /* Connector from this day's dot down to the next one (none after the last day). */
-.at-timeline-day-block::before {
+.trekpilot-timeline-day-block::before {
 	content: "";
 	position: absolute;
 	left: -26px;
@@ -715,23 +715,23 @@
 	background: #d6e4e5;
 }
 
-.at-timeline-day-block:last-child::before {
+.trekpilot-timeline-day-block:last-child::before {
 	display: none;
 }
 
-.at-timeline-day-block:last-child {
+.trekpilot-timeline-day-block:last-child {
 	margin-bottom: 0;
 }
 
-.at-timeline-day-header {
+.trekpilot-timeline-day-header {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 	margin-bottom: 8px;
 }
 
-.at-timeline-day-badge {
-	background: var(--at-primary-color, #137a7f);
+.trekpilot-timeline-day-badge {
+	background: var(--trekpilot-primary-color, #137a7f);
 	color: #fff;
 	font-size: 11px;
 	font-weight: 700;
@@ -739,21 +739,21 @@
 	border-radius: 4px;
 }
 
-.at-timeline-day-title {
+.trekpilot-timeline-day-title {
 	margin: 0;
 	font-size: 15px;
 	font-weight: 700;
 	color: #222;
 }
 
-.at-timeline-day-summary {
+.trekpilot-timeline-day-summary {
 	margin: 0 0 15px 0;
 	font-size: 12px;
 	color: #666;
 	line-height: 1.4;
 }
 
-.at-day-toggle-btn {
+.trekpilot-day-toggle-btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
@@ -763,7 +763,7 @@
 	box-shadow: none !important;
 	padding: 0 0 15px !important;
 	margin: 0;
-	color: var(--at-primary-color, #137a7f) !important;
+	color: var(--trekpilot-primary-color, #137a7f) !important;
 	font-size: 12px;
 	font-weight: 700;
 	text-decoration: none !important;
@@ -771,32 +771,32 @@
 	cursor: pointer;
 }
 
-.at-day-toggle-btn:hover,
-.at-day-toggle-btn:focus {
+.trekpilot-day-toggle-btn:hover,
+.trekpilot-day-toggle-btn:focus {
 	background: transparent !important;
-	color: var(--at-secondary-color, #0f6165) !important;
+	color: var(--trekpilot-secondary-color, #0f6165) !important;
 	text-decoration: none !important;
 	outline: none !important;
 	box-shadow: none !important;
 }
 
-.at-day-toggle-btn:focus:not(:focus-visible) {
+.trekpilot-day-toggle-btn:focus:not(:focus-visible) {
 	outline: none !important;
 	box-shadow: none !important;
 }
 
-.at-day-toggle-btn .dashicons {
+.trekpilot-day-toggle-btn .dashicons {
 	font-size: 14px;
 	width: 14px;
 	height: 14px;
 	transition: transform 0.2s ease;
 }
 
-.at-timeline-day-block.expanded .at-day-toggle-btn .dashicons {
+.trekpilot-timeline-day-block.expanded .trekpilot-day-toggle-btn .dashicons {
 	transform: rotate(180deg);
 }
 
-.at-timeline-events {
+.trekpilot-timeline-events {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
@@ -805,13 +805,13 @@
 	transition: max-height 0.3s ease;
 }
 
-.at-timeline-event-card {
+.trekpilot-timeline-event-card {
 	display: flex;
 	gap: 12px;
 	position: relative;
 }
 
-.at-event-icon-wrapper {
+.trekpilot-event-icon-wrapper {
 	/* Fixed size that never shrinks: a wide event photo used to squeeze this flex item into an oval. */
 	flex: 0 0 24px;
 	width: 24px;
@@ -819,22 +819,22 @@
 	min-width: 24px;
 	box-sizing: border-box;
 	align-self: flex-start;
-	background: color-mix(in srgb, var(--at-primary-color, #137a7f) 8%, white);
-	border: 1px solid var(--at-primary-color, #137a7f);
+	background: color-mix(in srgb, var(--trekpilot-primary-color, #137a7f) 8%, white);
+	border: 1px solid var(--trekpilot-primary-color, #137a7f);
 	border-radius: 50%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
 
-.at-event-icon-wrapper span.dashicons {
+.trekpilot-event-icon-wrapper span.dashicons {
 	font-size: 14px;
 	width: 14px;
 	height: 14px;
-	color: var(--at-primary-color, #137a7f);
+	color: var(--trekpilot-primary-color, #137a7f);
 }
 
-.at-event-content-box {
+.trekpilot-event-content-box {
 	flex: 1 1 auto;
 	min-width: 0;
 	background: #fafafa;
@@ -843,14 +843,14 @@
 	padding: 12px;
 }
 
-.at-event-meta {
+.trekpilot-event-meta {
 	margin-bottom: 8px;
 }
 
-.at-event-time {
+.trekpilot-event-time {
 	display: inline-block;
-	background: color-mix(in srgb, var(--at-primary-color, #137a7f) 8%, white);
-	color: var(--at-primary-color, #137a7f);
+	background: color-mix(in srgb, var(--trekpilot-primary-color, #137a7f) 8%, white);
+	color: var(--trekpilot-primary-color, #137a7f);
 	padding: 4px 8px;
 	border-radius: 4px;
 	font-size: 11px;
@@ -859,25 +859,25 @@
 	border: 1px solid #d8ecec;
 }
 
-.at-event-title {
+.trekpilot-event-title {
 	margin: 0 0 5px 0;
 	font-size: 12px;
 	font-weight: 700;
 	color: #333;
 }
 
-.at-event-description {
+.trekpilot-event-description {
 	margin: 0;
 	font-size: 11px;
 	color: #555;
 	line-height: 1.4;
 }
 
-.at-event-media {
+.trekpilot-event-media {
 	margin-top: 10px;
 }
 
-.at-event-media img {
+.trekpilot-event-media img {
 	display: block;
 	max-width: 100%;
 	height: auto;
@@ -885,7 +885,7 @@
 }
 
 /* Sticky Bottom Booking Bar */
-.at-sticky-booking-bar {
+.trekpilot-sticky-booking-bar {
 	position: fixed;
 	left: 0;
 	right: 0;
@@ -902,7 +902,7 @@
 	padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
-.at-sticky-bar-price {
+.trekpilot-sticky-bar-price {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: baseline;
@@ -911,29 +911,29 @@
 	overflow: hidden;
 }
 
-.at-sticky-bar-label {
+.trekpilot-sticky-bar-label {
 	font-size: 13px;
 	font-weight: 600;
 	color: #555;
 	flex-shrink: 0;
 }
 
-.at-sticky-bar-amount {
+.trekpilot-sticky-bar-amount {
 	font-size: 20px;
 	font-weight: 800;
-	color: var(--at-primary-color, #137a7f);
+	color: var(--trekpilot-primary-color, #137a7f);
 	white-space: nowrap;
 }
 
-.at-sticky-bar-unit {
+.trekpilot-sticky-bar-unit {
 	font-size: 12px;
 	color: #777;
 	white-space: nowrap;
 }
 
-.at-sticky-bar-cta {
+.trekpilot-sticky-bar-cta {
 	flex-shrink: 0;
-	background: var(--at-primary-color, #137a7f);
+	background: var(--trekpilot-primary-color, #137a7f);
 	color: #fff;
 	border: none;
 	font-weight: 700;
@@ -946,68 +946,68 @@
 	white-space: nowrap;
 }
 
-.at-sticky-bar-cta:hover {
-	background: var(--at-secondary-color, #0f6165);
+.trekpilot-sticky-bar-cta:hover {
+	background: var(--trekpilot-secondary-color, #0f6165);
 }
 
 /* ── Mobile responsive pass ─────────────────────────────────────── */
 @media (max-width: 600px) {
-	.at-booking-widget-wrapper {
+	.trekpilot-booking-widget-wrapper {
 		padding: 18px;
 		margin: 12px auto;
 		border-radius: 10px;
 	}
 
-	.at-widget-header h3 {
+	.trekpilot-widget-header h3 {
 		font-size: 17px;
 	}
 
-	.at-city-pill-btn {
+	.trekpilot-city-pill-btn {
 		padding: 9px 14px;
 		font-size: 12px;
 	}
 
-	.at-dates-grid {
+	.trekpilot-dates-grid {
 		grid-template-columns: repeat(2, 1fr);
 	}
 
-	.at-widget-details-grid {
+	.trekpilot-widget-details-grid {
 		grid-template-columns: repeat(3, 1fr);
 		gap: 6px;
 	}
 
-	.at-detail-card {
+	.trekpilot-detail-card {
 		padding: 8px 5px;
 	}
 
-	.at-detail-label {
+	.trekpilot-detail-label {
 		font-size: 9px;
 	}
 
-	.at-detail-value {
+	.trekpilot-detail-value {
 		font-size: 10px;
 	}
 
-	.at-transport-option-name {
+	.trekpilot-transport-option-name {
 		font-size: 12px;
 	}
 
-	.at-transport-option-price {
+	.trekpilot-transport-option-price {
 		font-size: 11px;
 	}
 
-	.at-sticky-booking-bar {
+	.trekpilot-sticky-booking-bar {
 		padding: 10px 14px;
 		padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
 	}
-	.at-sticky-bar-amount {
+	.trekpilot-sticky-bar-amount {
 		font-size: 17px;
 	}
-	.at-sticky-bar-label,
-	.at-sticky-bar-unit {
+	.trekpilot-sticky-bar-label,
+	.trekpilot-sticky-bar-unit {
 		font-size: 11px;
 	}
-	.at-sticky-bar-cta {
+	.trekpilot-sticky-bar-cta {
 		padding: 11px 18px;
 		font-size: 13px;
 	}
@@ -1016,39 +1016,39 @@
 /* Very narrow phones: stack the sticky bar's price above a full-width CTA rather
    than risk the two ever competing for the same line. */
 @media (max-width: 360px) {
-	.at-sticky-booking-bar {
+	.trekpilot-sticky-booking-bar {
 		flex-direction: column;
 		align-items: stretch;
 		gap: 8px;
 	}
-	.at-sticky-bar-price {
+	.trekpilot-sticky-bar-price {
 		justify-content: center;
 	}
-	.at-sticky-bar-cta {
+	.trekpilot-sticky-bar-cta {
 		width: 100%;
 	}
 
-	.at-dates-grid {
+	.trekpilot-dates-grid {
 		grid-template-columns: repeat(2, 1fr);
 	}
 
-	.at-widget-details-grid {
+	.trekpilot-widget-details-grid {
 		grid-template-columns: 1fr;
 	}
 }
 
 /* Inline checkout validation */
-.at-form-field.has-error input,
-.at-form-field.has-error select {
+.trekpilot-form-field.has-error input,
+.trekpilot-form-field.has-error select {
 	border-color: #d63638;
 	background: #fff8f8;
 }
-.at-form-field.has-error input:focus,
-.at-form-field.has-error select:focus {
+.trekpilot-form-field.has-error input:focus,
+.trekpilot-form-field.has-error select:focus {
 	border-color: #d63638;
 	box-shadow: 0 0 0 1px #d63638;
 }
-.at-field-error {
+.trekpilot-field-error {
 	display: flex;
 	align-items: flex-start;
 	gap: 5px;
@@ -1057,7 +1057,7 @@
 	line-height: 1.4;
 	color: #d63638;
 }
-.at-field-error::before {
+.trekpilot-field-error::before {
 	content: "!";
 	flex: 0 0 14px;
 	width: 14px;
@@ -1071,22 +1071,22 @@
 	line-height: 14px;
 	text-align: center;
 }
-.at-checkout-terms.has-error .at-field-error {
+.trekpilot-checkout-terms.has-error .trekpilot-field-error {
 	margin-top: 6px;
 }
 
 /* Booking success receipt */
-.at-success-receipt {
+.trekpilot-success-receipt {
 	text-align: left;
 }
-.at-receipt-row {
+.trekpilot-receipt-row {
 	display: flex;
 	align-items: center;
 	gap: 14px;
 	padding: 11px 2px;
 	border-bottom: 1px solid #eceff1;
 }
-.at-receipt-icon {
+.trekpilot-receipt-icon {
 	flex: 0 0 40px;
 	display: flex;
 	align-items: center;
@@ -1097,32 +1097,32 @@
 	background: #eef1f4;
 	color: #475569;
 }
-.at-receipt-trek .at-receipt-icon { background: #e8edf2; color: #475569; }
-.at-receipt-date .at-receipt-icon { background: #e3f5ec; color: #16805a; }
-.at-receipt-user .at-receipt-icon { background: #e4eefb; color: #2563a8; }
-.at-receipt-city .at-receipt-icon { background: #fdeede; color: #c2620a; }
-.at-receipt-pickup .at-receipt-icon { background: #ece8fb; color: #5b3fbf; }
-.at-receipt-transport .at-receipt-icon { background: #fdf0d5; color: #b7791f; }
-.at-receipt-seats .at-receipt-icon { background: #fde6ea; color: #c0264a; }
-.at-receipt-text {
+.trekpilot-receipt-trek .trekpilot-receipt-icon { background: #e8edf2; color: #475569; }
+.trekpilot-receipt-date .trekpilot-receipt-icon { background: #e3f5ec; color: #16805a; }
+.trekpilot-receipt-user .trekpilot-receipt-icon { background: #e4eefb; color: #2563a8; }
+.trekpilot-receipt-city .trekpilot-receipt-icon { background: #fdeede; color: #c2620a; }
+.trekpilot-receipt-pickup .trekpilot-receipt-icon { background: #ece8fb; color: #5b3fbf; }
+.trekpilot-receipt-transport .trekpilot-receipt-icon { background: #fdf0d5; color: #b7791f; }
+.trekpilot-receipt-seats .trekpilot-receipt-icon { background: #fde6ea; color: #c0264a; }
+.trekpilot-receipt-text {
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
 	text-align: left;
 }
-.at-receipt-label {
+.trekpilot-receipt-label {
 	font-size: 12px;
 	line-height: 1.3;
 	color: #64748b;
 }
-.at-receipt-value {
+.trekpilot-receipt-value {
 	font-size: 15px;
 	line-height: 1.35;
 	font-weight: 700;
 	color: #0f172a;
 	overflow-wrap: anywhere;
 }
-.at-receipt-total {
+.trekpilot-receipt-total {
 	display: flex;
 	align-items: center;
 	gap: 14px;
@@ -1131,15 +1131,15 @@
 	border-radius: 12px;
 	background: #e6f6f4;
 }
-.at-receipt-total .at-receipt-icon {
+.trekpilot-receipt-total .trekpilot-receipt-icon {
 	background: #cdeeea;
 	color: #0f766e;
 }
-.at-receipt-total .at-receipt-label {
+.trekpilot-receipt-total .trekpilot-receipt-label {
 	font-weight: 600;
 	color: #0f766e;
 }
-.at-receipt-amount {
+.trekpilot-receipt-amount {
 	font-size: 24px;
 	line-height: 1.2;
 	font-weight: 800;
@@ -1147,7 +1147,7 @@
 }
 
 /* Success dialog header */
-.at-success-check {
+.trekpilot-success-check {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1158,7 +1158,7 @@
 	background: #e3f1dc;
 	color: #385723;
 }
-.at-success-title {
+.trekpilot-success-title {
 	margin: 0 0 10px;
 	padding: 0;
 	font-size: 22px;
@@ -1167,14 +1167,14 @@
 	color: #385723;
 	text-align: center;
 }
-.at-success-title::before,
-.at-success-title::after {
+.trekpilot-success-title::before,
+.trekpilot-success-title::after {
 	content: none;
 	display: none;
 }
 
-/* Total row in the success receipt (overrides the generic .at-receipt-total used in the price breakdown) */
-.at-success-receipt .at-receipt-total {
+/* Total row in the success receipt (overrides the generic .trekpilot-receipt-total used in the price breakdown) */
+.trekpilot-success-receipt .trekpilot-receipt-total {
 	display: flex;
 	flex-wrap: nowrap;
 	justify-content: flex-start;
@@ -1182,102 +1182,102 @@
 	gap: 14px;
 	text-align: left;
 }
-.at-success-receipt .at-receipt-total .at-receipt-text {
+.trekpilot-success-receipt .trekpilot-receipt-total .trekpilot-receipt-text {
 	align-items: flex-start;
 	flex: 1;
 }
-.at-success-receipt .at-receipt-total strong.at-receipt-amount {
+.trekpilot-success-receipt .trekpilot-receipt-total strong.trekpilot-receipt-amount {
 	font-size: 24px;
 	font-weight: 800;
 	color: #0f3d3a;
 }
 
 /* Compact success dialog */
-#at_success_modal .at-booking-modal-body {
+#trekpilot_success_modal .trekpilot-booking-modal-body {
 	padding: 20px 18px !important;
 }
-#at_success_modal .at-success-check {
+#trekpilot_success_modal .trekpilot-success-check {
 	width: 44px;
 	height: 44px;
 	margin-bottom: 8px;
 }
-#at_success_modal .at-success-check svg {
+#trekpilot_success_modal .trekpilot-success-check svg {
 	width: 24px;
 	height: 24px;
 }
-#at_success_modal .at-success-title {
+#trekpilot_success_modal .trekpilot-success-title {
 	margin-bottom: 6px;
 	font-size: 19px;
 }
-#at_success_modal .at-booking-modal-body > p {
+#trekpilot_success_modal .trekpilot-booking-modal-body > p {
 	margin-bottom: 12px !important;
 	font-size: 12px !important;
 	line-height: 1.35 !important;
 }
-#at_success_modal .at-success-receipt {
+#trekpilot_success_modal .trekpilot-success-receipt {
 	margin-bottom: 12px !important;
 }
-#at_success_modal .at-receipt-row {
+#trekpilot_success_modal .trekpilot-receipt-row {
 	gap: 12px;
 	padding: 7px 2px;
 }
-#at_success_modal .at-receipt-icon {
+#trekpilot_success_modal .trekpilot-receipt-icon {
 	flex-basis: 32px;
 	width: 32px;
 	height: 32px;
 }
-#at_success_modal .at-receipt-icon svg {
+#trekpilot_success_modal .trekpilot-receipt-icon svg {
 	width: 16px;
 	height: 16px;
 }
-#at_success_modal .at-receipt-label {
+#trekpilot_success_modal .trekpilot-receipt-label {
 	font-size: 11px;
 	line-height: 1.2;
 }
-#at_success_modal .at-receipt-value {
+#trekpilot_success_modal .trekpilot-receipt-value {
 	font-size: 13.5px;
 	line-height: 1.25;
 }
-#at_success_modal .at-success-receipt .at-receipt-total {
+#trekpilot_success_modal .trekpilot-success-receipt .trekpilot-receipt-total {
 	margin-top: 8px;
 	padding: 9px 12px;
 	gap: 12px;
 }
-#at_success_modal .at-success-receipt .at-receipt-total strong.at-receipt-amount {
+#trekpilot_success_modal .trekpilot-success-receipt .trekpilot-receipt-total strong.trekpilot-receipt-amount {
 	font-size: 20px;
 	line-height: 1.15;
 }
-#at_success_modal #at_success_close_btn {
+#trekpilot_success_modal #trekpilot_success_close_btn {
 	padding-top: 10px;
 	padding-bottom: 10px;
 }
 
 /* Adults / Children counter: hardened so theme and Elementor button/input styles cannot break it. */
-.at-booking-widget-wrapper .at-pax-row {
+.trekpilot-booking-widget-wrapper .trekpilot-pax-row {
 	display: flex;
 	flex-wrap: nowrap;
 	justify-content: space-between;
 	align-items: center;
 	gap: 12px;
 }
-.at-booking-widget-wrapper .at-pax-label {
+.trekpilot-booking-widget-wrapper .trekpilot-pax-label {
 	flex: 1 1 auto;
 	min-width: 0;
 }
-.at-booking-widget-wrapper .at-pax-label strong {
+.trekpilot-booking-widget-wrapper .trekpilot-pax-label strong {
 	display: block;
 	font-size: 13px;
 	line-height: 1.3;
 	color: #222;
 }
-.at-booking-widget-wrapper .at-pax-label .description {
+.trekpilot-booking-widget-wrapper .trekpilot-pax-label .description {
 	display: block;
 	font-size: 11px;
 	line-height: 1.3;
 	color: #666;
 	white-space: nowrap;
 }
-.at-booking-widget-wrapper .at-pax-counter {
+.trekpilot-booking-widget-wrapper .trekpilot-pax-counter {
 	display: inline-flex;
 	flex: 0 0 auto;
 	align-items: stretch;
@@ -1288,7 +1288,7 @@
 	background: #fff;
 	overflow: hidden;
 }
-.at-booking-widget-wrapper .at-pax-counter .at-counter-btn {
+.trekpilot-booking-widget-wrapper .trekpilot-pax-counter .trekpilot-counter-btn {
 	flex: 0 0 32px;
 	width: 32px;
 	min-width: 32px;
@@ -1309,14 +1309,14 @@
 	align-items: center;
 	justify-content: center;
 }
-.at-booking-widget-wrapper .at-pax-counter .at-counter-btn:hover,
-.at-booking-widget-wrapper .at-pax-counter .at-counter-btn:focus {
+.trekpilot-booking-widget-wrapper .trekpilot-pax-counter .trekpilot-counter-btn:hover,
+.trekpilot-booking-widget-wrapper .trekpilot-pax-counter .trekpilot-counter-btn:focus {
 	background: #ebeef0;
-	color: var(--at-secondary-color, #0f6165);
+	color: var(--trekpilot-secondary-color, #0f6165);
 	box-shadow: none;
 	outline: none;
 }
-.at-booking-widget-wrapper .at-pax-counter input[type="number"] {
+.trekpilot-booking-widget-wrapper .trekpilot-pax-counter input[type="number"] {
 	flex: 0 0 44px;
 	width: 44px;
 	min-width: 0;

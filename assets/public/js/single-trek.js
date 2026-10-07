@@ -2,28 +2,28 @@
  * Single trek page: About toggle, hero gallery lightbox and share dialog.
  */
 (function() {
-	var wrap = document.getElementById('at_about_wrap');
-	var btn = document.getElementById('at_about_toggle');
+	var wrap = document.getElementById('trekpilot_about_wrap');
+	var btn = document.getElementById('trekpilot_about_toggle');
 	if (!wrap || !btn) return;
 	btn.addEventListener('click', function() {
-		var expanded = wrap.classList.toggle('at-expanded');
-		btn.querySelector('.at-toggle-label').textContent = btn.getAttribute(expanded ? 'data-less' : 'data-more');
+		var expanded = wrap.classList.toggle('trekpilot-expanded');
+		btn.querySelector('.trekpilot-toggle-label').textContent = btn.getAttribute(expanded ? 'data-less' : 'data-more');
 	});
 })();
 
 (function() {
-	var root = document.getElementById('at_hero_gallery');
+	var root = document.getElementById('trekpilot_hero_gallery');
 	if (!root) return;
 
 	// Lightbox: full, uncropped view of any gallery photo.
-	var lightbox = document.getElementById('at_hero_lightbox');
+	var lightbox = document.getElementById('trekpilot_hero_lightbox');
 	if (!lightbox) return;
 
-	var lightboxImg = document.getElementById('at_hero_lightbox_img');
-	var lightboxCounter = document.getElementById('at_hero_lightbox_counter');
-	var lightboxPrev = document.getElementById('at_hero_lightbox_prev');
-	var lightboxNext = document.getElementById('at_hero_lightbox_next');
-	var triggers = root.querySelectorAll('.at-hero-lightbox-trigger');
+	var lightboxImg = document.getElementById('trekpilot_hero_lightbox_img');
+	var lightboxCounter = document.getElementById('trekpilot_hero_lightbox_counter');
+	var lightboxPrev = document.getElementById('trekpilot_hero_lightbox_prev');
+	var lightboxNext = document.getElementById('trekpilot_hero_lightbox_next');
+	var triggers = root.querySelectorAll('.trekpilot-hero-lightbox-trigger');
 
 	// The lightbox must be able to reach every photo, not just the 5 mosaic tiles
 	// that are actually visible — "View All Images" jumps past them. So build the
@@ -67,7 +67,7 @@
 
 	// "View All Images" overlay buttons — stop the click from also opening the
 	// tile underneath at its own index; jump straight to the requested start point.
-	root.querySelectorAll('.at-mosaic-viewall-btn').forEach(function(btn) {
+	root.querySelectorAll('.trekpilot-mosaic-viewall-btn').forEach(function(btn) {
 		btn.addEventListener('click', function(e) {
 			e.stopPropagation();
 			openLightbox(parseInt(btn.getAttribute('data-start-index'), 10) || 0);
@@ -91,8 +91,8 @@
 // Share button: opens the share dialog (WhatsApp, Facebook, X, LinkedIn, Reddit, Email, copy link).
 // Independent of the gallery/lightbox above so it still works on treks with no photos yet.
 (function() {
-	var shareBtn = document.getElementById('at_hero_share_btn');
-	var modal = document.getElementById('at_share_modal');
+	var shareBtn = document.getElementById('trekpilot_hero_share_btn');
+	var modal = document.getElementById('trekpilot_share_modal');
 	if (!shareBtn || !modal) return;
 
 	var url = shareBtn.getAttribute('data-share-url');
@@ -112,15 +112,15 @@
 		a.setAttribute('href', targets[a.getAttribute('data-share')]);
 	});
 
-	var copyBtn = document.getElementById('at_share_copy');
-	var copyInput = document.getElementById('at_share_url');
+	var copyBtn = document.getElementById('trekpilot_share_copy');
+	var copyInput = document.getElementById('trekpilot_share_url');
 	var copyLabel = copyBtn.textContent;
 
 	function openModal() { modal.classList.add('active'); document.body.style.overflow = 'hidden'; }
 	function closeModal() { modal.classList.remove('active'); document.body.style.overflow = ''; }
 
 	shareBtn.addEventListener('click', openModal);
-	document.getElementById('at_share_close').addEventListener('click', closeModal);
+	document.getElementById('trekpilot_share_close').addEventListener('click', closeModal);
 	modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
 	document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && modal.classList.contains('active')) closeModal(); });
 	modal.querySelectorAll('a[data-share]').forEach(function(a) { a.addEventListener('click', function() { setTimeout(closeModal, 150); }); });

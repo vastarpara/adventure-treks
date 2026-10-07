@@ -62,11 +62,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build a release-like copy (without development files)
         run: |
-          mkdir -p build/adventure-treks
-          rsync -a --exclude-from=.distignore --exclude='.git' ./ build/adventure-treks/
+          mkdir -p build/trekpilot
+          rsync -a --exclude-from=.distignore --exclude='.git' ./ build/trekpilot/
       - uses: WordPress/plugin-check-action@v1
         with:
-          build-dir: build/adventure-treks
+          build-dir: build/trekpilot
           exclude-directories: includes/vendor
           categories: |
             general
@@ -83,10 +83,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Create zip
         run: |
-          mkdir -p dist/adventure-treks
-          rsync -a --exclude-from=.distignore --exclude='.git' ./ dist/adventure-treks/
-          cd dist && zip -qr adventure-treks.zip adventure-treks
+          mkdir -p dist/trekpilot
+          rsync -a --exclude-from=.distignore --exclude='.git' ./ dist/trekpilot/
+          cd dist && zip -qr trekpilot.zip trekpilot
       - uses: actions/upload-artifact@v4
         with:
-          name: adventure-treks
-          path: dist/adventure-treks.zip
+          name: trekpilot
+          path: dist/trekpilot.zip

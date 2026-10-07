@@ -2,12 +2,12 @@
 /**
  * Controller for managing City-Level Default Pricing and repeaters.
  *
- * @package    AdventureTreks
- * @subpackage AdventureTreks/Admin/Controllers
+ * @package    TrekPilot
+ * @subpackage TrekPilot/Admin/Controllers
  * @author     Nilesh Vastarpara
  */
 
-namespace AdventureTreks\Admin\Controllers;
+namespace TrekPilot\Admin\Controllers;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -23,8 +23,8 @@ class TrekPricingController {
 	 */
 	public function __construct() {
 		// Register AJAX endpoints.
-		add_action( 'wp_ajax_at_get_city_pricing', array( $this, 'ajax_get_pricing' ) );
-		add_action( 'wp_ajax_at_save_city_pricing', array( $this, 'ajax_save_pricing' ) );
+		add_action( 'wp_ajax_trekpilot_get_city_pricing', array( $this, 'ajax_get_pricing' ) );
+		add_action( 'wp_ajax_trekpilot_save_city_pricing', array( $this, 'ajax_save_pricing' ) );
 
 		// Load assets.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
@@ -38,24 +38,24 @@ class TrekPricingController {
 	public function enqueue_assets() {
 		global $post_type;
 
-		if ( 'adventure_trek' !== $post_type ) {
+		if ( 'trekpilot_trek' !== $post_type ) {
 			return;
 		}
 
 		wp_enqueue_script(
-			'at-admin-pricing-js',
-			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-pricing.js',
+			'trekpilot-admin-pricing-js',
+			TREKPILOT_URL . 'assets/admin/js/admin-pricing.js',
 			array(),
-			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/js/admin-pricing.js' ),
+			\TrekPilot\Includes\Plugin::asset_version( 'assets/admin/js/admin-pricing.js' ),
 			true
 		);
 
 		wp_localize_script(
-			'at-admin-pricing-js',
-			'at_pricing_obj',
+			'trekpilot-admin-pricing-js',
+			'trekpilot_pricing_obj',
 			array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'at_pricing_nonce_action' ),
+				'nonce'    => wp_create_nonce( 'trekpilot_pricing_nonce_action' ),
 			)
 		);
 	}
@@ -64,18 +64,18 @@ class TrekPricingController {
 	 * AJAX: Get pricing configuration for a city (date_id = 0).
 	 */
 	public function ajax_get_pricing() {
-		check_ajax_referer( 'at_pricing_nonce_action', 'nonce' );
+		check_ajax_referer( 'trekpilot_pricing_nonce_action', 'nonce' );
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'trekpilot' ) ) );
 		}
 
 		$city_id = isset( $_GET['city_id'] ) ? intval( $_GET['city_id'] ) : 0;
 		if ( ! $city_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid City ID', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid City ID', 'trekpilot' ) ) );
 		}
 
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'at_pricing';
+		$table_name = $wpdb->prefix . 'trekpilot_pricing';
 
 		// Get city default pricing (where date_id = 0).
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -90,7 +90,7 @@ class TrekPricingController {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$city = $wpdb->get_row(
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-				$wpdb->prepare( "SELECT base_price, offer_price, trek_id FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $city_id )
+				$wpdb->prepare( "SELECT base_price, offer_price, trek_id FROM {$wpdb->prefix}trekpilot_departure_cities WHERE id = %d", $city_id )
 			);
 
 			$pricing = array(
@@ -124,21 +124,21 @@ class TrekPricingController {
 	 * AJAX: Save pricing config for a city.
 	 */
 	public function ajax_save_pricing() {
-		check_ajax_referer( 'at_pricing_nonce_action', 'nonce' );
+		check_ajax_referer( 'trekpilot_pricing_nonce_action', 'nonce' );
 
 		$city_id = isset( $_POST['city_id'] ) ? intval( wp_unslash( $_POST['city_id'] ) ) : 0;
 		if ( ! $city_id ) {
-			wp_send_json_error( array( 'message' => __( 'Missing required IDs', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Missing required IDs', 'trekpilot' ) ) );
 		}
 
 		global $wpdb;
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery
 		$trek_id = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT trek_id FROM {$wpdb->prefix}at_departure_cities WHERE id = %d", $city_id )
+			$wpdb->prepare( "SELECT trek_id FROM {$wpdb->prefix}trekpilot_departure_cities WHERE id = %d", $city_id )
 		);
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery
 		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
-			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'trekpilot' ) ) );
 		}
 
 		$adult_price = isset( $_POST['adult_price'] ) ? floatval( wp_unslash( $_POST['adult_price'] ) ) : 0.00;
@@ -146,7 +146,7 @@ class TrekPricingController {
 		$offer_price = isset( $_POST['offer_price'] ) ? floatval( wp_unslash( $_POST['offer_price'] ) ) : 0.00;
 
 		if ( $adult_price < 0 || $child_price < 0 || $offer_price < 0 ) {
-			wp_send_json_error( array( 'message' => __( 'Prices cannot be negative.', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Prices cannot be negative.', 'trekpilot' ) ) );
 		}
 
 		// Repeaters.
@@ -215,7 +215,7 @@ class TrekPricingController {
 			}
 		}
 
-		$table_name = $wpdb->prefix . 'at_pricing';
+		$table_name = $wpdb->prefix . 'trekpilot_pricing';
 
 		// Check if record exists.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -258,7 +258,7 @@ class TrekPricingController {
 		// Sync prices to the main Departure Cities table to ensure cache indexes remain aligned.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$wpdb->update(
-			$wpdb->prefix . 'at_departure_cities',
+			$wpdb->prefix . 'trekpilot_departure_cities',
 			array(
 				'base_price'  => $adult_price,
 				'offer_price' => $offer_price,
@@ -268,6 +268,6 @@ class TrekPricingController {
 			array( '%d' )
 		);
 
-		wp_send_json_success( array( 'message' => __( 'City pricing rules saved successfully!', 'adventure-treks' ) ) );
+		wp_send_json_success( array( 'message' => __( 'City pricing rules saved successfully!', 'trekpilot' ) ) );
 	}
 }

@@ -2,7 +2,7 @@
  * Stylesheet for Frontend Trek Details Template [trek_details]
  */
 
-.at-trek-details-container {
+.trekpilot-trek-details-container {
 	margin: 30px auto;
 	max-width: 960px;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
@@ -10,12 +10,12 @@
 	line-height: 1.6;
 }
 
-.at-trek-details-container * {
+.trekpilot-trek-details-container * {
 	box-sizing: border-box;
 }
 
 /* Specs grid */
-.at-specs-header-grid {
+.trekpilot-specs-header-grid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 15px;
@@ -23,23 +23,23 @@
 }
 
 @media (max-width: 768px) {
-	.at-specs-header-grid {
+	.trekpilot-specs-header-grid {
 		grid-template-columns: repeat(2, 1fr);
 	}
 }
 
 @media (max-width: 480px) {
-	.at-specs-header-grid {
+	.trekpilot-specs-header-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 10px;
 	}
-	.at-spec-item {
+	.trekpilot-spec-item {
 		padding: 12px 10px;
 		min-width: 0;
 	}
 }
 
-.at-spec-item {
+.trekpilot-spec-item {
 	background: #ffffff;
 	border: 1px solid #e0e0e0;
 	border-radius: 8px;
@@ -50,26 +50,26 @@
 	transition: all 0.25s ease;
 }
 
-.at-spec-item:hover {
+.trekpilot-spec-item:hover {
 	transform: translateY(-2px);
 	box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-	border-color: var(--at-primary-color, #137a7f);
+	border-color: var(--trekpilot-primary-color, #137a7f);
 }
 
-.at-spec-item span.dashicons {
+.trekpilot-spec-item span.dashicons {
 	font-size: 28px;
 	width: 28px;
 	height: 28px;
-	color: var(--at-primary-color, #137a7f);
+	color: var(--trekpilot-primary-color, #137a7f);
 	line-height: 1;
 }
 
-.at-spec-info {
+.trekpilot-spec-info {
 	display: flex;
 	flex-direction: column;
 }
 
-.at-spec-label {
+.trekpilot-spec-label {
 	font-size: 10px;
 	text-transform: uppercase;
 	color: #777;
@@ -77,7 +77,7 @@
 	letter-spacing: 0.5px;
 }
 
-.at-spec-value {
+.trekpilot-spec-value {
 	font-size: 13px;
 	font-weight: 700;
 	color: #222;
@@ -88,7 +88,7 @@
 /* Only the tab bar sticks (bounded by this wrapper). Making the whole card
    sticky let it slide over the Quick Links card that follows it in the same
    container. No overflow on the wrapper, or sticky would break. */
-.at-details-tabs-wrapper {
+.trekpilot-details-tabs-wrapper {
 	border: 1px solid #e0e0e0;
 	border-radius: 8px;
 	background: #ffffff;
@@ -96,7 +96,7 @@
 	box-shadow: 0 2px 10px rgba(0,0,0,0.02);
 }
 
-.at-details-tabs-nav {
+.trekpilot-details-tabs-nav {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -106,30 +106,30 @@
 	border-radius: 8px 8px 0 0;
 	overflow-x: auto;
 	overflow-y: hidden;
-	top: var(--at-header-offset, 0px);
+	top: var(--trekpilot-header-offset, 0px);
 	z-index: 5;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: thin;  /* Firefox */
-	scrollbar-color: var(--at-primary-color, #137a7f) #eef0f2;
+	scrollbar-color: var(--trekpilot-primary-color, #137a7f) #eef0f2;
 }
 
 /* Visible thin scrollbar so users can tell the tabs scroll sideways. */
-.at-details-tabs-nav::-webkit-scrollbar {
+.trekpilot-details-tabs-nav::-webkit-scrollbar {
 	height: 6px;
 }
-.at-details-tabs-nav::-webkit-scrollbar-track {
+.trekpilot-details-tabs-nav::-webkit-scrollbar-track {
 	background: #eef0f2;
 }
-.at-details-tabs-nav::-webkit-scrollbar-thumb {
-	background: var(--at-primary-color, #137a7f);
+.trekpilot-details-tabs-nav::-webkit-scrollbar-thumb {
+	background: var(--trekpilot-primary-color, #137a7f);
 	border-radius: 3px;
 }
 
-.at-details-tabs-nav li {
+.trekpilot-details-tabs-nav li {
 	margin: 0;
 }
 
-.at-details-tabs-nav a {
+.trekpilot-details-tabs-nav a {
 	display: block;
 	padding: 15px 25px;
 	text-decoration: none;
@@ -141,34 +141,34 @@
 	white-space: nowrap;
 }
 
-.at-details-tabs-nav li.active a,
-.at-details-tabs-nav a:hover {
+.trekpilot-details-tabs-nav li.active a,
+.trekpilot-details-tabs-nav a:hover {
 	background: #ffffff;
-	color: var(--at-primary-color, #137a7f);
+	color: var(--trekpilot-primary-color, #137a7f);
 }
-.at-details-tabs-nav a:hover {
-	color: var(--at-secondary-color, #0f6165);
+.trekpilot-details-tabs-nav a:hover {
+	color: var(--trekpilot-secondary-color, #0f6165);
 }
 
-.at-details-tabs-nav li.active a {
-	border-bottom: 2px solid var(--at-primary-color, #137a7f);
+.trekpilot-details-tabs-nav li.active a {
+	border-bottom: 2px solid var(--trekpilot-primary-color, #137a7f);
 	margin-bottom: -1px;
 }
 
-.at-details-tabs-content {
+.trekpilot-details-tabs-content {
 	padding: 25px;
 	border-radius: 0 0 8px 8px;
 }
 
-.at-details-tab-panel {
+.trekpilot-details-tab-panel {
 	display: none;
 }
 
-.at-details-tab-panel.active {
+.trekpilot-details-tab-panel.active {
 	display: block;
 }
 
-.at-tab-headline {
+.trekpilot-tab-headline {
 	margin: -25px -25px 20px;
 	padding: 18px 25px;
 	background: #fff;
@@ -179,19 +179,19 @@
 }
 
 /* Highlights */
-.at-incl-excl-grid {
+.trekpilot-incl-excl-grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 25px;
 }
 
 @media (max-width: 600px) {
-	.at-incl-excl-grid {
+	.trekpilot-incl-excl-grid {
 		grid-template-columns: 1fr;
 	}
 }
 
-.at-incl-excl-heading {
+.trekpilot-incl-excl-heading {
 	margin: 0 0 12px;
 	font-size: 13px;
 	font-weight: 700;
@@ -199,16 +199,16 @@
 	letter-spacing: .3px;
 }
 
-.at-incl-excl-heading.included {
-	color: var(--at-primary-color, #137a7f);
+.trekpilot-incl-excl-heading.included {
+	color: var(--trekpilot-primary-color, #137a7f);
 }
 
-.at-incl-excl-heading.excluded {
+.trekpilot-incl-excl-heading.excluded {
 	color: #b32d2e;
 }
 
-.at-highlights-list-box ul,
-.at-exclusions-list-box ul {
+.trekpilot-highlights-list-box ul,
+.trekpilot-exclusions-list-box ul {
 	list-style: none;
 	padding: 0;
 	margin: 0;
@@ -217,16 +217,16 @@
 	gap: 10px;
 }
 
-.at-highlights-list-box li,
-.at-exclusions-list-box li {
+.trekpilot-highlights-list-box li,
+.trekpilot-exclusions-list-box li {
 	font-size: 13px;
 	display: flex;
 	align-items: flex-start;
 	color: #444;
 }
 
-.at-highlights-list-box li span.dashicons,
-.at-exclusions-list-box li span.dashicons {
+.trekpilot-highlights-list-box li span.dashicons,
+.trekpilot-exclusions-list-box li span.dashicons {
 	margin-top: 3px;
 	margin-right: 8px;
 	font-size: 16px;
@@ -235,28 +235,28 @@
 	flex-shrink: 0;
 }
 
-.at-highlights-list-box li span.dashicons {
-	color: var(--at-primary-color, #137a7f);
+.trekpilot-highlights-list-box li span.dashicons {
+	color: var(--trekpilot-primary-color, #137a7f);
 }
 
-.at-exclusions-list-box li span.dashicons {
+.trekpilot-exclusions-list-box li span.dashicons {
 	color: #b32d2e;
 }
 
 /* FAQs Accordion */
-.at-faq-accordion-container {
+.trekpilot-faq-accordion-container {
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
 }
 
-.at-accordion-item {
+.trekpilot-accordion-item {
 	border: 1px solid #eaeaea;
 	border-radius: 6px;
 	overflow: hidden;
 }
 
-.at-accordion-trigger {
+.trekpilot-accordion-trigger {
 	width: 100%;
 	background: #fafafa;
 	border: none;
@@ -272,29 +272,29 @@
 	outline: none;
 }
 
-.at-accordion-trigger:hover {
+.trekpilot-accordion-trigger:hover {
 	background: #f5f5f5;
-	color: var(--at-secondary-color, #0f6165);
+	color: var(--trekpilot-secondary-color, #0f6165);
 }
 
-.at-accordion-trigger span.dashicons {
+.trekpilot-accordion-trigger span.dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 	transition: transform 0.2s ease;
 }
 
-.at-accordion-item.active .at-accordion-trigger span.dashicons {
+.trekpilot-accordion-item.active .trekpilot-accordion-trigger span.dashicons {
 	transform: rotate(180deg);
 }
 
-.at-accordion-content {
+.trekpilot-accordion-content {
 	overflow: hidden;
 	transition: max-height 0.25s ease-out;
 	background: #ffffff;
 }
 
-.at-accordion-content p {
+.trekpilot-accordion-content p {
 	margin: 0;
 	padding: 15px 20px;
 	font-size: 13px;
@@ -303,19 +303,19 @@
 }
 
 /* Things to Carry list */
-.at-carry-items-grid {
+.trekpilot-carry-items-grid {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 	gap: 12px;
 }
 
 @media (max-width: 600px) {
-	.at-carry-items-grid {
+	.trekpilot-carry-items-grid {
 		grid-template-columns: 1fr;
 	}
 }
 
-.at-carry-card {
+.trekpilot-carry-card {
 	display: flex;
 	align-items: flex-start;
 	gap: 10px;
@@ -328,17 +328,17 @@
 }
 
 /* Quick Links & Policies card (Things to Carry / Cancellation / Terms) */
-.at-quicklinks-card {
+.trekpilot-quicklinks-card {
 	margin: 20px 0 40px;
 }
 
-.at-quicklinks-row {
+.trekpilot-quicklinks-row {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 12px;
 }
 
-.at-quicklink-btn {
+.trekpilot-quicklink-btn {
 	display: inline-flex !important;
 	align-items: center;
 	gap: 10px;
@@ -354,15 +354,15 @@
 	transition: border-color 0.2s, color 0.2s;
 }
 
-.at-quicklink-btn:hover,
-.at-quicklink-btn:focus {
-	border-color: var(--at-secondary-color, #0f6165) !important;
-	color: var(--at-secondary-color, #0f6165) !important;
+.trekpilot-quicklink-btn:hover,
+.trekpilot-quicklink-btn:focus {
+	border-color: var(--trekpilot-secondary-color, #0f6165) !important;
+	color: var(--trekpilot-secondary-color, #0f6165) !important;
 	background: #fff !important;
 	text-decoration: none !important;
 }
 
-.at-quicklink-icon {
+.trekpilot-quicklink-icon {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -372,25 +372,25 @@
 	flex-shrink: 0;
 }
 
-.at-quicklink-icon .dashicons {
+.trekpilot-quicklink-icon .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
 
-.at-quicklink-icon.gray {
+.trekpilot-quicklink-icon.gray {
 	background: #f0f0f1;
 	color: #50575e;
 }
 
 /* Reserved for a future "Rent/Purchase Gears" quick link. */
-.at-quicklink-icon.orange {
+.trekpilot-quicklink-icon.orange {
 	background: #fff4e5;
 	color: #c9760a;
 }
 
 /* Policy Popup Modals (scrollable) */
-.at-policy-modal {
+.trekpilot-policy-modal {
 	display: none;
 	position: fixed;
 	inset: 0;
@@ -400,18 +400,18 @@
 	padding: 20px;
 }
 
-.at-policy-modal.active {
+.trekpilot-policy-modal.active {
 	display: flex;
 }
 
-.at-policy-modal-overlay {
+.trekpilot-policy-modal-overlay {
 	position: absolute;
 	inset: 0;
 	background: rgba(0, 0, 0, 0.6);
 	cursor: pointer;
 }
 
-.at-policy-modal-box {
+.trekpilot-policy-modal-box {
 	position: relative;
 	z-index: 1;
 	background: #fff;
@@ -425,7 +425,7 @@
 	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
-.at-policy-modal-header {
+.trekpilot-policy-modal-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -434,25 +434,25 @@
 	flex-shrink: 0;
 }
 
-.at-policy-modal-header h3 {
+.trekpilot-policy-modal-header h3 {
 	margin: 0;
 	font-size: 16px;
 	font-weight: 700;
 	color: #222;
 }
 
-.at-policy-modal-close {
+.trekpilot-policy-modal-close {
 	cursor: pointer;
 	font-size: 24px;
 	line-height: 1;
 	color: #888;
 }
 
-.at-policy-modal-close:hover {
+.trekpilot-policy-modal-close:hover {
 	color: #222;
 }
 
-.at-policy-modal-body {
+.trekpilot-policy-modal-body {
 	padding: 20px 22px;
 	overflow-y: auto;
 	font-size: 13px;
@@ -460,39 +460,39 @@
 	line-height: 1.7;
 }
 
-.at-policy-modal-body p {
+.trekpilot-policy-modal-body p {
 	margin: 0 0 12px;
 }
 
-.at-policy-modal-body p:last-child {
+.trekpilot-policy-modal-body p:last-child {
 	margin-bottom: 0;
 }
 
 /* Lists inside policy popups: the theme's list reset left bullets floating far from their text. */
-.at-policy-modal-body ul,
-.at-policy-modal-body ol {
+.trekpilot-policy-modal-body ul,
+.trekpilot-policy-modal-body ol {
 	margin: 0 0 12px;
 	padding: 0 0 0 20px;
 }
 
-.at-policy-modal-body ul {
+.trekpilot-policy-modal-body ul {
 	list-style: disc outside;
 }
 
-.at-policy-modal-body ol {
+.trekpilot-policy-modal-body ol {
 	list-style: decimal outside;
 }
 
-.at-policy-modal-body li {
+.trekpilot-policy-modal-body li {
 	margin: 0 0 6px;
 	padding: 0;
 	text-indent: 0;
 	line-height: 1.7;
 }
 
-.at-policy-modal-body li:last-child,
-.at-policy-modal-body ul:last-child,
-.at-policy-modal-body ol:last-child {
+.trekpilot-policy-modal-body li:last-child,
+.trekpilot-policy-modal-body ul:last-child,
+.trekpilot-policy-modal-body ol:last-child {
 	margin-bottom: 0;
 }
 

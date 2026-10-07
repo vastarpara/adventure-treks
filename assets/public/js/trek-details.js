@@ -1,5 +1,5 @@
 /**
- * JavaScript for managing Frontend Trek Details template [trek_details] (Tabs, Accordions)
+ * JavaScript for managing Frontend Trek Details template [trekpilot_details] (Tabs, Accordions)
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	//    of below it. Height is measured (not hardcoded) since it varies by
 	//    breakpoint and whenever the header is edited in Elementor.
 	// ==========================================
-	function at_sync_sticky_header_offset() {
+	function trekpilot_sync_sticky_header_offset() {
 		const header = document.querySelector('header[data-elementor-type="header"]');
 		let isSticky = false;
 
@@ -28,17 +28,17 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 
 		const offset = isSticky ? Math.round(header.getBoundingClientRect().height) : 0;
-		document.documentElement.style.setProperty('--at-header-offset', offset + 'px');
+		document.documentElement.style.setProperty('--trekpilot-header-offset', offset + 'px');
 	}
-	at_sync_sticky_header_offset();
-	window.addEventListener('resize', at_sync_sticky_header_offset);
-	window.addEventListener('load', at_sync_sticky_header_offset);
+	trekpilot_sync_sticky_header_offset();
+	window.addEventListener('resize', trekpilot_sync_sticky_header_offset);
+	window.addEventListener('load', trekpilot_sync_sticky_header_offset);
 
 	// ==========================================
 	// 1. Tab switching: click a nav tab, only that section shows
 	// ==========================================
-	const tabLinks = document.querySelectorAll('.at-details-tabs-nav a');
-	const tabPanels = document.querySelectorAll('.at-details-tab-panel');
+	const tabLinks = document.querySelectorAll('.trekpilot-details-tabs-nav a');
+	const tabPanels = document.querySelectorAll('.trekpilot-details-tab-panel');
 
 	if (tabLinks.length > 0 && tabPanels.length > 0) {
 		tabLinks.forEach(function(link) {
@@ -47,9 +47,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 				// If the tab bar has been scrolled out of view, a shorter tab would leave the
 				// reader stranded below its content; bring the bar back to the top first.
-				const nav = this.closest('.at-details-tabs-nav');
+				const nav = this.closest('.trekpilot-details-tabs-nav');
 				if (nav) {
-					const stickyOffset = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--at-header-offset'), 10) || 0;
+					const stickyOffset = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trekpilot-header-offset'), 10) || 0;
 					const navTop = nav.getBoundingClientRect().top;
 					if (navTop < stickyOffset) {
 						window.scrollBy({ top: navTop - stickyOffset - 10, left: 0, behavior: 'instant' });
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			});
 		});
 
-		document.querySelectorAll('.at-policy-modal').forEach(function(modal) {
+		document.querySelectorAll('.trekpilot-policy-modal').forEach(function(modal) {
 			modal.querySelectorAll('[data-popup-close]').forEach(function(closer) {
 				closer.addEventListener('click', function() { closePolicyModal(modal); });
 			});
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		document.addEventListener('keydown', function(e) {
 			if (e.key === 'Escape') {
-				document.querySelectorAll('.at-policy-modal.active').forEach(closePolicyModal);
+				document.querySelectorAll('.trekpilot-policy-modal.active').forEach(closePolicyModal);
 			}
 		});
 	}
@@ -104,15 +104,15 @@ document.addEventListener('DOMContentLoaded', function() {
 	// ==========================================
 	// 2. Accordion logic (FAQs)
 	// ==========================================
-	const accordionTriggers = document.querySelectorAll('.at-accordion-trigger');
+	const accordionTriggers = document.querySelectorAll('.trekpilot-accordion-trigger');
 
 	if (accordionTriggers.length > 0) {
 		accordionTriggers.forEach(function(trigger) {
 			trigger.addEventListener('click', function(e) {
 				e.preventDefault();
 
-				const accordionItem = this.closest('.at-accordion-item');
-				const content = accordionItem.querySelector('.at-accordion-content');
+				const accordionItem = this.closest('.trekpilot-accordion-item');
+				const content = accordionItem.querySelector('.trekpilot-accordion-content');
 
 				if (accordionItem.classList.contains('active')) {
 					// Collapse
@@ -120,10 +120,10 @@ document.addEventListener('DOMContentLoaded', function() {
 					content.style.maxHeight = '0px';
 				} else {
 					// Expand (collapse other active items first if desired)
-					const activeSiblings = accordionItem.parentElement.querySelectorAll('.at-accordion-item.active');
+					const activeSiblings = accordionItem.parentElement.querySelectorAll('.trekpilot-accordion-item.active');
 					activeSiblings.forEach(item => {
 						item.classList.remove('active');
-						item.querySelector('.at-accordion-content').style.maxHeight = '0px';
+						item.querySelector('.trekpilot-accordion-content').style.maxHeight = '0px';
 					});
 
 					accordionItem.classList.add('active');
@@ -140,15 +140,15 @@ document.addEventListener('DOMContentLoaded', function() {
 	// AJAX (innerHTML swap) whenever the departure city/date changes, which
 	// would detach any listeners bound directly to the day-toggle buttons.
 	document.addEventListener('click', function(e) {
-		const toggleBtn = e.target.closest('.at-day-toggle-btn');
+		const toggleBtn = e.target.closest('.trekpilot-day-toggle-btn');
 		if (!toggleBtn) return;
 		e.preventDefault();
 
-		const dayBlock = toggleBtn.closest('.at-timeline-day-block');
-		const eventsEl = dayBlock ? dayBlock.querySelector('.at-timeline-events') : null;
+		const dayBlock = toggleBtn.closest('.trekpilot-timeline-day-block');
+		const eventsEl = dayBlock ? dayBlock.querySelector('.trekpilot-timeline-events') : null;
 		if (!eventsEl) return;
 
-		const label = toggleBtn.querySelector('.at-toggle-label');
+		const label = toggleBtn.querySelector('.trekpilot-toggle-label');
 		const isExpanded = dayBlock.classList.contains('expanded');
 
 		if (isExpanded) {

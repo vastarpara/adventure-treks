@@ -2,7 +2,7 @@
  * Settings page styles.
  */
 
-.at-settings-form-card {
+.trekpilot-settings-form-card {
 	background: #fff;
 	padding: 20px;
 	border-radius: 5px;
@@ -10,7 +10,7 @@
 	margin-top: 20px;
 }
 
-.at-qr-code-preview-img {
+.trekpilot-qr-code-preview-img {
 	display: block;
 	max-width: 150px;
 	max-height: 150px;
@@ -21,7 +21,7 @@
 	margin-bottom: 10px;
 }
 
-.at-logo-preview-img {
+.trekpilot-logo-preview-img {
 	display: block;
 	max-width: 220px;
 	max-height: 100px;

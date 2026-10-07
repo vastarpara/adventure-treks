@@ -21,7 +21,7 @@
 ## Checklist
 
 - [ ] `composer lint` passes
-- [ ] New code has DocBlocks and translatable strings use the `adventure-treks` text domain
+- [ ] New code has DocBlocks and translatable strings use the `trekpilot` text domain
 - [ ] Input is sanitized, output is escaped, queries use `$wpdb->prepare()`
 - [ ] AJAX / admin-post handlers check a nonce and a capability
 - [ ] Added an entry under **Unreleased** in `CHANGELOG.md`

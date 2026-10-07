@@ -1,4 +1,4 @@
-=== Adventure Treks ===
+=== TrekPilot – Trek Booking & Management ===
 Contributors: vastarpara, techeshta, alkesh7, bhaveshdesai
 Tags: trek, travel, booking, itinerary, tour
 Requires at least: 6.0
@@ -12,7 +12,7 @@ Trekking and adventure trip management: treks, departure cities and dates, itine
 
 == Description ==
 
-**Adventure Treks** turns your WordPress site into a complete trekking and adventure booking system. Create treks with full details, schedule departures from multiple cities, build day-wise itineraries, set prices and let visitors book their seats online. Manage every reservation from the admin area.
+**TrekPilot** turns your WordPress site into a complete trekking and adventure booking system. Create treks with full details, schedule departures from multiple cities, build day-wise itineraries, set prices and let visitors book their seats online. Manage every reservation from the admin area.
 
 Everything works with the default WordPress block editor, with shortcodes, and with Elementor.
 
@@ -45,20 +45,20 @@ Everything works with the default WordPress block editor, with shortcodes, and w
 * **Theme-friendly colors** - set primary and secondary colors, or leave them empty to follow your theme.
 * **SEO ready** - optional Schema.org structured data for treks.
 * **REST API** - read-only endpoints for treks, cities and dates.
-* **Translation ready** - all text uses the `adventure-treks` text domain.
+* **Translation ready** - all text uses the `trekpilot` text domain.
 
 == Installation ==
 
-1. Upload the `adventure-treks` folder to the `/wp-content/plugins/` directory, or install the plugin from **Plugins > Add New**.
+1. Upload the `trekpilot` folder to the `/wp-content/plugins/` directory, or install the plugin from **Plugins > Add New**.
 2. Activate the plugin through the **Plugins** screen in WordPress.
 3. Go to **Treks > Settings** and set your currency, payment method, notification email and colors.
 4. Go to **Treks > Add New** to create your first trek. Use the **Departure Cities** box to add cities, dates, pricing, pickup points and the itinerary.
-5. Show your treks on any page using the Adventure Treks blocks or the shortcodes below. If you use pretty permalinks and the Trek pages return a 404, visit **Settings > Permalinks** and click **Save Changes** once.
+5. Show your treks on any page using the TrekPilot blocks or the shortcodes below. If you use pretty permalinks and the Trek pages return a 404, visit **Settings > Permalinks** and click **Save Changes** once.
 
 == Shortcodes ==
 
-= [adventure_list] =
-Shows a grid of treks. Alias: `[trek_archive]`.
+= [trekpilot_list] =
+Shows a grid of treks.
 
 * `posts_per_page` - number of treks per page (default `9`).
 * `columns` - number of columns, 1 to 6 (default `3`).
@@ -69,24 +69,24 @@ Shows a grid of treks. Alias: `[trek_archive]`.
 * `show_price` - `yes` or `no` (default `yes`).
 * `pagination` - `yes` or `no` (default `yes`).
 
-Example: `[adventure_list columns="3" posts_per_page="6" orderby="title" order="ASC"]`
+Example: `[trekpilot_list columns="3" posts_per_page="6" orderby="title" order="ASC"]`
 
-= [adventure_details] =
-Shows the full details of a trek: specifications, itinerary, gallery, FAQ and policies. Alias: `[trek_details]`.
-
-* `id` - the trek ID. Defaults to the current trek page.
-
-Example: `[adventure_details id="12"]`
-
-= [adventure_booking] =
-Shows the booking widget for a trek. Alias: `[trek_booking]`.
+= [trekpilot_details] =
+Shows the full details of a trek: specifications, itinerary, gallery, FAQ and policies.
 
 * `id` - the trek ID. Defaults to the current trek page.
 
-Example: `[adventure_booking id="12"]`
+Example: `[trekpilot_details id="12"]`
 
-= [adventure_itinerary] =
-Shows the day-wise itinerary of a trek city. Alias: `[trek_itinerary]`.
+= [trekpilot_booking] =
+Shows the booking widget for a trek.
+
+* `id` - the trek ID. Defaults to the current trek page.
+
+Example: `[trekpilot_booking id="12"]`
+
+= [trekpilot_itinerary] =
+Shows the day-wise itinerary of a trek city.
 
 * `trek_id` - the trek ID. Defaults to the current trek page.
 * `city_id` - the departure city ID.
@@ -100,7 +100,7 @@ Yes. Search for "Trek" in the block inserter to find the **Trek Details**, **Tre
 
 = Is Elementor required? =
 
-No. Elementor is optional. If it is active, the Adventure Treks category with Trek Details, Trek Booking and Trek Archive widgets appears in the Elementor panel.
+No. Elementor is optional. If it is active, the TrekPilot category with Trek Details, Trek Booking and Trek Archive widgets appears in the Elementor panel.
 
 = How do customers pay? =
 
@@ -132,11 +132,11 @@ No. By default your treks, bookings and database tables are kept when the plugin
 
 = Is there a REST API? =
 
-Yes. Read-only endpoints are available under `/wp-json/adventure-treks/v1/` for treks, a trek's cities, and a city's dates.
+Yes. Read-only endpoints are available under `/wp-json/trekpilot/v1/` for treks, a trek's cities, and a city's dates.
 
 = Does it support other languages? =
 
-Yes. The plugin is translation ready and uses the `adventure-treks` text domain. Names in non-Latin scripts are supported everywhere except the PDF export, which uses a font without Gujarati and Hindi characters.
+Yes. The plugin is translation ready and uses the `trekpilot` text domain. Names in non-Latin scripts are supported everywhere except the PDF export, which uses a font without Gujarati and Hindi characters.
 
 == Screenshots ==
 

@@ -2,12 +2,12 @@
 /**
  * REST API Endpoints registration and controller.
  *
- * @package    AdventureTreks
- * @subpackage AdventureTreks/Includes
+ * @package    TrekPilot
+ * @subpackage TrekPilot/Includes
  * @author     Nilesh Vastarpara
  */
 
-namespace AdventureTreks\Includes;
+namespace TrekPilot\Includes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -29,7 +29,7 @@ class RestApi {
 	 * Register REST API routes.
 	 */
 	public function register_routes() {
-		$namespace = 'adventure-treks/v1';
+		$namespace = 'trekpilot/v1';
 
 		// Route: List all treks.
 		register_rest_route(
@@ -98,6 +98,18 @@ class RestApi {
 	}
 
 	/**
+	 * Whether the given post is a published, non-password-protected trek.
+	 *
+	 * @param int $post_id Trek post ID.
+	 * @return bool
+	 */
+	private function is_public_trek( $post_id ) {
+		return 'trekpilot_trek' === get_post_type( $post_id )
+			&& 'publish' === get_post_status( $post_id )
+			&& ! post_password_required( $post_id );
+	}
+
+	/**
 	 * GET: Retrieve list of treks with custom specifications.
 	 *
 	 * @return \WP_REST_Response
@@ -107,13 +119,13 @@ class RestApi {
 
 		$posts = get_posts(
 			array(
-				'post_type'      => 'adventure_trek',
+				'post_type'      => 'trekpilot_trek',
 				'posts_per_page' => -1,
 				'post_status'    => 'publish',
 			)
 		);
 
-		$table_name    = $wpdb->prefix . 'at_treks';
+		$table_name    = $wpdb->prefix . 'trekpilot_treks';
 		$response_data = array();
 
 		// Fetch every trek's details in one query instead of one per trek.
@@ -160,12 +172,12 @@ class RestApi {
 	public function get_single_trek( $request ) {
 		$post_id = intval( $request['id'] );
 
-		if ( get_post_type( $post_id ) !== 'adventure_trek' ) {
-			return new \WP_Error( 'rest_invalid_trek', esc_html__( 'Invalid trek ID', 'adventure-treks' ), array( 'status' => 404 ) );
+		if ( ! $this->is_public_trek( $post_id ) ) {
+			return new \WP_Error( 'rest_invalid_trek', esc_html__( 'Invalid trek ID', 'trekpilot' ), array( 'status' => 404 ) );
 		}
 
 		global $wpdb;
-		$table_treks = $wpdb->prefix . 'at_treks';
+		$table_treks = $wpdb->prefix . 'trekpilot_treks';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$specs = $wpdb->get_row(
@@ -175,7 +187,7 @@ class RestApi {
 		);
 
 		if ( ! $specs ) {
-			return new \WP_Error( 'rest_no_specs', esc_html__( 'Specifications not configured for this trek', 'adventure-treks' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'rest_no_specs', esc_html__( 'Specifications not configured for this trek', 'trekpilot' ), array( 'status' => 404 ) );
 		}
 
 		$post = get_post( $post_id );
@@ -226,12 +238,12 @@ class RestApi {
 	public function get_trek_cities( $request ) {
 		$post_id = intval( $request['id'] );
 
-		if ( get_post_type( $post_id ) !== 'adventure_trek' ) {
-			return new \WP_Error( 'rest_invalid_trek', esc_html__( 'Invalid trek ID', 'adventure-treks' ), array( 'status' => 404 ) );
+		if ( ! $this->is_public_trek( $post_id ) ) {
+			return new \WP_Error( 'rest_invalid_trek', esc_html__( 'Invalid trek ID', 'trekpilot' ), array( 'status' => 404 ) );
 		}
 
 		global $wpdb;
-		$table_cities = $wpdb->prefix . 'at_departure_cities';
+		$table_cities = $wpdb->prefix . 'trekpilot_departure_cities';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$cities = $wpdb->get_results(
@@ -253,17 +265,17 @@ class RestApi {
 		$city_id = intval( $request['city_id'] );
 
 		global $wpdb;
-		$table_cities = $wpdb->prefix . 'at_departure_cities';
+		$table_cities = $wpdb->prefix . 'trekpilot_departure_cities';
 
 		// Verify city exists.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$city_exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $table_cities WHERE id = %d", $city_id ) );
-		if ( ! $city_exists ) {
-			return new \WP_Error( 'rest_invalid_city', esc_html__( 'Invalid city ID', 'adventure-treks' ), array( 'status' => 404 ) );
+		$city_trek_id = $wpdb->get_var( $wpdb->prepare( "SELECT trek_id FROM $table_cities WHERE id = %d AND status = 'active'", $city_id ) );
+		if ( ! $city_trek_id || ! $this->is_public_trek( (int) $city_trek_id ) ) {
+			return new \WP_Error( 'rest_invalid_city', esc_html__( 'Invalid city ID', 'trekpilot' ), array( 'status' => 404 ) );
 		}
 
-		$table_dates = $wpdb->prefix . 'at_departure_dates';
-		$table_avail = $wpdb->prefix . 'at_availability';
+		$table_dates = $wpdb->prefix . 'trekpilot_departure_dates';
+		$table_avail = $wpdb->prefix . 'trekpilot_availability';
 
 		// phpcs:disable WordPress.DB.PreparedSQL
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter

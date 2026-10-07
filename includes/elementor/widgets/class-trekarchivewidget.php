@@ -2,12 +2,12 @@
 /**
  * Elementor Trek Archive Widget.
  *
- * @package    AdventureTreks
- * @subpackage AdventureTreks/Includes/Elementor/Widgets
+ * @package    TrekPilot
+ * @subpackage TrekPilot/Includes/Elementor/Widgets
  * @author     Nilesh Vastarpara
  */
 
-namespace AdventureTreks\Includes\Elementor\Widgets;
+namespace TrekPilot\Includes\Elementor\Widgets;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -24,7 +24,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 	 * @return string
 	 */
 	public function get_name() {
-		return 'at_trek_archive';
+		return 'trekpilot_trek_archive';
 	}
 
 	/**
@@ -33,7 +33,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 	 * @return string
 	 */
 	public function get_title() {
-		return esc_html__( 'Adventure List', 'adventure-treks' );
+		return esc_html__( 'Trek List', 'trekpilot' );
 	}
 
 	/**
@@ -51,7 +51,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 	 * @return array
 	 */
 	public function get_categories() {
-		return array( 'adventure-treks' );
+		return array( 'trekpilot' );
 	}
 
 	/**
@@ -62,7 +62,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 	 * @return array
 	 */
 	public function get_style_depends() {
-		return array( 'at-public-archive-css' );
+		return array( 'trekpilot-public-archive-css' );
 	}
 
 	/**
@@ -75,7 +75,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 		$this->start_controls_section(
 			'query_section',
 			array(
-				'label' => esc_html__( 'Query', 'adventure-treks' ),
+				'label' => esc_html__( 'Query', 'trekpilot' ),
 				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
 			)
 		);
@@ -83,12 +83,12 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'source',
 			array(
-				'label'   => esc_html__( 'Source', 'adventure-treks' ),
+				'label'   => esc_html__( 'Source', 'trekpilot' ),
 				'type'    => \Elementor\Controls_Manager::SELECT,
 				'default' => 'all',
 				'options' => array(
-					'all'    => esc_html__( 'All', 'adventure-treks' ),
-					'manual' => esc_html__( 'Manual Selection', 'adventure-treks' ),
+					'all'    => esc_html__( 'All', 'trekpilot' ),
+					'manual' => esc_html__( 'Manual Selection', 'trekpilot' ),
 				),
 			)
 		);
@@ -96,7 +96,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'selected_treks',
 			array(
-				'label'       => esc_html__( 'Search & Select', 'adventure-treks' ),
+				'label'       => esc_html__( 'Search & Select', 'trekpilot' ),
 				'type'        => \Elementor\Controls_Manager::SELECT2,
 				'multiple'    => true,
 				'label_block' => true,
@@ -110,14 +110,14 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'orderby',
 			array(
-				'label'     => esc_html__( 'Order By', 'adventure-treks' ),
+				'label'     => esc_html__( 'Order By', 'trekpilot' ),
 				'type'      => \Elementor\Controls_Manager::SELECT,
 				'default'   => 'date',
 				'options'   => array(
-					'date'       => esc_html__( 'Publish Date', 'adventure-treks' ),
-					'title'      => esc_html__( 'Title', 'adventure-treks' ),
-					'menu_order' => esc_html__( 'Menu Order', 'adventure-treks' ),
-					'rand'       => esc_html__( 'Random', 'adventure-treks' ),
+					'date'       => esc_html__( 'Publish Date', 'trekpilot' ),
+					'title'      => esc_html__( 'Title', 'trekpilot' ),
+					'menu_order' => esc_html__( 'Menu Order', 'trekpilot' ),
+					'rand'       => esc_html__( 'Random', 'trekpilot' ),
 				),
 				'condition' => array(
 					'source' => 'all',
@@ -128,12 +128,12 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'order',
 			array(
-				'label'     => esc_html__( 'Order', 'adventure-treks' ),
+				'label'     => esc_html__( 'Order', 'trekpilot' ),
 				'type'      => \Elementor\Controls_Manager::SELECT,
 				'default'   => 'DESC',
 				'options'   => array(
-					'DESC' => esc_html__( 'Descending', 'adventure-treks' ),
-					'ASC'  => esc_html__( 'Ascending', 'adventure-treks' ),
+					'DESC' => esc_html__( 'Descending', 'trekpilot' ),
+					'ASC'  => esc_html__( 'Ascending', 'trekpilot' ),
 				),
 				'condition' => array(
 					'source' => 'all',
@@ -147,7 +147,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 		$this->start_controls_section(
 			'layout_section',
 			array(
-				'label' => esc_html__( 'Layout', 'adventure-treks' ),
+				'label' => esc_html__( 'Layout', 'trekpilot' ),
 				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
 			)
 		);
@@ -155,7 +155,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'posts_per_page',
 			array(
-				'label'     => esc_html__( 'Treks Per Page', 'adventure-treks' ),
+				'label'     => esc_html__( 'Treks Per Page', 'trekpilot' ),
 				'type'      => \Elementor\Controls_Manager::NUMBER,
 				'min'       => 1,
 				'max'       => 100,
@@ -169,7 +169,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'columns',
 			array(
-				'label'   => esc_html__( 'Columns', 'adventure-treks' ),
+				'label'   => esc_html__( 'Columns', 'trekpilot' ),
 				'type'    => \Elementor\Controls_Manager::NUMBER,
 				'min'     => 1,
 				'max'     => 6,
@@ -180,10 +180,10 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'show_excerpt',
 			array(
-				'label'        => esc_html__( 'Show Excerpt', 'adventure-treks' ),
+				'label'        => esc_html__( 'Show Excerpt', 'trekpilot' ),
 				'type'         => \Elementor\Controls_Manager::SWITCHER,
-				'label_on'     => esc_html__( 'Yes', 'adventure-treks' ),
-				'label_off'    => esc_html__( 'No', 'adventure-treks' ),
+				'label_on'     => esc_html__( 'Yes', 'trekpilot' ),
+				'label_off'    => esc_html__( 'No', 'trekpilot' ),
 				'return_value' => 'yes',
 				'default'      => 'yes',
 			)
@@ -192,10 +192,10 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'show_price',
 			array(
-				'label'        => esc_html__( 'Show Price', 'adventure-treks' ),
+				'label'        => esc_html__( 'Show Price', 'trekpilot' ),
 				'type'         => \Elementor\Controls_Manager::SWITCHER,
-				'label_on'     => esc_html__( 'Yes', 'adventure-treks' ),
-				'label_off'    => esc_html__( 'No', 'adventure-treks' ),
+				'label_on'     => esc_html__( 'Yes', 'trekpilot' ),
+				'label_off'    => esc_html__( 'No', 'trekpilot' ),
 				'return_value' => 'yes',
 				'default'      => 'yes',
 			)
@@ -207,7 +207,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 		$this->start_controls_section(
 			'pagination_section',
 			array(
-				'label'     => esc_html__( 'Pagination', 'adventure-treks' ),
+				'label'     => esc_html__( 'Pagination', 'trekpilot' ),
 				'tab'       => \Elementor\Controls_Manager::TAB_CONTENT,
 				'condition' => array(
 					'source' => 'all',
@@ -218,10 +218,10 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'show_pagination',
 			array(
-				'label'        => esc_html__( 'Show Pagination', 'adventure-treks' ),
+				'label'        => esc_html__( 'Show Pagination', 'trekpilot' ),
 				'type'         => \Elementor\Controls_Manager::SWITCHER,
-				'label_on'     => esc_html__( 'Yes', 'adventure-treks' ),
-				'label_off'    => esc_html__( 'No', 'adventure-treks' ),
+				'label_on'     => esc_html__( 'Yes', 'trekpilot' ),
+				'label_off'    => esc_html__( 'No', 'trekpilot' ),
 				'return_value' => 'yes',
 				'default'      => 'yes',
 			)
@@ -238,7 +238,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 	private function get_trek_options() {
 		$treks   = get_posts(
 			array(
-				'post_type'      => 'adventure_trek',
+				'post_type'      => 'trekpilot_trek',
 				'posts_per_page' => -1,
 				'orderby'        => 'title',
 				'order'          => 'ASC',
@@ -262,7 +262,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 			$selected_ids = array_filter( array_map( 'intval', (array) $settings['selected_treks'] ) );
 
 			$shortcode = sprintf(
-				'[adventure_list include="%1$s" columns="%2$d" show_excerpt="%3$s" show_price="%4$s" pagination="no"]',
+				'[trekpilot_list include="%1$s" columns="%2$d" show_excerpt="%3$s" show_price="%4$s" pagination="no"]',
 				implode( ',', $selected_ids ),
 				intval( $settings['columns'] ),
 				'yes' === $settings['show_excerpt'] ? 'yes' : 'no',
@@ -270,7 +270,7 @@ class TrekArchiveWidget extends \Elementor\Widget_Base {
 			);
 		} else {
 			$shortcode = sprintf(
-				'[adventure_list posts_per_page="%1$d" columns="%2$d" orderby="%3$s" order="%4$s" show_excerpt="%5$s" show_price="%6$s" pagination="%7$s"]',
+				'[trekpilot_list posts_per_page="%1$d" columns="%2$d" orderby="%3$s" order="%4$s" show_excerpt="%5$s" show_price="%6$s" pagination="%7$s"]',
 				intval( $settings['posts_per_page'] ),
 				intval( $settings['columns'] ),
 				sanitize_key( $settings['orderby'] ),

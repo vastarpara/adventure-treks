@@ -4,49 +4,49 @@
 
 document.addEventListener('DOMContentLoaded', function() {
 
-	const tbodyCities = document.getElementById('at_cities_tbody');
-	const root = document.getElementById('at_departures_module_root');
+	const tbodyCities = document.getElementById('trekpilot_cities_tbody');
+	const root = document.getElementById('trekpilot_departures_module_root');
 	if (!tbodyCities || !root) return;
 
 	const trekId = root.getAttribute('data-trek-id');
-	const ajaxUrl = at_itinerary_obj.ajax_url;
-	const nonce = at_itinerary_obj.nonce;
+	const ajaxUrl = trekpilot_itinerary_obj.ajax_url;
+	const nonce = trekpilot_itinerary_obj.nonce;
 
 	// Itinerary Modal Elements
-	const itineraryModal = document.getElementById('at_itinerary_modal');
-	const itineraryCityTitle = document.getElementById('at_itinerary_modal_city_title');
-	const itineraryCloseBtn = document.getElementById('at_itinerary_modal_close_btn');
-	const itineraryBackBtn = document.getElementById('at_itinerary_modal_back_btn');
+	const itineraryModal = document.getElementById('trekpilot_itinerary_modal');
+	const itineraryCityTitle = document.getElementById('trekpilot_itinerary_modal_city_title');
+	const itineraryCloseBtn = document.getElementById('trekpilot_itinerary_modal_close_btn');
+	const itineraryBackBtn = document.getElementById('trekpilot_itinerary_modal_back_btn');
 
-	const daysList = document.getElementById('at_itinerary_days_list');
-	const addDayBtn = document.getElementById('at_add_day_btn');
+	const daysList = document.getElementById('trekpilot_itinerary_days_list');
+	const addDayBtn = document.getElementById('trekpilot_add_day_btn');
 
-	const noDaySelectedMsg = document.getElementById('at_no_day_selected_msg');
-	const dayTimelineWrapper = document.getElementById('at_day_timeline_wrapper');
-	const selectedDayTitle = document.getElementById('at_selected_day_title');
-	const selectedDayDesc = document.getElementById('at_selected_day_desc');
-	const editSelectedDayBtn = document.getElementById('at_edit_selected_day_btn');
-	const addActivityBtn = document.getElementById('at_add_activity_btn');
-	const activitiesTimeline = document.getElementById('at_day_activities_timeline');
+	const noDaySelectedMsg = document.getElementById('trekpilot_no_day_selected_msg');
+	const dayTimelineWrapper = document.getElementById('trekpilot_day_timeline_wrapper');
+	const selectedDayTitle = document.getElementById('trekpilot_selected_day_title');
+	const selectedDayDesc = document.getElementById('trekpilot_selected_day_desc');
+	const editSelectedDayBtn = document.getElementById('trekpilot_edit_selected_day_btn');
+	const addActivityBtn = document.getElementById('trekpilot_add_activity_btn');
+	const activitiesTimeline = document.getElementById('trekpilot_day_activities_timeline');
 
 	// Day Form Modal Elements
-	const dayFormModal = document.getElementById('at_day_form_modal');
-	const dayFormTitle = document.getElementById('at_day_form_title');
-	const dayForm = document.getElementById('at_day_form');
-	const dayFormCancelBtn = document.getElementById('at_day_form_cancel_btn');
-	const dayFormSaveBtn = document.getElementById('at_day_form_save_btn');
-	const dayFormCloseBtn = document.getElementById('at_day_form_close_btn');
+	const dayFormModal = document.getElementById('trekpilot_day_form_modal');
+	const dayFormTitle = document.getElementById('trekpilot_day_form_title');
+	const dayForm = document.getElementById('trekpilot_day_form');
+	const dayFormCancelBtn = document.getElementById('trekpilot_day_form_cancel_btn');
+	const dayFormSaveBtn = document.getElementById('trekpilot_day_form_save_btn');
+	const dayFormCloseBtn = document.getElementById('trekpilot_day_form_close_btn');
 
 	// Activity Form Modal Elements
-	const activityFormModal = document.getElementById('at_activity_form_modal');
-	const activityFormTitle = document.getElementById('at_activity_form_title');
-	const activityForm = document.getElementById('at_activity_form');
-	const activityFormCancelBtn = document.getElementById('at_activity_form_cancel_btn');
-	const activityFormSaveBtn = document.getElementById('at_activity_form_save_btn');
-	const activityFormCloseBtn = document.getElementById('at_activity_form_close_btn');
-	const selectActivityImgBtn = document.getElementById('at_select_activity_image_btn');
-	const activityImgInput = document.getElementById('at_form_activity_image');
-	const activityImgPreview = document.getElementById('at_activity_image_preview');
+	const activityFormModal = document.getElementById('trekpilot_activity_form_modal');
+	const activityFormTitle = document.getElementById('trekpilot_activity_form_title');
+	const activityForm = document.getElementById('trekpilot_activity_form');
+	const activityFormCancelBtn = document.getElementById('trekpilot_activity_form_cancel_btn');
+	const activityFormSaveBtn = document.getElementById('trekpilot_activity_form_save_btn');
+	const activityFormCloseBtn = document.getElementById('trekpilot_activity_form_close_btn');
+	const selectActivityImgBtn = document.getElementById('trekpilot_select_activity_image_btn');
+	const activityImgInput = document.getElementById('trekpilot_form_activity_image');
+	const activityImgPreview = document.getElementById('trekpilot_activity_image_preview');
 
 	// Active State
 	let activeCityId = null;
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		daysList.innerHTML = '<div style="text-align:center; padding:10px; color:#666;">Loading...</div>';
 
-		const url = `${ajaxUrl}?action=at_get_itinerary&city_id=${activeCityId}&nonce=${nonce}`;
+		const url = `${ajaxUrl}?action=trekpilot_get_itinerary&city_id=${activeCityId}&nonce=${nonce}`;
 
 		fetch(url)
 			.then(res => res.json())
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		daysList.innerHTML = '';
 		activeItinerary.forEach((day) => {
 			const div = document.createElement('div');
-			div.className = 'at-itinerary-day-tab';
+			div.className = 'trekpilot-itinerary-day-tab';
 			div.setAttribute('draggable', 'true');
 			div.setAttribute('data-id', day.id);
 			if (activeDayId && parseInt(day.id) === activeDayId) {
@@ -148,30 +148,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
 			div.innerHTML = `
 				<div style="display:flex; align-items:center; gap:8px;">
-					<span class="at-day-drag-handle" style="cursor:move; color:#a7aaad;">☰</span>
+					<span class="trekpilot-day-drag-handle" style="cursor:move; color:#a7aaad;">☰</span>
 					<div>
 						<strong style="display:block; font-size:12px;">Day ${day.day_number}: ${day.title}</strong>
 						<span style="font-size:10px; color:#666;">${day.items ? day.items.length : 0} activities</span>
 					</div>
 				</div>
 				<div style="display:flex; gap:5px;">
-					<a href="#" class="at-day-delete-action" data-id="${day.id}" style="color:#b32d2e; font-size:11px; text-decoration:none;">&times;</a>
+					<a href="#" class="trekpilot-day-delete-action" data-id="${day.id}" style="color:#b32d2e; font-size:11px; text-decoration:none;">&times;</a>
 				</div>
 			`;
 
 			// Click to select day
 			div.addEventListener('click', function(e) {
-				if (e.target.classList.contains('at-day-delete-action') || e.target.classList.contains('at-day-drag-handle')) {
+				if (e.target.classList.contains('trekpilot-day-delete-action') || e.target.classList.contains('trekpilot-day-drag-handle')) {
 					return;
 				}
 				selectDay(parseInt(day.id));
 			});
 
 			// Delete day handle
-			div.querySelector('.at-day-delete-action').addEventListener('click', function(e) {
+			div.querySelector('.trekpilot-day-delete-action').addEventListener('click', function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-				at_admin_confirm('Are you sure you want to delete this Day and ALL timeline activities configured inside it? This cannot be undone.', function() {
+				trekpilot_admin_confirm('Are you sure you want to delete this Day and ALL timeline activities configured inside it? This cannot be undone.', function() {
 					deleteDay(parseInt(day.id));
 				});
 			});
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (!dayObj) return;
 
 		// Highlight tab
-		const tabs = daysList.querySelectorAll('.at-itinerary-day-tab');
+		const tabs = daysList.querySelectorAll('.trekpilot-itinerary-day-tab');
 		tabs.forEach(tab => {
 			tab.classList.remove('active');
 			tab.style.borderColor = '#ccd0d4';
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		activitiesTimeline.innerHTML = '';
 		items.forEach((item) => {
 			const card = document.createElement('div');
-			card.className = 'at-activity-timeline-card';
+			card.className = 'trekpilot-activity-timeline-card';
 			card.setAttribute('draggable', 'true');
 			card.setAttribute('data-id', item.id);
 
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			const iconHTML = `<span class="dashicons ${iconClass}" style="color:#2271b1; font-size:18px; width:18px; height:18px; line-height:1;"></span>`;
 
 			card.innerHTML = `
-				<div class="at-activity-drag-handle" style="cursor:move; color:#a7aaad; font-size:18px; align-self:center;">☰</div>
+				<div class="trekpilot-activity-drag-handle" style="cursor:move; color:#a7aaad; font-size:18px; align-self:center;">☰</div>
 				<div style="flex-grow:1;">
 					<div style="display:flex; align-items:center; gap:6px;">
 						${iconHTML}
@@ -245,22 +245,22 @@ document.addEventListener('DOMContentLoaded', function() {
 				${imgHTML}
 				<div style="display:flex; flex-direction:column; gap:5px; align-self:stretch; justify-content:space-between; align-items:flex-end;">
 					<div style="display:flex; gap:4px;">
-						<a href="#" class="at-activity-edit" data-id="${item.id}" title="Edit" aria-label="Edit" style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:4px; text-decoration:none; color:#2271b1;"><span class="dashicons dashicons-edit" style="font-size:16px; width:16px; height:16px;"></span></a>
-						<a href="#" class="at-activity-delete" data-id="${item.id}" title="Delete" aria-label="Delete" style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:4px; text-decoration:none; color:#b32d2e;"><span class="dashicons dashicons-trash" style="font-size:16px; width:16px; height:16px;"></span></a>
+						<a href="#" class="trekpilot-activity-edit" data-id="${item.id}" title="Edit" aria-label="Edit" style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:4px; text-decoration:none; color:#2271b1;"><span class="dashicons dashicons-edit" style="font-size:16px; width:16px; height:16px;"></span></a>
+						<a href="#" class="trekpilot-activity-delete" data-id="${item.id}" title="Delete" aria-label="Delete" style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:4px; text-decoration:none; color:#b32d2e;"><span class="dashicons dashicons-trash" style="font-size:16px; width:16px; height:16px;"></span></a>
 					</div>
 				</div>
 			`;
 
 			// Delete event listener
-			card.querySelector('.at-activity-delete').addEventListener('click', function(e) {
+			card.querySelector('.trekpilot-activity-delete').addEventListener('click', function(e) {
 				e.preventDefault();
-				at_admin_confirm('Are you sure you want to delete this timeline activity?', function() {
+				trekpilot_admin_confirm('Are you sure you want to delete this timeline activity?', function() {
 					deleteActivity(parseInt(item.id));
 				});
 			});
 
 			// Edit event listener
-			card.querySelector('.at-activity-edit').addEventListener('click', function(e) {
+			card.querySelector('.trekpilot-activity-edit').addEventListener('click', function(e) {
 				e.preventDefault();
 				openEditActivityModal(item);
 			});
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	// 3. Day CRUD Form operations
 	// ==========================================
 	function clearDayForm() {
-		const f = document.getElementById('at_day_form');
+		const f = document.getElementById('trekpilot_day_form');
 		if (!f) return;
 		const inputs = f.querySelectorAll('input, textarea');
 		inputs.forEach(i => {
@@ -288,10 +288,10 @@ document.addEventListener('DOMContentLoaded', function() {
 		e.preventDefault();
 		dayFormTitle.textContent = 'Add Itinerary Day';
 		clearDayForm();
-		document.getElementById('at_form_day_id').value = '';
+		document.getElementById('trekpilot_form_day_id').value = '';
 		// auto calculate day number
 		const nextDayNumber = activeItinerary.length > 0 ? Math.max(...activeItinerary.map(d => parseInt(d.day_number))) + 1 : 1;
-		document.getElementById('at_form_day_number').value = nextDayNumber;
+		document.getElementById('trekpilot_form_day_number').value = nextDayNumber;
 		dayFormModal.style.display = 'flex';
 	});
 
@@ -300,10 +300,10 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (!dayObj) return;
 
 		dayFormTitle.textContent = 'Edit Day Settings';
-		document.getElementById('at_form_day_id').value = dayObj.id;
-		document.getElementById('at_form_day_number').value = dayObj.day_number;
-		document.getElementById('at_form_day_title').value = dayObj.title;
-		document.getElementById('at_form_day_description').value = dayObj.description;
+		document.getElementById('trekpilot_form_day_id').value = dayObj.id;
+		document.getElementById('trekpilot_form_day_number').value = dayObj.day_number;
+		document.getElementById('trekpilot_form_day_title').value = dayObj.title;
+		document.getElementById('trekpilot_form_day_description').value = dayObj.description;
 
 		dayFormModal.style.display = 'flex';
 	});
@@ -318,19 +318,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	dayFormSaveBtn.addEventListener('click', function(e) {
 		e.preventDefault();
-		const f = document.getElementById('at_day_form');
+		const f = document.getElementById('trekpilot_day_form');
 		if (!f) return;
 
 		// Manual Validation
-		const titleFld = document.getElementById('at_form_day_title');
+		const titleFld = document.getElementById('trekpilot_form_day_title');
 		if (!titleFld.value.trim()) {
-			at_admin_toast('Day Title is required');
+			trekpilot_admin_toast('Day Title is required');
 			titleFld.focus();
 			return;
 		}
 
 		const formData = new FormData();
-		formData.append('action', 'at_save_itinerary_day');
+		formData.append('action', 'trekpilot_save_itinerary_day');
 		formData.append('trek_id', trekId);
 		formData.append('city_id', activeCityId);
 		formData.append('nonce', nonce);
@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				if (data.success) {
 					fetchItinerary(data.data.id);
 				} else {
-					at_admin_toast('Error: ' + data.data.message);
+					trekpilot_admin_toast('Error: ' + data.data.message);
 					dayFormModal.style.display = 'flex';
 				}
 			});
@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	function deleteDay(dayId) {
 		const fd = new FormData();
-		fd.append('action', 'at_delete_itinerary_day');
+		fd.append('action', 'trekpilot_delete_itinerary_day');
 		fd.append('id', dayId);
 		fd.append('nonce', nonce);
 
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					}
 					fetchItinerary();
 				} else {
-					at_admin_toast('Error: ' + data.data.message);
+					trekpilot_admin_toast('Error: ' + data.data.message);
 				}
 			});
 	}
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	// 4. Activity CRUD Form operations
 	// ==========================================
 	function clearActivityForm() {
-		const f = document.getElementById('at_activity_form');
+		const f = document.getElementById('trekpilot_activity_form');
 		if (!f) return;
 		const inputs = f.querySelectorAll('input, select, textarea');
 		inputs.forEach(i => {
@@ -399,26 +399,26 @@ document.addEventListener('DOMContentLoaded', function() {
 		e.preventDefault();
 		activityFormTitle.textContent = 'Add Timeline Activity';
 		clearActivityForm();
-		document.getElementById('at_form_activity_id').value = '';
+		document.getElementById('trekpilot_form_activity_id').value = '';
 		activityImgPreview.innerHTML = '';
 		activityFormModal.style.display = 'flex';
 	});
 
 	function openEditActivityModal(item) {
 		activityFormTitle.textContent = 'Edit Timeline Activity';
-		document.getElementById('at_form_activity_id').value = item.id;
+		document.getElementById('trekpilot_form_activity_id').value = item.id;
 		
-		const timeFld = document.getElementById('at_form_activity_time');
+		const timeFld = document.getElementById('trekpilot_form_activity_time');
 		if (timeFld._flatpickr) {
 			timeFld._flatpickr.setDate(item.item_time || '');
 		} else {
 			timeFld.value = item.item_time || '';
 		}
 		
-		document.getElementById('at_form_activity_icon').value = item.icon;
-		document.getElementById('at_form_activity_title').value = item.title;
-		document.getElementById('at_form_activity_image').value = item.image_url;
-		document.getElementById('at_form_activity_desc').value = item.description;
+		document.getElementById('trekpilot_form_activity_icon').value = item.icon;
+		document.getElementById('trekpilot_form_activity_title').value = item.title;
+		document.getElementById('trekpilot_form_activity_image').value = item.image_url;
+		document.getElementById('trekpilot_form_activity_desc').value = item.description;
 
 		if (item.image_url) {
 			activityImgPreview.innerHTML = `<img src="${item.image_url}" style="max-width:100px; max-height:80px; border:1px solid #ddd; border-radius:4px; padding:3px; background:#fff;" />`;
@@ -440,19 +440,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	activityFormSaveBtn.addEventListener('click', function(e) {
 		e.preventDefault();
-		const f = document.getElementById('at_activity_form');
+		const f = document.getElementById('trekpilot_activity_form');
 		if (!f) return;
 
 		// Manual Validation
-		const titleFld = document.getElementById('at_form_activity_title');
+		const titleFld = document.getElementById('trekpilot_form_activity_title');
 		if (!titleFld.value.trim()) {
-			at_admin_toast('Activity Title is required');
+			trekpilot_admin_toast('Activity Title is required');
 			titleFld.focus();
 			return;
 		}
 
 		const formData = new FormData();
-		formData.append('action', 'at_save_itinerary_item');
+		formData.append('action', 'trekpilot_save_itinerary_item');
 		formData.append('itinerary_id', activeDayId);
 		formData.append('nonce', nonce);
 
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				if (data.success) {
 					fetchItinerary();
 				} else {
-					at_admin_toast('Error: ' + data.data.message);
+					trekpilot_admin_toast('Error: ' + data.data.message);
 					activityFormModal.style.display = 'flex';
 				}
 			});
@@ -484,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	function deleteActivity(actId) {
 		const fd = new FormData();
-		fd.append('action', 'at_delete_itinerary_item');
+		fd.append('action', 'trekpilot_delete_itinerary_item');
 		fd.append('id', actId);
 		fd.append('nonce', nonce);
 
@@ -494,7 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				if (data.success) {
 					fetchItinerary();
 				} else {
-					at_admin_toast('Error: ' + data.data.message);
+					trekpilot_admin_toast('Error: ' + data.data.message);
 				}
 			});
 	}
@@ -529,7 +529,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	let dragDayEl = null;
 
 	function initDaysDragDrop() {
-		const dayTabs = daysList.querySelectorAll('.at-itinerary-day-tab');
+		const dayTabs = daysList.querySelectorAll('.trekpilot-itinerary-day-tab');
 		dayTabs.forEach(tab => {
 			tab.addEventListener('dragstart', handleDayDragStart);
 			tab.addEventListener('dragover', handleDayDragOver);
@@ -569,14 +569,14 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	function saveDaysOrder() {
-		const dayTabs = daysList.querySelectorAll('.at-itinerary-day-tab');
+		const dayTabs = daysList.querySelectorAll('.trekpilot-itinerary-day-tab');
 		const order = [];
 		dayTabs.forEach(tab => {
 			order.push(tab.getAttribute('data-id'));
 		});
 
 		const fd = new FormData();
-		fd.append('action', 'at_reorder_itinerary_days');
+		fd.append('action', 'trekpilot_reorder_itinerary_days');
 		order.forEach(id => fd.append('order[]', id));
 		fd.append('nonce', nonce);
 
@@ -584,7 +584,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			.then(res => res.json())
 			.then(data => {
 				if (!data.success) {
-					at_admin_toast('Day reordering failed: ' + data.data.message);
+					trekpilot_admin_toast('Day reordering failed: ' + data.data.message);
 				}
 			});
 	}
@@ -593,7 +593,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	let dragActEl = null;
 
 	function initActivitiesDragDrop() {
-		const cards = activitiesTimeline.querySelectorAll('.at-activity-timeline-card');
+		const cards = activitiesTimeline.querySelectorAll('.trekpilot-activity-timeline-card');
 		cards.forEach(card => {
 			card.addEventListener('dragstart', handleActDragStart);
 			card.addEventListener('dragover', handleActDragOver);
@@ -633,14 +633,14 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	function saveActivitiesOrder() {
-		const cards = activitiesTimeline.querySelectorAll('.at-activity-timeline-card');
+		const cards = activitiesTimeline.querySelectorAll('.trekpilot-activity-timeline-card');
 		const order = [];
 		cards.forEach(card => {
 			order.push(card.getAttribute('data-id'));
 		});
 
 		const fd = new FormData();
-		fd.append('action', 'at_reorder_itinerary_items');
+		fd.append('action', 'trekpilot_reorder_itinerary_items');
 		order.forEach(id => fd.append('order[]', id));
 		fd.append('nonce', nonce);
 
@@ -648,7 +648,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			.then(res => res.json())
 			.then(data => {
 				if (!data.success) {
-					at_admin_toast('Activity sorting failed: ' + data.data.message);
+					trekpilot_admin_toast('Activity sorting failed: ' + data.data.message);
 				}
 			});
 	}

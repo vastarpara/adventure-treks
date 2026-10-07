@@ -4,22 +4,22 @@
 document.addEventListener('DOMContentLoaded', function () {
 	'use strict';
 
-	const tabLinks = document.querySelectorAll('.nav-tab-wrapper .nav-tab[data-at-tab]');
+	const tabLinks = document.querySelectorAll('.nav-tab-wrapper .nav-tab[data-trekpilot-tab]');
 	if (!tabLinks.length) {
 		return;
 	}
 
 	function activateTab(tabKey) {
 		tabLinks.forEach(function (link) {
-			link.classList.toggle('nav-tab-active', link.getAttribute('data-at-tab') === tabKey);
+			link.classList.toggle('nav-tab-active', link.getAttribute('data-trekpilot-tab') === tabKey);
 		});
 
-		document.querySelectorAll('.at-settings-tab').forEach(function (panel) {
-			panel.style.display = (panel.id === 'at-settings-tab-' + tabKey) ? '' : 'none';
+		document.querySelectorAll('.trekpilot-settings-tab').forEach(function (panel) {
+			panel.style.display = (panel.id === 'trekpilot-settings-tab-' + tabKey) ? '' : 'none';
 		});
 
 		// Import / Export has its own forms, so the settings form (and its Save button) is hidden there.
-		const settingsForm = document.querySelector('form.at-settings-form-card');
+		const settingsForm = document.querySelector('form.trekpilot-settings-form-card');
 		if (settingsForm) {
 			settingsForm.style.display = (tabKey === 'import-export') ? 'none' : '';
 		}
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	tabLinks.forEach(function (link) {
 		link.addEventListener('click', function (e) {
 			e.preventDefault();
-			const tabKey = link.getAttribute('data-at-tab');
+			const tabKey = link.getAttribute('data-trekpilot-tab');
 			activateTab(tabKey);
 			window.location.hash = tabKey;
 		});
@@ -36,21 +36,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	const initialTab = window.location.hash ? window.location.hash.replace('#', '') : 'general';
 	const validTabs = Array.prototype.map.call(tabLinks, function (link) {
-		return link.getAttribute('data-at-tab');
+		return link.getAttribute('data-trekpilot-tab');
 	});
 	activateTab(validTabs.indexOf(initialTab) !== -1 ? initialTab : 'general');
 
 	// ==========================================
 	// Payment tab: Cash / UPI toggle.
 	// ==========================================
-	const paymentMethodRadios = document.querySelectorAll('input[name="at_payment_method"]');
-	const upiFields = document.getElementById('at_upi_fields');
+	const paymentMethodRadios = document.querySelectorAll('input[name="trekpilot_payment_method"]');
+	const upiFields = document.getElementById('trekpilot_upi_fields');
 
 	function toggleUpiFields() {
 		if (!upiFields) {
 			return;
 		}
-		const checked = document.querySelector('input[name="at_payment_method"]:checked');
+		const checked = document.querySelector('input[name="trekpilot_payment_method"]:checked');
 		upiFields.style.display = (checked && checked.value === 'upi') ? '' : 'none';
 	}
 
@@ -65,13 +65,13 @@ document.addEventListener('DOMContentLoaded', function () {
  */
 if (typeof jQuery !== 'undefined') {
 	jQuery(function ($) {
-		$('.at-color-picker').wpColorPicker();
+		$('.trekpilot-color-picker').wpColorPicker();
 
 		// An empty color means "follow the theme": give each picker a one-click way to get there
 		// (the stock "Default" button only returns to a fixed colour, which we no longer set).
-		$('.at-color-picker').each(function () {
+		$('.trekpilot-color-picker').each(function () {
 			const $input = $(this);
-			const $btn = $('<button type="button" class="button button-small at-color-theme-btn"></button>')
+			const $btn = $('<button type="button" class="button button-small trekpilot-color-theme-btn"></button>')
 				.text('Use theme color')
 				.css('margin-left', '6px');
 			$input.closest('.wp-picker-container').append($btn);
@@ -89,10 +89,10 @@ if (typeof jQuery !== 'undefined') {
  */
 if (typeof jQuery !== 'undefined') {
 	jQuery(function ($) {
-		const qrInput = document.getElementById('at_upi_qr_code');
-		const qrPreview = document.getElementById('at_upi_qr_code_preview');
-		const qrSelectBtn = document.getElementById('at_upi_qr_code_select_btn');
-		const qrRemoveBtn = document.getElementById('at_upi_qr_code_remove_btn');
+		const qrInput = document.getElementById('trekpilot_upi_qr_code');
+		const qrPreview = document.getElementById('trekpilot_upi_qr_code_preview');
+		const qrSelectBtn = document.getElementById('trekpilot_upi_qr_code_select_btn');
+		const qrRemoveBtn = document.getElementById('trekpilot_upi_qr_code_remove_btn');
 
 		if (!qrInput || !qrSelectBtn || typeof wp === 'undefined' || !wp.media) {
 			return;
@@ -121,7 +121,7 @@ if (typeof jQuery !== 'undefined') {
 				qrPreview.textContent = '';
 				const qrImg = document.createElement('img');
 				qrImg.src = attachment.url;
-				qrImg.className = 'at-qr-code-preview-img';
+				qrImg.className = 'trekpilot-qr-code-preview-img';
 				qrImg.alt = '';
 				qrPreview.appendChild(qrImg);
 				if (qrRemoveBtn) {
@@ -149,12 +149,12 @@ if (typeof jQuery !== 'undefined') {
 document.addEventListener('DOMContentLoaded', function () {
 	'use strict';
 
-	const preview = document.getElementById('at_currency_preview');
-	const symbolEl = document.getElementById('at_currency_symbol');
-	const positionEl = document.getElementById('at_currency_position');
-	const thousandEl = document.getElementById('at_thousand_separator');
-	const decimalEl = document.getElementById('at_decimal_separator');
-	const decimalsEl = document.getElementById('at_price_decimals');
+	const preview = document.getElementById('trekpilot_currency_preview');
+	const symbolEl = document.getElementById('trekpilot_currency_symbol');
+	const positionEl = document.getElementById('trekpilot_currency_position');
+	const thousandEl = document.getElementById('trekpilot_thousand_separator');
+	const decimalEl = document.getElementById('trekpilot_decimal_separator');
+	const decimalsEl = document.getElementById('trekpilot_price_decimals');
 	if (!preview || !symbolEl || !positionEl || !thousandEl || !decimalEl || !decimalsEl) {
 		return;
 	}

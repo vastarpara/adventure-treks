@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "adventure-treks/trek-booking",
+	"name": "trekpilot/trek-booking",
 	"title": "Trek Booking",
-	"category": "adventure-treks",
+	"category": "trekpilot",
 	"icon": "calendar-alt",
 	"description": "The booking widget: departure city, date, travellers, price and checkout.",
 	"keywords": [ "trek", "booking", "reserve", "adventure" ],
-	"textdomain": "adventure-treks",
+	"textdomain": "trekpilot",
 	"attributes": {
 		"trekId": { "type": "number", "default": 0 }
 	},

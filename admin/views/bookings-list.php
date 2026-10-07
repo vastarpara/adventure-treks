@@ -2,7 +2,7 @@
 /**
  * Bookings List View.
  *
- * @package AdventureTreks
+ * @package TrekPilot
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -11,21 +11,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 
 <div class="wrap">
-	<h1 class="wp-heading-inline"><?php esc_html_e( 'Trek Bookings', 'adventure-treks' ); ?></h1>
-	<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=adventure_trek&page=at-bookings&action=add' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'adventure-treks' ); ?></a>
+	<h1 class="wp-heading-inline"><?php esc_html_e( 'Trek Bookings', 'trekpilot' ); ?></h1>
+	<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=trekpilot_trek&page=trekpilot-bookings&action=add' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'trekpilot' ); ?></a>
 	<hr class="wp-header-end">
 
 	<?php
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( isset( $_GET['at_saved'] ) ) :
+	if ( isset( $_GET['trekpilot_saved'] ) ) :
 		?>
-		<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Booking saved successfully.', 'adventure-treks' ); ?></p></div>
+		<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Booking saved successfully.', 'trekpilot' ); ?></p></div>
 		<?php
 	endif;
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( isset( $_GET['at_error'] ) ) :
+	if ( isset( $_GET['trekpilot_error'] ) ) :
 		?>
-		<div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Please fill in all the required fields before saving the booking.', 'adventure-treks' ); ?></p></div>
+		<div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Please fill in all the required fields before saving the booking.', 'trekpilot' ); ?></p></div>
 		<?php
 	endif;
 	?>
@@ -36,8 +36,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="meta-box-sortables ui-sortable">
 					<?php $table->views(); ?>
 					<form method="get">
-						<input type="hidden" name="post_type" value="adventure_trek" />
-						<input type="hidden" name="page" value="at-bookings" />
+						<input type="hidden" name="post_type" value="trekpilot_trek" />
+						<input type="hidden" name="page" value="trekpilot-bookings" />
 						<?php
 						// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 						if ( isset( $_GET['booking_view'] ) && 'trash' === $_GET['booking_view'] ) :
@@ -45,7 +45,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<input type="hidden" name="booking_view" value="trash" />
 						<?php endif; ?>
 						<?php
-						$table->search_box( __( 'Search', 'adventure-treks' ), 'search_id' );
+						$table->search_box( __( 'Search', 'trekpilot' ), 'search_id' );
 						$table->display();
 						?>
 					</form>
@@ -56,24 +56,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 
 	<!-- Booking Details View Modal -->
-	<div class="at-modal-overlay" id="at_booking_view_modal" style="display:none;">
-		<div class="at-modal-box" style="max-width:600px;">
-			<div class="at-modal-header">
-				<h2><?php esc_html_e( 'Booking Details', 'adventure-treks' ); ?> - <span id="at_booking_view_ref"></span></h2>
-				<span class="at-modal-close" id="at_booking_view_close_btn">&times;</span>
+	<div class="trekpilot-modal-overlay" id="trekpilot_booking_view_modal" style="display:none;">
+		<div class="trekpilot-modal-box" style="max-width:600px;">
+			<div class="trekpilot-modal-header">
+				<h2><?php esc_html_e( 'Booking Details', 'trekpilot' ); ?> - <span id="trekpilot_booking_view_ref"></span></h2>
+				<span class="trekpilot-modal-close" id="trekpilot_booking_view_close_btn">&times;</span>
 			</div>
-			<div class="at-modal-body">
-				<div class="at-loading-spinner" id="at_booking_view_loading">
-					<span class="spinner is-active"></span> <?php esc_html_e( 'Loading booking details...', 'adventure-treks' ); ?>
+			<div class="trekpilot-modal-body">
+				<div class="trekpilot-loading-spinner" id="trekpilot_booking_view_loading">
+					<span class="spinner is-active"></span> <?php esc_html_e( 'Loading booking details...', 'trekpilot' ); ?>
 				</div>
-				<table class="widefat striped" id="at_booking_view_table" style="display:none;">
-					<tbody id="at_booking_view_tbody">
+				<table class="widefat striped" id="trekpilot_booking_view_table" style="display:none;">
+					<tbody id="trekpilot_booking_view_tbody">
 						<!-- Populated via AJAX -->
 					</tbody>
 				</table>
 			</div>
-			<div class="at-modal-footer">
-				<button type="button" class="button" id="at_booking_view_close_btn2"><?php esc_html_e( 'Close', 'adventure-treks' ); ?></button>
+			<div class="trekpilot-modal-footer">
+				<button type="button" class="button" id="trekpilot_booking_view_close_btn2"><?php esc_html_e( 'Close', 'trekpilot' ); ?></button>
 			</div>
 		</div>
 	</div>

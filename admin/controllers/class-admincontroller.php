@@ -2,12 +2,12 @@
 /**
  * Main Admin Area Controller
  *
- * @package    AdventureTreks
- * @subpackage AdventureTreks/Admin/Controllers
+ * @package    TrekPilot
+ * @subpackage TrekPilot/Admin/Controllers
  * @author     Nilesh Vastarpara
  */
 
-namespace AdventureTreks\Admin\Controllers;
+namespace TrekPilot\Admin\Controllers;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -37,7 +37,7 @@ class AdminController {
 	 * @return void
 	 */
 	public function add_dynamic_color_vars() {
-		wp_add_inline_style( 'at-admin-departures-css', \AdventureTreks\Includes\Plugin::get_dynamic_color_css() );
+		wp_add_inline_style( 'trekpilot-admin-departures-css', \TrekPilot\Includes\Plugin::get_dynamic_color_css() );
 	}
 
 	/**
@@ -48,7 +48,7 @@ class AdminController {
 	public function enqueue_assets() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-		if ( 'adventure-treks-settings' !== $page ) {
+		if ( 'trekpilot-settings' !== $page ) {
 			return;
 		}
 
@@ -56,33 +56,33 @@ class AdminController {
 		wp_enqueue_media();
 
 		wp_enqueue_style(
-			'at-admin-settings-css',
-			ADVENTURE_TREKS_URL . 'assets/admin/css/admin-settings.css',
+			'trekpilot-admin-settings-css',
+			TREKPILOT_URL . 'assets/admin/css/admin-settings.css',
 			array(),
-			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/css/admin-settings.css' )
+			\TrekPilot\Includes\Plugin::asset_version( 'assets/admin/css/admin-settings.css' )
 		);
 
 		wp_enqueue_script(
-			'at-admin-settings-js',
-			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-settings.js',
+			'trekpilot-admin-settings-js',
+			TREKPILOT_URL . 'assets/admin/js/admin-settings.js',
 			array( 'wp-color-picker' ),
-			ADVENTURE_TREKS_VERSION . '.' . filemtime( ADVENTURE_TREKS_PATH . 'assets/admin/js/admin-settings.js' ),
+			TREKPILOT_VERSION . '.' . filemtime( TREKPILOT_PATH . 'assets/admin/js/admin-settings.js' ),
 			true
 		);
 	}
 
 	/**
-	 * Register submenus under edit.php?post_type=adventure_trek.
+	 * Register submenus under edit.php?post_type=trekpilot_trek.
 	 *
 	 * @return void
 	 */
 	public function register_admin_menus() {
 		add_submenu_page(
-			'edit.php?post_type=adventure_trek',
-			__( 'Adventure Treks Settings', 'adventure-treks' ),
-			__( 'Settings', 'adventure-treks' ),
+			'edit.php?post_type=trekpilot_trek',
+			__( 'TrekPilot Settings', 'trekpilot' ),
+			__( 'Settings', 'trekpilot' ),
 			'manage_options',
-			'adventure-treks-settings',
+			'trekpilot-settings',
 			array( $this, 'render_settings_page' )
 		);
 	}
@@ -94,8 +94,8 @@ class AdminController {
 	 */
 	public function register_settings_fields() {
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_currency_symbol',
+			'trekpilot_settings_group',
+			'trekpilot_currency_symbol',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( $this, 'sanitize_currency_symbol' ),
@@ -104,8 +104,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_currency_position',
+			'trekpilot_settings_group',
+			'trekpilot_currency_position',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( $this, 'sanitize_currency_position' ),
@@ -114,8 +114,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_thousand_separator',
+			'trekpilot_settings_group',
+			'trekpilot_thousand_separator',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( $this, 'sanitize_separator' ),
@@ -124,8 +124,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_decimal_separator',
+			'trekpilot_settings_group',
+			'trekpilot_decimal_separator',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( $this, 'sanitize_decimal_separator' ),
@@ -134,8 +134,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_price_decimals',
+			'trekpilot_settings_group',
+			'trekpilot_price_decimals',
 			array(
 				'type'              => 'integer',
 				'sanitize_callback' => array( $this, 'sanitize_price_decimals' ),
@@ -144,8 +144,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_booking_email',
+			'trekpilot_settings_group',
+			'trekpilot_booking_email',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_email',
@@ -154,8 +154,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_from_name',
+			'trekpilot_settings_group',
+			'trekpilot_from_name',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
@@ -164,8 +164,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_use_site_logo',
+			'trekpilot_settings_group',
+			'trekpilot_use_site_logo',
 			array(
 				'type'              => 'boolean',
 				'sanitize_callback' => 'rest_sanitize_boolean',
@@ -174,8 +174,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_enable_schema',
+			'trekpilot_settings_group',
+			'trekpilot_enable_schema',
 			array(
 				'type'              => 'boolean',
 				'sanitize_callback' => 'rest_sanitize_boolean',
@@ -184,8 +184,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_primary_color',
+			'trekpilot_settings_group',
+			'trekpilot_primary_color',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_hex_color',
@@ -194,8 +194,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_secondary_color',
+			'trekpilot_settings_group',
+			'trekpilot_secondary_color',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_hex_color',
@@ -204,8 +204,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_payment_method',
+			'trekpilot_settings_group',
+			'trekpilot_payment_method',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( $this, 'sanitize_payment_method' ),
@@ -214,8 +214,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_upi_id',
+			'trekpilot_settings_group',
+			'trekpilot_upi_id',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
@@ -224,8 +224,8 @@ class AdminController {
 		);
 
 		register_setting(
-			'adventure_treks_settings_group',
-			'at_upi_qr_code',
+			'trekpilot_settings_group',
+			'trekpilot_upi_qr_code',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'esc_url_raw',
@@ -266,21 +266,21 @@ class AdminController {
 	 */
 	public static function get_currencies() {
 		return array(
-			'$'   => __( '$ (US Dollar)', 'adventure-treks' ),
-			'₹'   => __( '₹ (Indian Rupee)', 'adventure-treks' ),
-			'€'   => __( '€ (Euro)', 'adventure-treks' ),
-			'£'   => __( '£ (British Pound)', 'adventure-treks' ),
-			'¥'   => __( '¥ (Japanese Yen / Chinese Yuan)', 'adventure-treks' ),
-			'A$'  => __( 'A$ (Australian Dollar)', 'adventure-treks' ),
-			'C$'  => __( 'C$ (Canadian Dollar)', 'adventure-treks' ),
-			'Fr'  => __( 'Fr (Swiss Franc)', 'adventure-treks' ),
-			'NZ$' => __( 'NZ$ (New Zealand Dollar)', 'adventure-treks' ),
-			'kr'  => __( 'kr (Swedish/Norwegian/Danish Krone)', 'adventure-treks' ),
-			'R$'  => __( 'R$ (Brazilian Real)', 'adventure-treks' ),
-			'R'   => __( 'R (South African Rand)', 'adventure-treks' ),
-			'AED' => __( 'AED (UAE Dirham)', 'adventure-treks' ),
-			'฿'   => __( '฿ (Thai Baht)', 'adventure-treks' ),
-			'Rp'  => __( 'Rp (Indonesian Rupiah)', 'adventure-treks' ),
+			'$'   => __( '$ (US Dollar)', 'trekpilot' ),
+			'₹'   => __( '₹ (Indian Rupee)', 'trekpilot' ),
+			'€'   => __( '€ (Euro)', 'trekpilot' ),
+			'£'   => __( '£ (British Pound)', 'trekpilot' ),
+			'¥'   => __( '¥ (Japanese Yen / Chinese Yuan)', 'trekpilot' ),
+			'A$'  => __( 'A$ (Australian Dollar)', 'trekpilot' ),
+			'C$'  => __( 'C$ (Canadian Dollar)', 'trekpilot' ),
+			'Fr'  => __( 'Fr (Swiss Franc)', 'trekpilot' ),
+			'NZ$' => __( 'NZ$ (New Zealand Dollar)', 'trekpilot' ),
+			'kr'  => __( 'kr (Swedish/Norwegian/Danish Krone)', 'trekpilot' ),
+			'R$'  => __( 'R$ (Brazilian Real)', 'trekpilot' ),
+			'R'   => __( 'R (South African Rand)', 'trekpilot' ),
+			'AED' => __( 'AED (UAE Dirham)', 'trekpilot' ),
+			'฿'   => __( '฿ (Thai Baht)', 'trekpilot' ),
+			'Rp'  => __( 'Rp (Indonesian Rupiah)', 'trekpilot' ),
 		);
 	}
 
@@ -291,10 +291,10 @@ class AdminController {
 	 */
 	public static function get_currency_positions() {
 		return array(
-			'left'        => __( 'Left ($99.99)', 'adventure-treks' ),
-			'right'       => __( 'Right (99.99$)', 'adventure-treks' ),
-			'left_space'  => __( 'Left with space ($ 99.99)', 'adventure-treks' ),
-			'right_space' => __( 'Right with space (99.99 $)', 'adventure-treks' ),
+			'left'        => __( 'Left ($99.99)', 'trekpilot' ),
+			'right'       => __( 'Right (99.99$)', 'trekpilot' ),
+			'left_space'  => __( 'Left with space ($ 99.99)', 'trekpilot' ),
+			'right_space' => __( 'Right with space (99.99 $)', 'trekpilot' ),
 		);
 	}
 
@@ -304,17 +304,17 @@ class AdminController {
 	 * @return array{symbol:string,position:string,thousand:string,decimal:string,decimals:int}
 	 */
 	public static function get_price_format() {
-		$position = get_option( 'at_currency_position', 'left' );
+		$position = get_option( 'trekpilot_currency_position', 'left' );
 		if ( ! array_key_exists( $position, self::get_currency_positions() ) ) {
 			$position = 'left';
 		}
 
 		return array(
-			'symbol'   => get_option( 'at_currency_symbol', '$' ),
+			'symbol'   => get_option( 'trekpilot_currency_symbol', '$' ),
 			'position' => $position,
-			'thousand' => (string) get_option( 'at_thousand_separator', ',' ),
-			'decimal'  => (string) ( '' !== (string) get_option( 'at_decimal_separator', '.' ) ? get_option( 'at_decimal_separator', '.' ) : '.' ),
-			'decimals' => max( 0, min( 4, (int) get_option( 'at_price_decimals', 2 ) ) ),
+			'thousand' => (string) get_option( 'trekpilot_thousand_separator', ',' ),
+			'decimal'  => (string) ( '' !== (string) get_option( 'trekpilot_decimal_separator', '.' ) ? get_option( 'trekpilot_decimal_separator', '.' ) : '.' ),
+			'decimals' => max( 0, min( 4, (int) get_option( 'trekpilot_price_decimals', 2 ) ) ),
 		);
 	}
 
@@ -402,6 +402,6 @@ class AdminController {
 			return $input;
 		}
 
-		return get_option( 'at_currency_symbol', '$' );
+		return get_option( 'trekpilot_currency_symbol', '$' );
 	}
 }

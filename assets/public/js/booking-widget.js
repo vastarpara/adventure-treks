@@ -4,15 +4,15 @@
 
 document.addEventListener('DOMContentLoaded', function() {
 
-	const root = document.getElementById('at_booking_widget_root');
+	const root = document.getElementById('trekpilot_booking_widget_root');
 	if (!root) return;
 
 	const trekId = root.getAttribute('data-trek-id');
-	const ajaxUrl = at_booking_obj.ajax_url;
-	const nonce = at_booking_obj.nonce;
+	const ajaxUrl = trekpilot_booking_obj.ajax_url;
+	const nonce = trekpilot_booking_obj.nonce;
 
 	// Price formatting driven by Settings > Currency (symbol, position, separators, decimals).
-	const at_price_format = at_booking_obj.price_format || { symbol: at_booking_obj.currency_symbol || at_booking_obj.currency || '', position: 'left', thousand: ',', decimal: '.', decimals: 2 };
+	const trekpilot_price_format = trekpilot_booking_obj.price_format || { symbol: trekpilot_booking_obj.currency_symbol || trekpilot_booking_obj.currency || '', position: 'left', thousand: ',', decimal: '.', decimals: 2 };
 	function atEscapeHtml(value) {
 		return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
 			return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	function atFormatPrice(amount) {
-		const fmt = at_price_format;
+		const fmt = trekpilot_price_format;
 		const value = Math.abs(parseFloat(amount) || 0).toFixed(fmt.decimals);
 		const parts = value.split('.');
 		parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, fmt.thousand);
@@ -35,69 +35,69 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	// Widget Sections
-	const cityPills = document.getElementById('at_widget_city_pills');
-	const transportSection = document.getElementById('at_widget_transport_section');
-	const transportList = document.getElementById('at_widget_transport_list');
-	const dateSection = document.getElementById('at_widget_date_section');
-	const datesGrid = document.getElementById('at_widget_dates_grid');
-	const datesLoading = document.getElementById('at_widget_dates_loading');
-	const detailsSection = document.getElementById('at_widget_details_section');
-	const detailsLoading = document.getElementById('at_widget_details_loading');
+	const cityPills = document.getElementById('trekpilot_widget_city_pills');
+	const transportSection = document.getElementById('trekpilot_widget_transport_section');
+	const transportList = document.getElementById('trekpilot_widget_transport_list');
+	const dateSection = document.getElementById('trekpilot_widget_date_section');
+	const datesGrid = document.getElementById('trekpilot_widget_dates_grid');
+	const datesLoading = document.getElementById('trekpilot_widget_dates_loading');
+	const detailsSection = document.getElementById('trekpilot_widget_details_section');
+	const detailsLoading = document.getElementById('trekpilot_widget_details_loading');
 
 	// Details elements
-	const textAvail = document.getElementById('at_widget_avail_seats');
-	const textTransport = document.getElementById('at_widget_transport');
-	const textReporting = document.getElementById('at_widget_reporting');
-	const priceCross = document.getElementById('at_widget_base_price_cross');
-	const priceTag = document.getElementById('at_widget_price_tag');
-	const childPriceTag = document.getElementById('at_widget_child_price_tag');
-	const dateNotes = document.getElementById('at_widget_date_notes');
+	const textAvail = document.getElementById('trekpilot_widget_avail_seats');
+	const textTransport = document.getElementById('trekpilot_widget_transport');
+	const textReporting = document.getElementById('trekpilot_widget_reporting');
+	const priceCross = document.getElementById('trekpilot_widget_base_price_cross');
+	const priceTag = document.getElementById('trekpilot_widget_price_tag');
+	const childPriceTag = document.getElementById('trekpilot_widget_child_price_tag');
+	const dateNotes = document.getElementById('trekpilot_widget_date_notes');
 
 	// Pax Counters
-	const inputAdults = document.getElementById('at_widget_pax_adults');
-	const inputChildren = document.getElementById('at_widget_pax_children');
-	const childRow = document.getElementById('at_widget_child_row');
+	const inputAdults = document.getElementById('trekpilot_widget_pax_adults');
+	const inputChildren = document.getElementById('trekpilot_widget_pax_children');
+	const childRow = document.getElementById('trekpilot_widget_child_row');
 
 	// Addons
-	const addonsSection = document.getElementById('at_widget_addons_section');
-	const addonsList = document.getElementById('at_widget_addons_list');
+	const addonsSection = document.getElementById('trekpilot_widget_addons_section');
+	const addonsList = document.getElementById('trekpilot_widget_addons_list');
 
 	// Price Receipt
-	const receiptRows = document.getElementById('at_widget_receipt_rows');
-	const grandTotalTag = document.getElementById('at_widget_grand_total');
+	const receiptRows = document.getElementById('trekpilot_widget_receipt_rows');
+	const grandTotalTag = document.getElementById('trekpilot_widget_grand_total');
 
 	// Checkout / Modals
-	const checkoutBtn = document.getElementById('at_widget_checkout_btn');
-	const checkoutModal = document.getElementById('at_checkout_modal');
-	const checkoutClose = document.getElementById('at_checkout_modal_close');
-	const checkoutCancel = document.getElementById('at_checkout_cancel_btn');
-	const checkoutConfirm = document.getElementById('at_checkout_confirm_btn');
-	const checkoutForm = document.getElementById('at_checkout_form');
-	const checkoutTermsAgree = document.getElementById('at_checkout_terms_agree');
+	const checkoutBtn = document.getElementById('trekpilot_widget_checkout_btn');
+	const checkoutModal = document.getElementById('trekpilot_checkout_modal');
+	const checkoutClose = document.getElementById('trekpilot_checkout_modal_close');
+	const checkoutCancel = document.getElementById('trekpilot_checkout_cancel_btn');
+	const checkoutConfirm = document.getElementById('trekpilot_checkout_confirm_btn');
+	const checkoutForm = document.getElementById('trekpilot_checkout_form');
+	const checkoutTermsAgree = document.getElementById('trekpilot_checkout_terms_agree');
 
-	const pickupField = document.getElementById('at_checkout_pickup_field');
-	const pickupSelect = document.getElementById('at_checkout_pickup');
-	const pickupInstructions = document.getElementById('at_checkout_pickup_instructions');
+	const pickupField = document.getElementById('trekpilot_checkout_pickup_field');
+	const pickupSelect = document.getElementById('trekpilot_checkout_pickup');
+	const pickupInstructions = document.getElementById('trekpilot_checkout_pickup_instructions');
 
 	// Payment Modal
-	const paymentModal = document.getElementById('at_payment_modal');
-	const paymentModalClose = document.getElementById('at_payment_modal_close');
-	const paymentBackBtn = document.getElementById('at_payment_back_btn');
-	const paymentConfirmBtn = document.getElementById('at_payment_confirm_btn');
-	const paymentReceiptRows = document.getElementById('at_payment_receipt_rows');
-	const paymentGrandTotal = document.getElementById('at_payment_grand_total');
-	const paymentMethodBox = document.getElementById('at_payment_method_box');
+	const paymentModal = document.getElementById('trekpilot_payment_modal');
+	const paymentModalClose = document.getElementById('trekpilot_payment_modal_close');
+	const paymentBackBtn = document.getElementById('trekpilot_payment_back_btn');
+	const paymentConfirmBtn = document.getElementById('trekpilot_payment_confirm_btn');
+	const paymentReceiptRows = document.getElementById('trekpilot_payment_receipt_rows');
+	const paymentGrandTotal = document.getElementById('trekpilot_payment_grand_total');
+	const paymentMethodBox = document.getElementById('trekpilot_payment_method_box');
 
 	// Success Modal
-	const successModal = document.getElementById('at_success_modal');
-	const successClose = document.getElementById('at_success_close_btn');
-	const successReceiptBody = document.getElementById('at_success_receipt_body');
+	const successModal = document.getElementById('trekpilot_success_modal');
+	const successClose = document.getElementById('trekpilot_success_close_btn');
+	const successReceiptBody = document.getElementById('trekpilot_success_receipt_body');
 
 	// Sticky Bottom Booking Bar
-	const stickyBar = document.getElementById('at_sticky_booking_bar');
-	const stickyBarAmount = document.getElementById('at_sticky_bar_amount');
-	const stickyBarUnit = document.getElementById('at_sticky_bar_unit');
-	const stickyBarCta = document.getElementById('at_sticky_bar_cta');
+	const stickyBar = document.getElementById('trekpilot_sticky_booking_bar');
+	const stickyBarAmount = document.getElementById('trekpilot_sticky_bar_amount');
+	const stickyBarUnit = document.getElementById('trekpilot_sticky_bar_unit');
+	const stickyBarCta = document.getElementById('trekpilot_sticky_bar_cta');
 
 	// Internal State
 	let selectedCityId = null;
@@ -125,11 +125,11 @@ document.addEventListener('DOMContentLoaded', function() {
 	// ==========================================
 	if (cityPills) {
 		cityPills.addEventListener('click', function(e) {
-			const button = e.target.closest('.at-city-pill-btn');
+			const button = e.target.closest('.trekpilot-city-pill-btn');
 			if (!button) return;
 
 			// Highlight active pill
-			cityPills.querySelectorAll('.at-city-pill-btn').forEach(btn => btn.classList.remove('active'));
+			cityPills.querySelectorAll('.trekpilot-city-pill-btn').forEach(btn => btn.classList.remove('active'));
 			button.classList.add('active');
 
 			selectedCityId = parseInt(button.getAttribute('data-id'));
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		// Auto-select the first available city on load so the widget never sits empty;
 		// the user can still freely pick a different one.
-		const firstCityBtn = cityPills.querySelector('.at-city-pill-btn');
+		const firstCityBtn = cityPills.querySelector('.trekpilot-city-pill-btn');
 		if (firstCityBtn) {
 			firstCityBtn.click();
 		}
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	function fetchTransportOptions() {
 		if (!selectedCityId || !transportSection || !transportList) return;
 
-		const url = `${ajaxUrl}?action=at_get_transport_options&city_id=${selectedCityId}&nonce=${nonce}`;
+		const url = `${ajaxUrl}?action=trekpilot_get_transport_options&city_id=${selectedCityId}&nonce=${nonce}`;
 
 		fetch(url)
 			.then(res => res.json())
@@ -310,12 +310,12 @@ document.addEventListener('DOMContentLoaded', function() {
 				? '+' + atFormatPrice(price)
 				: 'Included';
 			const label = document.createElement('label');
-			label.className = 'at-transport-option-item';
+			label.className = 'trekpilot-transport-option-item';
 
 			label.innerHTML = `
-				<input type="radio" name="at_widget_transport" value="${atEscapeHtml(opt.name)}" data-price="${price}" ${idx === 0 ? 'checked' : ''} />
-				<span class="at-transport-option-name">${atEscapeHtml(opt.name)}</span>
-				<span class="at-transport-option-price">${priceLabel}</span>
+				<input type="radio" name="trekpilot_widget_transport" value="${atEscapeHtml(opt.name)}" data-price="${price}" ${idx === 0 ? 'checked' : ''} />
+				<span class="trekpilot-transport-option-name">${atEscapeHtml(opt.name)}</span>
+				<span class="trekpilot-transport-option-price">${priceLabel}</span>
 			`;
 
 			label.querySelector('input').addEventListener('change', function() {
@@ -341,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		datesGrid.innerHTML = '';
 		dateSection.style.display = 'block';
 
-		const url = `${ajaxUrl}?action=at_get_booking_dates&city_id=${selectedCityId}&nonce=${nonce}`;
+		const url = `${ajaxUrl}?action=trekpilot_get_booking_dates&city_id=${selectedCityId}&nonce=${nonce}`;
 
 		fetch(url)
 			.then(res => res.json())
@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		dates.forEach(d => {
 			const btn = document.createElement('button');
 			btn.type = 'button';
-			btn.className = 'at-date-select-btn';
+			btn.className = 'trekpilot-date-select-btn';
 			btn.setAttribute('data-id', d.id);
 
 			const badge = resolveDateBadge(d);
@@ -394,13 +394,13 @@ document.addEventListener('DOMContentLoaded', function() {
 			const badgeText = badge.text;
 
 			btn.innerHTML = `
-				<span class="at-date-val">${atEscapeHtml(d.formatted_date)}</span>
-				<span class="at-date-status-badge ${badgeClass}">${badgeText}</span>
+				<span class="trekpilot-date-val">${atEscapeHtml(d.formatted_date)}</span>
+				<span class="trekpilot-date-status-badge ${badgeClass}">${badgeText}</span>
 			`;
 
 			btn.addEventListener('click', function() {
 				if (isSoldOut) return;
-				datesGrid.querySelectorAll('.at-date-select-btn').forEach(b => b.classList.remove('active'));
+				datesGrid.querySelectorAll('.trekpilot-date-select-btn').forEach(b => b.classList.remove('active'));
 				btn.classList.add('active');
 
 				selectedDateId = parseInt(d.id);
@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		detailsSection.style.display = 'none';
 		if (detailsLoading) detailsLoading.style.display = 'flex';
 
-		const url = `${ajaxUrl}?action=at_get_booking_details&city_id=${selectedCityId}&date_id=${selectedDateId}&nonce=${nonce}`;
+		const url = `${ajaxUrl}?action=trekpilot_get_booking_details&city_id=${selectedCityId}&date_id=${selectedDateId}&nonce=${nonce}`;
 
 		fetch(url)
 			.then(res => res.json())
@@ -487,7 +487,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			addonsList.innerHTML = '';
 			dateDetails.optional_addons.forEach((addon, idx) => {
 				const div = document.createElement('div');
-				div.className = 'at-addon-checkbox-item';
+				div.className = 'trekpilot-addon-checkbox-item';
 				
 				const scopeLabel = addon.type === 'person' ? '/Person' : ' flat';
 				const descHTML = addon.desc ? `<span class="addon-desc">${atEscapeHtml(addon.desc)}</span>` : '';
@@ -500,7 +500,7 @@ document.addEventListener('DOMContentLoaded', function() {
 							${descHTML}
 						</div>
 					</label>
-					<span class="at-addon-price-label">+${atFormatPrice(parseFloat(addon.price))}${scopeLabel}</span>
+					<span class="trekpilot-addon-price-label">+${atFormatPrice(parseFloat(addon.price))}${scopeLabel}</span>
 				`;
 
 				div.querySelector('input').addEventListener('change', calculateTotal);
@@ -512,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 
 		// 5. If itinerary integration exists on page, refresh it dynamically
-		const pageItinerary = document.querySelector('.at-frontend-itinerary-timeline');
+		const pageItinerary = document.querySelector('.trekpilot-frontend-itinerary-timeline');
 		const pageItineraryContainer = document.getElementById('trek_itinerary_container'); // Standard template ID
 		
 		const targetItinerary = pageItineraryContainer ? pageItineraryContainer : (pageItinerary ? pageItinerary.parentElement : null);
@@ -527,7 +527,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	// ==========================================
 	// 3. Plus/Minus Counters & Calculator
 	// ==========================================
-	document.querySelectorAll('.at-counter-btn').forEach(btn => {
+	document.querySelectorAll('.trekpilot-counter-btn').forEach(btn => {
 		btn.addEventListener('click', function(e) {
 			e.preventDefault();
 			const type = btn.getAttribute('data-type');
@@ -719,7 +719,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	function closeCheckout() {
 		checkoutModal.style.display = 'none';
 		checkoutForm.reset();
-		checkoutModal.querySelectorAll('.at-field-error').forEach(function(m) { m.remove(); });
+		checkoutModal.querySelectorAll('.trekpilot-field-error').forEach(function(m) { m.remove(); });
 		checkoutModal.querySelectorAll('.has-error').forEach(function(w) { w.classList.remove('has-error'); });
 		checkoutTermsAgree.checked = false;
 	}
@@ -732,7 +732,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	// ==========================================
 	// Inline field validation (no alert() / browser bubbles).
 	function fieldWrap(el) {
-		return el.closest('.at-form-field') || el.closest('.at-checkout-terms');
+		return el.closest('.trekpilot-form-field') || el.closest('.trekpilot-checkout-terms');
 	}
 
 	function clearFieldError(el) {
@@ -740,7 +740,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (!wrap) return;
 		wrap.classList.remove('has-error');
 		el.removeAttribute('aria-invalid');
-		const msg = wrap.querySelector('.at-field-error');
+		const msg = wrap.querySelector('.trekpilot-field-error');
 		if (msg) msg.remove();
 	}
 
@@ -751,16 +751,16 @@ document.addEventListener('DOMContentLoaded', function() {
 		wrap.classList.add('has-error');
 		el.setAttribute('aria-invalid', 'true');
 		const msg = document.createElement('span');
-		msg.className = 'at-field-error';
+		msg.className = 'trekpilot-field-error';
 		msg.setAttribute('role', 'alert');
 		msg.textContent = message;
 		wrap.appendChild(msg);
 	}
 
 	function validateCheckout() {
-		const nameInput = document.getElementById('at_checkout_name');
-		const emailInput = document.getElementById('at_checkout_email');
-		const phoneInput = document.getElementById('at_checkout_phone');
+		const nameInput = document.getElementById('trekpilot_checkout_name');
+		const emailInput = document.getElementById('trekpilot_checkout_email');
+		const phoneInput = document.getElementById('trekpilot_checkout_phone');
 		let firstInvalid = null;
 
 		function fail(el, message) {
@@ -807,11 +807,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	// Clear a field's error as soon as the user fixes it.
 	[
-		['at_checkout_name', 'input'],
-		['at_checkout_email', 'input'],
-		['at_checkout_phone', 'input'],
-		['at_checkout_pickup', 'change'],
-		['at_checkout_terms_agree', 'change']
+		['trekpilot_checkout_name', 'input'],
+		['trekpilot_checkout_email', 'input'],
+		['trekpilot_checkout_phone', 'input'],
+		['trekpilot_checkout_pickup', 'change'],
+		['trekpilot_checkout_terms_agree', 'change']
 	].forEach(function(pair) {
 		const el = document.getElementById(pair[0]);
 		if (el) el.addEventListener(pair[1], function() { clearFieldError(el); });
@@ -836,16 +836,16 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	function renderPaymentMethodBox() {
-		const method = at_booking_obj.payment_method || 'cash';
+		const method = trekpilot_booking_obj.payment_method || 'cash';
 
 		if (method === 'upi') {
-			const upiId = atEscapeHtml(at_booking_obj.upi_id || '');
-			const qrCode = atEscapeHtml(at_booking_obj.upi_qr_code || '');
+			const upiId = atEscapeHtml(trekpilot_booking_obj.upi_id || '');
+			const qrCode = atEscapeHtml(trekpilot_booking_obj.upi_qr_code || '');
 
 			paymentMethodBox.innerHTML = `
 				<h5 style="margin:0 0 8px 0; font-size:12px; font-weight:600; color:#3c434a;">Pay via UPI</h5>
-				${qrCode ? `<img src="${qrCode}" alt="UPI QR Code" class="at-payment-qr-img" />` : ''}
-				${upiId ? `<p class="at-payment-upi-id"><strong>UPI ID:</strong> <span class="at-upi-id-value">${upiId}</span> <button type="button" class="at-upi-copy-btn" data-upi="${upiId}" title="Copy UPI ID"><span class="dashicons dashicons-clipboard"></span></button></p>` : ''}
+				${qrCode ? `<img src="${qrCode}" alt="UPI QR Code" class="trekpilot-payment-qr-img" />` : ''}
+				${upiId ? `<p class="trekpilot-payment-upi-id"><strong>UPI ID:</strong> <span class="trekpilot-upi-id-value">${upiId}</span> <button type="button" class="trekpilot-upi-copy-btn" data-upi="${upiId}" title="Copy UPI ID"><span class="dashicons dashicons-clipboard"></span></button></p>` : ''}
 				<p style="margin:5px 0 0 0; font-size:11px; color:#666;">Scan the QR code or pay to the UPI ID above, then confirm your reservation below.</p>
 			`;
 		} else {
@@ -878,7 +878,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	paymentMethodBox.addEventListener('click', function(e) {
-		const btn = e.target.closest('.at-upi-copy-btn');
+		const btn = e.target.closest('.trekpilot-upi-copy-btn');
 		if (!btn) return;
 
 		const upi = btn.getAttribute('data-upi');
@@ -923,7 +923,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 
 		const fd = new FormData(checkoutForm);
-		fd.append('action', 'at_submit_booking');
+		fd.append('action', 'trekpilot_submit_booking');
 		fd.append('trek_id', trekId);
 		fd.append('city_id', selectedCityId);
 		fd.append('date_id', selectedDateId);
@@ -986,9 +986,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>'
 		};
 		const row = function(type, label, value) {
-			return `<div class="at-receipt-row at-receipt-${type}">
-				<span class="at-receipt-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[type]}</svg></span>
-				<span class="at-receipt-text"><span class="at-receipt-label">${label}</span><strong class="at-receipt-value">${esc(value)}</strong></span>
+			return `<div class="trekpilot-receipt-row trekpilot-receipt-${type}">
+				<span class="trekpilot-receipt-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[type]}</svg></span>
+				<span class="trekpilot-receipt-text"><span class="trekpilot-receipt-label">${label}</span><strong class="trekpilot-receipt-value">${esc(value)}</strong></span>
 			</div>`;
 		};
 		const transport = res.transport_name
@@ -1003,9 +1003,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			(res.pickup_point ? row('pickup', 'Pickup Location', res.pickup_point) : '') +
 			(transport ? row('transport', 'Transportation', transport) : '') +
 			row('seats', 'Seats Booked', res.seats) +
-			`<div class="at-receipt-total">
-				<span class="at-receipt-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons.card}</svg></span>
-				<span class="at-receipt-text"><span class="at-receipt-label">Total Amount</span><strong class="at-receipt-amount">${esc(atFormatPrice(parseFloat(res.total)))}</strong></span>
+			`<div class="trekpilot-receipt-total">
+				<span class="trekpilot-receipt-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons.card}</svg></span>
+				<span class="trekpilot-receipt-text"><span class="trekpilot-receipt-label">Total Amount</span><strong class="trekpilot-receipt-amount">${esc(atFormatPrice(parseFloat(res.total)))}</strong></span>
 			</div>`;
 		successModal.style.display = 'flex';
 	}
@@ -1017,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		selectedDateId = null;
 		dateDetails = null;
 
-		cityPills.querySelectorAll('.at-city-pill-btn').forEach(btn => btn.classList.remove('active'));
+		cityPills.querySelectorAll('.trekpilot-city-pill-btn').forEach(btn => btn.classList.remove('active'));
 		dateSection.style.display = 'none';
 		detailsSection.style.display = 'none';
 		if (detailsLoading) detailsLoading.style.display = 'none';

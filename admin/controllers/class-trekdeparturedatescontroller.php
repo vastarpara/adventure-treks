@@ -2,12 +2,12 @@
 /**
  * Controller for managing Departure Dates, Seats, and Date-Specific Pricing.
  *
- * @package    AdventureTreks
- * @subpackage AdventureTreks/Admin/Controllers
+ * @package    TrekPilot
+ * @subpackage TrekPilot/Admin/Controllers
  * @author     Nilesh Vastarpara
  */
 
-namespace AdventureTreks\Admin\Controllers;
+namespace TrekPilot\Admin\Controllers;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -23,9 +23,9 @@ class TrekDepartureDatesController {
 	 */
 	public function __construct() {
 		// Register AJAX endpoints.
-		add_action( 'wp_ajax_at_get_departure_dates', array( $this, 'ajax_get_dates' ) );
-		add_action( 'wp_ajax_at_save_departure_date', array( $this, 'ajax_save_date' ) );
-		add_action( 'wp_ajax_at_delete_departure_date', array( $this, 'ajax_delete_date' ) );
+		add_action( 'wp_ajax_trekpilot_get_departure_dates', array( $this, 'ajax_get_dates' ) );
+		add_action( 'wp_ajax_trekpilot_save_departure_date', array( $this, 'ajax_save_date' ) );
+		add_action( 'wp_ajax_trekpilot_delete_departure_date', array( $this, 'ajax_delete_date' ) );
 
 		// Load assets hook.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
@@ -39,24 +39,24 @@ class TrekDepartureDatesController {
 	public function enqueue_assets() {
 		global $post_type;
 
-		if ( 'adventure_trek' !== $post_type ) {
+		if ( 'trekpilot_trek' !== $post_type ) {
 			return;
 		}
 
 		wp_enqueue_script(
-			'at-admin-dates-js',
-			ADVENTURE_TREKS_URL . 'assets/admin/js/admin-dates.js',
+			'trekpilot-admin-dates-js',
+			TREKPILOT_URL . 'assets/admin/js/admin-dates.js',
 			array(),
-			\AdventureTreks\Includes\Plugin::asset_version( 'assets/admin/js/admin-dates.js' ),
+			\TrekPilot\Includes\Plugin::asset_version( 'assets/admin/js/admin-dates.js' ),
 			true
 		);
 
 		wp_localize_script(
-			'at-admin-dates-js',
-			'at_dates_obj',
+			'trekpilot-admin-dates-js',
+			'trekpilot_dates_obj',
 			array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'at_dates_nonce_action' ),
+				'nonce'    => wp_create_nonce( 'trekpilot_dates_nonce_action' ),
 			)
 		);
 	}
@@ -71,7 +71,7 @@ class TrekDepartureDatesController {
 		global $wpdb;
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery
 		$trek_id = $wpdb->get_var(
-			$wpdb->prepare( "SELECT trek_id FROM {$wpdb->prefix}at_departure_dates WHERE id = %d", $date_id )
+			$wpdb->prepare( "SELECT trek_id FROM {$wpdb->prefix}trekpilot_departure_dates WHERE id = %d", $date_id )
 		);
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery
 		return (int) $trek_id;
@@ -81,20 +81,20 @@ class TrekDepartureDatesController {
 	 * AJAX: Get dates, availability, and pricing overrides for a city.
 	 */
 	public function ajax_get_dates() {
-		check_ajax_referer( 'at_dates_nonce_action', 'nonce' );
+		check_ajax_referer( 'trekpilot_dates_nonce_action', 'nonce' );
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'trekpilot' ) ) );
 		}
 
 		$city_id = isset( $_GET['city_id'] ) ? intval( $_GET['city_id'] ) : 0;
 		if ( ! $city_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid City ID', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid City ID', 'trekpilot' ) ) );
 		}
 
 		global $wpdb;
-		$table_dates = $wpdb->prefix . 'at_departure_dates';
-		$table_avail = $wpdb->prefix . 'at_availability';
-		$table_price = $wpdb->prefix . 'at_pricing';
+		$table_dates = $wpdb->prefix . 'trekpilot_departure_dates';
+		$table_avail = $wpdb->prefix . 'trekpilot_availability';
+		$table_price = $wpdb->prefix . 'trekpilot_pricing';
 
 		// Get all dates.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -150,7 +150,7 @@ class TrekDepartureDatesController {
 	 * AJAX: Save a departure date (insert or update).
 	 */
 	public function ajax_save_date() {
-		check_ajax_referer( 'at_dates_nonce_action', 'nonce' );
+		check_ajax_referer( 'trekpilot_dates_nonce_action', 'nonce' );
 
 		$id      = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
 		$city_id = isset( $_POST['city_id'] ) ? intval( wp_unslash( $_POST['city_id'] ) ) : 0;
@@ -158,7 +158,7 @@ class TrekDepartureDatesController {
 
 		$owner_trek_id = $id ? $this->get_date_trek_id( $id ) : $trek_id;
 		if ( ! $owner_trek_id || ! current_user_can( 'edit_post', $owner_trek_id ) ) {
-			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'trekpilot' ) ) );
 		}
 
 		$departure_date = isset( $_POST['departure_date'] ) ? sanitize_text_field( wp_unslash( $_POST['departure_date'] ) ) : '';
@@ -176,33 +176,33 @@ class TrekDepartureDatesController {
 		$offer_price = isset( $_POST['offer_price'] ) ? floatval( wp_unslash( $_POST['offer_price'] ) ) : 0.00;
 
 		if ( empty( $departure_date ) || ! $city_id || ! $trek_id ) {
-			wp_send_json_error( array( 'message' => __( 'Departure date is required', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Departure date is required', 'trekpilot' ) ) );
 		}
 
 		if ( $adult_price < 0 || $child_price < 0 || $offer_price < 0 ) {
-			wp_send_json_error( array( 'message' => __( 'Prices cannot be negative.', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Prices cannot be negative.', 'trekpilot' ) ) );
 		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified at the top of this handler.
 		foreach ( array( 'total_seats', 'booked_seats' ) as $seat_field ) {
 			if ( isset( $_POST[ $seat_field ] ) && ! preg_match( '/^\d+$/', trim( sanitize_text_field( wp_unslash( $_POST[ $seat_field ] ) ) ) ) ) {
-				wp_send_json_error( array( 'message' => __( 'Seats must be whole numbers.', 'adventure-treks' ) ) );
+				wp_send_json_error( array( 'message' => __( 'Seats must be whole numbers.', 'trekpilot' ) ) );
 			}
 		}
 		if ( $total_seats < 1 || $booked_seats < 0 || $booked_seats > $total_seats ) {
-			wp_send_json_error( array( 'message' => __( 'Seat numbers are not valid: total seats must be at least 1 and booked seats cannot be negative or more than the total.', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Seat numbers are not valid: total seats must be at least 1 and booked seats cannot be negative or more than the total.', 'trekpilot' ) ) );
 		}
 
 		global $wpdb;
-		$table_dates = $wpdb->prefix . 'at_departure_dates';
-		$table_avail = $wpdb->prefix . 'at_availability';
-		$table_price = $wpdb->prefix . 'at_pricing';
+		$table_dates = $wpdb->prefix . 'trekpilot_departure_dates';
+		$table_avail = $wpdb->prefix . 'trekpilot_availability';
+		$table_price = $wpdb->prefix . 'trekpilot_pricing';
 
 		// Past dates can't be newly set; an existing date may keep its current value when edited.
 		if ( $departure_date < current_time( 'Y-m-d' ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$current_date = $id ? $wpdb->get_var( $wpdb->prepare( "SELECT departure_date FROM $table_dates WHERE id = %d", $id ) ) : '';
 			if ( $current_date !== $departure_date ) {
-				wp_send_json_error( array( 'message' => __( 'Departure date cannot be in the past', 'adventure-treks' ) ) );
+				wp_send_json_error( array( 'message' => __( 'Departure date cannot be in the past', 'trekpilot' ) ) );
 			}
 		}
 
@@ -234,7 +234,7 @@ class TrekDepartureDatesController {
 				array( '%d', '%d', '%s', '%s', '%s' )
 			);
 			if ( ! $inserted ) {
-				wp_send_json_error( array( 'message' => __( 'Failed to add departure date', 'adventure-treks' ) ) );
+				wp_send_json_error( array( 'message' => __( 'Failed to add departure date', 'trekpilot' ) ) );
 			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$date_id = $wpdb->insert_id;
@@ -286,7 +286,7 @@ class TrekDepartureDatesController {
 
 		wp_send_json_success(
 			array(
-				'message' => __( 'Departure date configured successfully', 'adventure-treks' ),
+				'message' => __( 'Departure date configured successfully', 'trekpilot' ),
 				'id'      => $date_id,
 			)
 		);
@@ -296,25 +296,25 @@ class TrekDepartureDatesController {
 	 * AJAX: Delete a departure date.
 	 */
 	public function ajax_delete_date() {
-		check_ajax_referer( 'at_dates_nonce_action', 'nonce' );
+		check_ajax_referer( 'trekpilot_dates_nonce_action', 'nonce' );
 
 		$id = isset( $_POST['id'] ) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid Date ID', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid Date ID', 'trekpilot' ) ) );
 		}
 
 		$trek_id = $this->get_date_trek_id( $id );
 		if ( ! $trek_id || ! current_user_can( 'edit_post', $trek_id ) ) {
-			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'adventure-treks' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'trekpilot' ) ) );
 		}
 
 		global $wpdb;
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery
-		$wpdb->delete( $wpdb->prefix . 'at_departure_dates', array( 'id' => $id ), array( '%d' ) );
-		$wpdb->delete( $wpdb->prefix . 'at_availability', array( 'date_id' => $id ), array( '%d' ) );
-		$wpdb->delete( $wpdb->prefix . 'at_pricing', array( 'date_id' => $id ), array( '%d' ) );
+		$wpdb->delete( $wpdb->prefix . 'trekpilot_departure_dates', array( 'id' => $id ), array( '%d' ) );
+		$wpdb->delete( $wpdb->prefix . 'trekpilot_availability', array( 'date_id' => $id ), array( '%d' ) );
+		$wpdb->delete( $wpdb->prefix . 'trekpilot_pricing', array( 'date_id' => $id ), array( '%d' ) );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery
 
-		wp_send_json_success( array( 'message' => __( 'Departure date deleted successfully', 'adventure-treks' ) ) );
+		wp_send_json_success( array( 'message' => __( 'Departure date deleted successfully', 'trekpilot' ) ) );
 	}
 }

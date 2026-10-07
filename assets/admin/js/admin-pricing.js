@@ -4,33 +4,33 @@
 
 document.addEventListener('DOMContentLoaded', function() {
 
-	const tbodyCities = document.getElementById('at_cities_tbody');
-	const root = document.getElementById('at_departures_module_root');
+	const tbodyCities = document.getElementById('trekpilot_cities_tbody');
+	const root = document.getElementById('trekpilot_departures_module_root');
 	if (!tbodyCities || !root) return;
 
 	const trekId = root.getAttribute('data-trek-id');
-	const ajaxUrl = at_pricing_obj.ajax_url;
-	const nonce = at_pricing_obj.nonce;
+	const ajaxUrl = trekpilot_pricing_obj.ajax_url;
+	const nonce = trekpilot_pricing_obj.nonce;
 
 	// Modal Elements
-	const pricingModal = document.getElementById('at_pricing_modal');
-	const pricingCityTitle = document.getElementById('at_pricing_modal_city_title');
-	const pricingCloseBtn = document.getElementById('at_pricing_modal_close_btn');
-	const pricingCancelBtn = document.getElementById('at_pricing_modal_cancel_btn');
-	const pricingSaveBtn = document.getElementById('at_pricing_modal_save_btn');
-	const pricingForm = document.getElementById('at_pricing_form');
+	const pricingModal = document.getElementById('trekpilot_pricing_modal');
+	const pricingCityTitle = document.getElementById('trekpilot_pricing_modal_city_title');
+	const pricingCloseBtn = document.getElementById('trekpilot_pricing_modal_close_btn');
+	const pricingCancelBtn = document.getElementById('trekpilot_pricing_modal_cancel_btn');
+	const pricingSaveBtn = document.getElementById('trekpilot_pricing_modal_save_btn');
+	const pricingForm = document.getElementById('trekpilot_pricing_form');
 
 	// List containers
-	const groupList = document.getElementById('at_group_discount_rules_list');
-	const extraList = document.getElementById('at_extra_charges_list');
-	const addonList = document.getElementById('at_optional_addons_list');
-	const transportList = document.getElementById('at_transport_options_list');
+	const groupList = document.getElementById('trekpilot_group_discount_rules_list');
+	const extraList = document.getElementById('trekpilot_extra_charges_list');
+	const addonList = document.getElementById('trekpilot_optional_addons_list');
+	const transportList = document.getElementById('trekpilot_transport_options_list');
 
 	// Buttons
-	const addGroupBtn = document.getElementById('at_add_group_discount_rule_btn');
-	const addExtraBtn = document.getElementById('at_add_extra_charge_btn');
-	const addAddonBtn = document.getElementById('at_add_optional_addon_btn');
-	const addTransportBtn = document.getElementById('at_add_transport_option_btn');
+	const addGroupBtn = document.getElementById('trekpilot_add_group_discount_rule_btn');
+	const addExtraBtn = document.getElementById('trekpilot_add_extra_charge_btn');
+	const addAddonBtn = document.getElementById('trekpilot_add_optional_addon_btn');
+	const addTransportBtn = document.getElementById('trekpilot_add_transport_option_btn');
 
 	let activeCityId = null;
 
@@ -45,14 +45,14 @@ document.addEventListener('DOMContentLoaded', function() {
 		const cityName = e.target.getAttribute('data-name');
 
 		pricingCityTitle.textContent = cityName;
-		document.getElementById('at_pricing_city_id').value = activeCityId;
+		document.getElementById('trekpilot_pricing_city_id').value = activeCityId;
 		pricingModal.style.display = 'flex';
 
 		fetchPricing();
 	});
 
 	function clearPricingForm() {
-		const f = document.getElementById('at_pricing_form');
+		const f = document.getElementById('trekpilot_pricing_form');
 		if (!f) return;
 		const inputs = f.querySelectorAll('input');
 		inputs.forEach(i => {
@@ -81,23 +81,23 @@ document.addEventListener('DOMContentLoaded', function() {
 	function fetchPricing() {
 		if (!activeCityId) return;
 
-		const url = `${ajaxUrl}?action=at_get_city_pricing&city_id=${activeCityId}&nonce=${nonce}`;
+		const url = `${ajaxUrl}?action=trekpilot_get_city_pricing&city_id=${activeCityId}&nonce=${nonce}`;
 
 		fetch(url)
 			.then(res => res.json())
 			.then(data => {
 				if (data.success) {
 					const p = data.data;
-					document.getElementById('at_pricing_adult_price').value = p.adult_price;
-					document.getElementById('at_pricing_child_price').value = p.child_price;
-					document.getElementById('at_pricing_offer_price').value = p.offer_price;
+					document.getElementById('trekpilot_pricing_adult_price').value = p.adult_price;
+					document.getElementById('trekpilot_pricing_child_price').value = p.child_price;
+					document.getElementById('trekpilot_pricing_offer_price').value = p.offer_price;
 
 					renderGroupDiscounts(p.group_discount || []);
 					renderExtraCharges(p.extra_charges || []);
 					renderOptionalAddons(p.optional_addons || []);
 					renderTransportOptions(p.transport_options || []);
 				} else {
-					at_admin_toast('Failed to load pricing data: ' + data.data.message);
+					trekpilot_admin_toast('Failed to load pricing data: ' + data.data.message);
 				}
 			});
 	}
@@ -116,12 +116,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	function addGroupDiscountRow(minSeats = '', type = 'percent', value = '', idx = Date.now()) {
 		const row = document.createElement('div');
-		row.className = 'at-pricing-row-item';
+		row.className = 'trekpilot-pricing-row-item';
 		row.style.cssText = 'display:grid; grid-template-columns: 1fr 1fr 1fr auto; gap:10px; margin-bottom:10px; align-items:center;';
 
 		row.innerHTML = `
 			<div>
-				<input type="number" name="group_discount[${idx}][min_seats]" value="${minSeats}" placeholder="Min Pax (e.g. 5)" style="width:100%;" min="1" step="1" inputmode="numeric" data-at-integer="1" />
+				<input type="number" name="group_discount[${idx}][min_seats]" value="${minSeats}" placeholder="Min Pax (e.g. 5)" style="width:100%;" min="1" step="1" inputmode="numeric" data-trekpilot-integer="1" />
 			</div>
 			<div>
 				<select name="group_discount[${idx}][type]" style="width:100%;">
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				<input type="number" step="0.01" name="group_discount[${idx}][value]" value="${value}" placeholder="Discount Val" style="width:100%;" min="0" />
 			</div>
 			<div>
-				<button type="button" class="button at-remove-pricing-row" style="color:#b32d2e; border-color:#b32d2e;">Remove</button>
+				<button type="button" class="button trekpilot-remove-pricing-row" style="color:#b32d2e; border-color:#b32d2e;">Remove</button>
 			</div>
 		`;
 		groupList.appendChild(row);
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	function addExtraChargeRow(name = '', price = '', type = 'person', idx = Date.now()) {
 		const row = document.createElement('div');
-		row.className = 'at-pricing-row-item';
+		row.className = 'trekpilot-pricing-row-item';
 		row.style.cssText = 'display:grid; grid-template-columns: 2fr 1fr 1fr auto; gap:10px; margin-bottom:10px; align-items:center;';
 
 		row.innerHTML = `
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				</select>
 			</div>
 			<div>
-				<button type="button" class="button at-remove-pricing-row" style="color:#b32d2e; border-color:#b32d2e;">Remove</button>
+				<button type="button" class="button trekpilot-remove-pricing-row" style="color:#b32d2e; border-color:#b32d2e;">Remove</button>
 			</div>
 		`;
 		extraList.appendChild(row);
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	function addOptionalAddonRow(name = '', desc = '', price = '', type = 'person', idx = Date.now()) {
 		const row = document.createElement('div');
-		row.className = 'at-pricing-row-item';
+		row.className = 'trekpilot-pricing-row-item';
 		row.style.cssText = 'display:grid; grid-template-columns: 2fr 2fr 1fr 1fr auto; gap:10px; margin-bottom:10px; align-items:center;';
 
 		row.innerHTML = `
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				</select>
 			</div>
 			<div>
-				<button type="button" class="button at-remove-pricing-row" style="color:#b32d2e; border-color:#b32d2e;">Remove</button>
+				<button type="button" class="button trekpilot-remove-pricing-row" style="color:#b32d2e; border-color:#b32d2e;">Remove</button>
 			</div>
 		`;
 		addonList.appendChild(row);
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	function addTransportOptionRow(name = '', price = '', idx = Date.now()) {
 		const row = document.createElement('div');
-		row.className = 'at-pricing-row-item';
+		row.className = 'trekpilot-pricing-row-item';
 		row.style.cssText = 'display:grid; grid-template-columns: 2fr 1fr auto; gap:10px; margin-bottom:10px; align-items:center;';
 
 		row.innerHTML = `
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				<input type="number" step="0.01" name="transport_options[${idx}][price]" value="${price}" placeholder="Additional Price" style="width:100%;" min="0" />
 			</div>
 			<div>
-				<button type="button" class="button at-remove-pricing-row" style="color:#b32d2e; border-color:#b32d2e;">Remove</button>
+				<button type="button" class="button trekpilot-remove-pricing-row" style="color:#b32d2e; border-color:#b32d2e;">Remove</button>
 			</div>
 		`;
 		transportList.appendChild(row);
@@ -245,9 +245,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	// Remove row delegate
 	const removeRowHandler = function(e) {
-		if (e.target && e.target.classList.contains('at-remove-pricing-row')) {
+		if (e.target && e.target.classList.contains('trekpilot-remove-pricing-row')) {
 			e.preventDefault();
-			const row = e.target.closest('.at-pricing-row-item');
+			const row = e.target.closest('.trekpilot-pricing-row-item');
 			if (row) row.remove();
 		}
 	};
@@ -261,19 +261,19 @@ document.addEventListener('DOMContentLoaded', function() {
 	// ==========================================
 	pricingSaveBtn.addEventListener('click', function(e) {
 		e.preventDefault();
-		const f = document.getElementById('at_pricing_form');
+		const f = document.getElementById('trekpilot_pricing_form');
 		if (!f) return;
 
 		// Validation
-		const adultPrice = document.getElementById('at_pricing_adult_price');
+		const adultPrice = document.getElementById('trekpilot_pricing_adult_price');
 		if (!adultPrice.value.trim()) {
-			at_admin_toast('Adult Price is required.');
+			trekpilot_admin_toast('Adult Price is required.');
 			adultPrice.focus();
 			return;
 		}
 
 		const formData = new FormData();
-		formData.append('action', 'at_save_city_pricing');
+		formData.append('action', 'trekpilot_save_city_pricing');
 		formData.append('city_id', activeCityId);
 		formData.append('trek_id', trekId);
 		formData.append('nonce', nonce);
@@ -302,12 +302,12 @@ document.addEventListener('DOMContentLoaded', function() {
 						location.reload();
 					}
 				} else {
-					at_admin_toast('Saving rules failed: ' + data.data.message);
+					trekpilot_admin_toast('Saving rules failed: ' + data.data.message);
 					pricingModal.style.display = 'flex';
 				}
 			})
 			.catch(err => {
-				at_admin_toast('Network error while saving pricing.');
+				trekpilot_admin_toast('Network error while saving pricing.');
 				pricingModal.style.display = 'flex';
 			});
 	});

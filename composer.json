@@ -1,9 +1,9 @@
 {
-	"name": "vastarpara/adventure-treks",
+	"name": "vastarpara/trekpilot",
 	"description": "Trekking and adventure trip management for WordPress: treks, departure cities and dates, itineraries, pricing, live seat availability and online bookings.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"homepage": "https://github.com/vastarpara/adventure-treks",
+	"homepage": "https://github.com/vastarpara/trekpilot",
 	"require": {
 		"php": ">=7.4"
 	},

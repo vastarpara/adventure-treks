@@ -6,12 +6,12 @@
  * dates, availability and pricing) to a JSON file and imports such a file back as new treks.
  * Bookings are never exported.
  *
- * @package    AdventureTreks
- * @subpackage AdventureTreks/Admin/Controllers
+ * @package    TrekPilot
+ * @subpackage TrekPilot/Admin/Controllers
  * @author     Nilesh Vastarpara
  */
 
-namespace AdventureTreks\Admin\Controllers;
+namespace TrekPilot\Admin\Controllers;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -28,8 +28,8 @@ class TrekImportExportController {
 	 * Constructor to wire admin actions.
 	 */
 	public function __construct() {
-		add_action( 'admin_post_at_export_treks', array( $this, 'handle_export' ) );
-		add_action( 'admin_post_at_import_treks', array( $this, 'handle_import' ) );
+		add_action( 'admin_post_trekpilot_export_treks', array( $this, 'handle_export' ) );
+		add_action( 'admin_post_trekpilot_import_treks', array( $this, 'handle_import' ) );
 	}
 
 	/**
@@ -40,8 +40,8 @@ class TrekImportExportController {
 	 * @return void
 	 */
 	private function redirect( $type, $message ) {
-		set_transient( 'at_import_export_notice_' . get_current_user_id(), array( $type, $message ), 60 );
-		wp_safe_redirect( admin_url( 'edit.php?post_type=adventure_trek&page=adventure-treks-settings#import-export' ) );
+		set_transient( 'trekpilot_import_export_notice_' . get_current_user_id(), array( $type, $message ), 60 );
+		wp_safe_redirect( admin_url( 'edit.php?post_type=trekpilot_trek&page=trekpilot-settings#import-export' ) );
 		exit;
 	}
 
@@ -91,13 +91,13 @@ class TrekImportExportController {
 			'excerpt'        => $post->post_excerpt,
 			'date'           => $post->post_date,
 			'featured_image' => (string) get_the_post_thumbnail_url( $post->ID, 'full' ),
-			'adult_age'      => (string) get_post_meta( $post->ID, '_at_adult_age', true ),
-			'child_age'      => (string) get_post_meta( $post->ID, '_at_child_age', true ),
+			'adult_age'      => (string) get_post_meta( $post->ID, '_trekpilot_adult_age', true ),
+			'child_age'      => (string) get_post_meta( $post->ID, '_trekpilot_child_age', true ),
 			'details'        => null,
 			'cities'         => array(),
 		);
 
-		$details = $this->get_rows( 'at_treks', 'post_id', $post->ID );
+		$details = $this->get_rows( 'trekpilot_treks', 'post_id', $post->ID );
 		if ( ! empty( $details ) ) {
 			$details = $this->strip( $details[0], array( 'id', 'post_id' ) );
 			// Gallery holds attachment IDs, which mean nothing on another site: export URLs instead.
@@ -112,36 +112,36 @@ class TrekImportExportController {
 			$trek['details']    = $details;
 		}
 
-		foreach ( $this->get_rows( 'at_departure_cities', 'trek_id', $post->ID, 'menu_order ASC, id ASC' ) as $city ) {
+		foreach ( $this->get_rows( 'trekpilot_departure_cities', 'trek_id', $post->ID, 'menu_order ASC, id ASC' ) as $city ) {
 			$city_id = (int) $city['id'];
 			$entry   = $this->strip( $city, array( 'id', 'trek_id' ) );
 
 			$entry['itineraries'] = array();
-			foreach ( $this->get_rows( 'at_itineraries', 'city_id', $city_id, 'menu_order ASC, id ASC' ) as $day ) {
+			foreach ( $this->get_rows( 'trekpilot_itineraries', 'city_id', $city_id, 'menu_order ASC, id ASC' ) as $day ) {
 				$day_entry          = $this->strip( $day, array( 'id', 'city_id', 'trek_id' ) );
 				$day_entry['items'] = array();
-				foreach ( $this->get_rows( 'at_itinerary_items', 'itinerary_id', (int) $day['id'], 'menu_order ASC, id ASC' ) as $item ) {
+				foreach ( $this->get_rows( 'trekpilot_itinerary_items', 'itinerary_id', (int) $day['id'], 'menu_order ASC, id ASC' ) as $item ) {
 					$day_entry['items'][] = $this->strip( $item, array( 'id', 'itinerary_id' ) );
 				}
 				$entry['itineraries'][] = $day_entry;
 			}
 
 			$entry['pickup_points'] = array();
-			foreach ( $this->get_rows( 'at_pickup_points', 'city_id', $city_id, 'menu_order ASC, id ASC' ) as $pickup ) {
+			foreach ( $this->get_rows( 'trekpilot_pickup_points', 'city_id', $city_id, 'menu_order ASC, id ASC' ) as $pickup ) {
 				$entry['pickup_points'][] = $this->strip( $pickup, array( 'id', 'city_id', 'trek_id' ) );
 			}
 
 			// Dates are keyed by their old ID so date-specific pricing can be re-linked on import.
 			$entry['dates'] = array();
-			foreach ( $this->get_rows( 'at_departure_dates', 'city_id', $city_id, 'departure_date ASC, id ASC' ) as $date ) {
+			foreach ( $this->get_rows( 'trekpilot_departure_dates', 'city_id', $city_id, 'departure_date ASC, id ASC' ) as $date ) {
 				$date_entry          = $this->strip( $date, array( 'city_id', 'trek_id' ) );
-				$avail               = $this->get_rows( 'at_availability', 'date_id', (int) $date['id'] );
+				$avail               = $this->get_rows( 'trekpilot_availability', 'date_id', (int) $date['id'] );
 				$date_entry['seats'] = ! empty( $avail ) ? $this->strip( $avail[0], array( 'id', 'date_id' ) ) : null;
 				$entry['dates'][]    = $date_entry;
 			}
 
 			$entry['pricing'] = array();
-			foreach ( $this->get_rows( 'at_pricing', 'city_id', $city_id ) as $price ) {
+			foreach ( $this->get_rows( 'trekpilot_pricing', 'city_id', $city_id ) as $price ) {
 				$entry['pricing'][] = $this->strip( $price, array( 'id', 'city_id', 'trek_id' ) );
 			}
 
@@ -158,13 +158,13 @@ class TrekImportExportController {
 	 */
 	public function handle_export() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to export treks.', 'adventure-treks' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to export treks.', 'trekpilot' ), '', array( 'response' => 403 ) );
 		}
-		check_admin_referer( 'at_export_treks' );
+		check_admin_referer( 'trekpilot_export_treks' );
 
 		$posts = get_posts(
 			array(
-				'post_type'      => 'adventure_trek',
+				'post_type'      => 'trekpilot_trek',
 				'post_status'    => array( 'publish', 'draft', 'pending', 'private', 'future' ),
 				'posts_per_page' => -1,
 				'orderby'        => 'ID',
@@ -173,7 +173,7 @@ class TrekImportExportController {
 		);
 
 		$data = array(
-			'plugin'      => 'adventure-treks',
+			'plugin'      => 'trekpilot',
 			'format'      => self::FORMAT_VERSION,
 			'exported_at' => gmdate( 'c' ),
 			'source'      => home_url(),
@@ -182,7 +182,7 @@ class TrekImportExportController {
 
 		nocache_headers();
 		header( 'Content-Type: application/json; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename="adventure-treks-export-' . gmdate( 'Y-m-d' ) . '.json"' );
+		header( 'Content-Disposition: attachment; filename="trekpilot-export-' . gmdate( 'Y-m-d' ) . '.json"' );
 		echo wp_json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON download.
 		exit;
 	}
@@ -252,7 +252,7 @@ class TrekImportExportController {
 
 		$post_id = wp_insert_post(
 			array(
-				'post_type'    => 'adventure_trek',
+				'post_type'    => 'trekpilot_trek',
 				'post_title'   => sanitize_text_field( $trek['title'] ),
 				'post_name'    => isset( $trek['slug'] ) ? sanitize_title( $trek['slug'] ) : '',
 				'post_status'  => $status,
@@ -265,8 +265,8 @@ class TrekImportExportController {
 			return 0;
 		}
 
-		update_post_meta( $post_id, '_at_adult_age', isset( $trek['adult_age'] ) ? sanitize_text_field( $trek['adult_age'] ) : '' );
-		update_post_meta( $post_id, '_at_child_age', isset( $trek['child_age'] ) ? sanitize_text_field( $trek['child_age'] ) : '' );
+		update_post_meta( $post_id, '_trekpilot_adult_age', isset( $trek['adult_age'] ) ? sanitize_text_field( $trek['adult_age'] ) : '' );
+		update_post_meta( $post_id, '_trekpilot_child_age', isset( $trek['child_age'] ) ? sanitize_text_field( $trek['child_age'] ) : '' );
 
 		if ( ! empty( $trek['featured_image'] ) ) {
 			$thumb_id = $this->image_to_attachment( $trek['featured_image'], $post_id );
@@ -329,7 +329,7 @@ class TrekImportExportController {
 
 			$details['post_id'] = $post_id;
 			$this->insert_row(
-				'at_treks',
+				'trekpilot_treks',
 				$details,
 				array(
 					'post_id'         => $int,
@@ -364,7 +364,7 @@ class TrekImportExportController {
 			}
 			$city['trek_id'] = $post_id;
 			$city_id         = $this->insert_row(
-				'at_departure_cities',
+				'trekpilot_departure_cities',
 				$city,
 				array(
 					'trek_id'          => $int,
@@ -393,7 +393,7 @@ class TrekImportExportController {
 					continue;
 				}
 				$day_id = $this->insert_row(
-					'at_itineraries',
+					'trekpilot_itineraries',
 					array_merge( $day, $scope ),
 					array(
 						'city_id'     => $int,
@@ -413,7 +413,7 @@ class TrekImportExportController {
 					}
 					$item['itinerary_id'] = $day_id;
 					$this->insert_row(
-						'at_itinerary_items',
+						'trekpilot_itinerary_items',
 						$item,
 						array(
 							'itinerary_id' => $int,
@@ -433,7 +433,7 @@ class TrekImportExportController {
 					continue;
 				}
 				$this->insert_row(
-					'at_pickup_points',
+					'trekpilot_pickup_points',
 					array_merge( $pickup, $scope ),
 					array(
 						'city_id'         => $int,
@@ -453,7 +453,7 @@ class TrekImportExportController {
 					continue;
 				}
 				$date_id = $this->insert_row(
-					'at_departure_dates',
+					'trekpilot_departure_dates',
 					array_merge( $date, $scope ),
 					array(
 						'city_id'        => $int,
@@ -472,7 +472,7 @@ class TrekImportExportController {
 				if ( ! empty( $date['seats'] ) && is_array( $date['seats'] ) ) {
 					$date['seats']['date_id'] = $date_id;
 					$this->insert_row(
-						'at_availability',
+						'trekpilot_availability',
 						$date['seats'],
 						array(
 							'date_id'         => $int,
@@ -505,7 +505,7 @@ class TrekImportExportController {
 					return $v;
 				};
 				$this->insert_row(
-					'at_pricing',
+					'trekpilot_pricing',
 					array_merge( $price, $scope ),
 					array(
 						'city_id'           => $int,
@@ -533,23 +533,23 @@ class TrekImportExportController {
 	 */
 	public function handle_import() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to import treks.', 'adventure-treks' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to import treks.', 'trekpilot' ), '', array( 'response' => 403 ) );
 		}
-		check_admin_referer( 'at_import_treks' );
+		check_admin_referer( 'trekpilot_import_treks' );
 
-		if ( empty( $_FILES['at_import_file']['tmp_name'] ) || ! empty( $_FILES['at_import_file']['error'] ) ) {
-			$this->redirect( 'error', __( 'Please choose a valid export file to import.', 'adventure-treks' ) );
+		if ( empty( $_FILES['trekpilot_import_file']['tmp_name'] ) || ! empty( $_FILES['trekpilot_import_file']['error'] ) ) {
+			$this->redirect( 'error', __( 'Please choose a valid export file to import.', 'trekpilot' ) );
 		}
 
-		$name = isset( $_FILES['at_import_file']['name'] ) ? sanitize_file_name( wp_unslash( $_FILES['at_import_file']['name'] ) ) : '';
+		$name = isset( $_FILES['trekpilot_import_file']['name'] ) ? sanitize_file_name( wp_unslash( $_FILES['trekpilot_import_file']['name'] ) ) : '';
 		if ( 'json' !== strtolower( pathinfo( $name, PATHINFO_EXTENSION ) ) ) {
-			$this->redirect( 'error', __( 'The import file must be a .json file exported from Adventure Treks.', 'adventure-treks' ) );
+			$this->redirect( 'error', __( 'The import file must be a .json file exported from TrekPilot.', 'trekpilot' ) );
 		}
 
-		$contents = file_get_contents( $_FILES['at_import_file']['tmp_name'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$contents = file_get_contents( $_FILES['trekpilot_import_file']['tmp_name'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$data     = json_decode( (string) $contents, true );
-		if ( ! is_array( $data ) || ! isset( $data['plugin'] ) || 'adventure-treks' !== $data['plugin'] || ! isset( $data['treks'] ) || ! is_array( $data['treks'] ) ) {
-			$this->redirect( 'error', __( 'This file is not a valid Adventure Treks export.', 'adventure-treks' ) );
+		if ( ! is_array( $data ) || ! isset( $data['plugin'] ) || 'trekpilot' !== $data['plugin'] || ! isset( $data['treks'] ) || ! is_array( $data['treks'] ) ) {
+			$this->redirect( 'error', __( 'This file is not a valid TrekPilot export.', 'trekpilot' ) );
 		}
 
 		// Importing downloads images and writes many rows: allow it to take a while.
@@ -569,13 +569,13 @@ class TrekImportExportController {
 
 		$message = sprintf(
 			/* translators: %d: number of treks */
-			_n( '%d trek imported.', '%d treks imported.', $imported, 'adventure-treks' ),
+			_n( '%d trek imported.', '%d treks imported.', $imported, 'trekpilot' ),
 			$imported
 		);
 		if ( $failed ) {
 			$message .= ' ' . sprintf(
 				/* translators: %d: number of treks */
-				_n( '%d trek was skipped because its data was invalid.', '%d treks were skipped because their data was invalid.', $failed, 'adventure-treks' ),
+				_n( '%d trek was skipped because its data was invalid.', '%d treks were skipped because their data was invalid.', $failed, 'trekpilot' ),
 				$failed
 			);
 		}

@@ -2,12 +2,12 @@
 /**
  * Core plugin class definition
  *
- * @package    AdventureTreks
- * @subpackage AdventureTreks/Includes
+ * @package    TrekPilot
+ * @subpackage TrekPilot/Includes
  * @author     Nilesh Vastarpara
  */
 
-namespace AdventureTreks\Includes;
+namespace TrekPilot\Includes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -23,7 +23,7 @@ class Plugin {
 	 *
 	 * @var string
 	 */
-	protected $plugin_name = 'adventure-treks';
+	protected $plugin_name = 'trekpilot';
 
 	/**
 	 * Current version of the plugin.
@@ -99,30 +99,30 @@ class Plugin {
 		add_action( 'wp_initialize_site', array( Database::class, 'create_tables_for_new_site' ), 20 );
 
 		// Self-healing database table check.
-		if ( is_admin() && get_option( 'adventure_treks_db_version' ) !== $this->version ) {
+		if ( is_admin() && get_option( 'trekpilot_db_version' ) !== $this->version ) {
 			Database::create_tables();
-			update_option( 'adventure_treks_db_version', $this->version );
+			update_option( 'trekpilot_db_version', $this->version );
 		}
 
 		// Handle Admin hooks.
 		if ( is_admin() ) {
-			new \AdventureTreks\Admin\Controllers\AdminController();
-			new \AdventureTreks\Admin\Controllers\TrekMetaBoxController();
-			new \AdventureTreks\Admin\Controllers\TrekDepartureCitiesController();
-			new \AdventureTreks\Admin\Controllers\TrekDepartureDatesController();
-			new \AdventureTreks\Admin\Controllers\TrekItineraryController();
-			new \AdventureTreks\Admin\Controllers\TrekPickupPointsController();
-			new \AdventureTreks\Admin\Controllers\TrekPricingController();
-			new \AdventureTreks\Admin\Controllers\TrekBookingsController();
-			new \AdventureTreks\Admin\Controllers\TrekImportExportController();
-			new \AdventureTreks\Admin\Controllers\TrekListController();
+			new \TrekPilot\Admin\Controllers\AdminController();
+			new \TrekPilot\Admin\Controllers\TrekMetaBoxController();
+			new \TrekPilot\Admin\Controllers\TrekDepartureCitiesController();
+			new \TrekPilot\Admin\Controllers\TrekDepartureDatesController();
+			new \TrekPilot\Admin\Controllers\TrekItineraryController();
+			new \TrekPilot\Admin\Controllers\TrekPickupPointsController();
+			new \TrekPilot\Admin\Controllers\TrekPricingController();
+			new \TrekPilot\Admin\Controllers\TrekBookingsController();
+			new \TrekPilot\Admin\Controllers\TrekImportExportController();
+			new \TrekPilot\Admin\Controllers\TrekListController();
 		}
 
 		// Handle frontend/global hooks.
-		new \AdventureTreks\Frontend\Controllers\TrekBookingController();
-		new \AdventureTreks\Frontend\Controllers\TrekShortcodesController();
-		new \AdventureTreks\Includes\Elementor();
-		new \AdventureTreks\Includes\RestApi();
+		new \TrekPilot\Frontend\Controllers\TrekBookingController();
+		new \TrekPilot\Frontend\Controllers\TrekShortcodesController();
+		new \TrekPilot\Includes\Elementor();
+		new \TrekPilot\Includes\RestApi();
 	}
 
 	/**
@@ -132,7 +132,7 @@ class Plugin {
 	 * @return string
 	 */
 	public static function get_site_logo_url() {
-		if ( ! get_option( 'at_use_site_logo', true ) ) {
+		if ( ! get_option( 'trekpilot_use_site_logo', true ) ) {
 			return '';
 		}
 
@@ -147,7 +147,7 @@ class Plugin {
 		 *
 		 * @param string $url Logo URL, or an empty string for none.
 		 */
-		return (string) apply_filters( 'adventure_treks_site_logo_url', $url ? $url : '' );
+		return (string) apply_filters( 'trekpilot_site_logo_url', $url ? $url : '' );
 	}
 
 	/**
@@ -158,9 +158,9 @@ class Plugin {
 	 * @return string
 	 */
 	public static function asset_version( $relative_path ) {
-		$file  = ADVENTURE_TREKS_PATH . ltrim( $relative_path, '/' );
+		$file  = TREKPILOT_PATH . ltrim( $relative_path, '/' );
 		$mtime = file_exists( $file ) ? filemtime( $file ) : false;
-		return $mtime ? ADVENTURE_TREKS_VERSION . '.' . $mtime : ADVENTURE_TREKS_VERSION;
+		return $mtime ? TREKPILOT_VERSION . '.' . $mtime : TREKPILOT_VERSION;
 	}
 
 	/**
@@ -293,7 +293,7 @@ class Plugin {
 	 * @return string
 	 */
 	public static function get_brand_color( $role ) {
-		$saved = sanitize_hex_color( (string) get_option( 'at_' . $role . '_color', '' ) );
+		$saved = sanitize_hex_color( (string) get_option( 'trekpilot_' . $role . '_color', '' ) );
 		if ( $saved ) {
 			return $saved;
 		}
@@ -317,7 +317,7 @@ class Plugin {
 		$rules = '';
 
 		foreach ( array( 'primary', 'secondary' ) as $role ) {
-			$saved = sanitize_hex_color( (string) get_option( 'at_' . $role . '_color', '' ) );
+			$saved = sanitize_hex_color( (string) get_option( 'trekpilot_' . $role . '_color', '' ) );
 
 			if ( $saved ) {
 				$value = $saved;
@@ -391,7 +391,7 @@ class Plugin {
 		if ( $cta_html ) {
 			$html .= '<tr><td style="padding:0 25px;"><table role="presentation" width="100%">' . $cta_html . '</table></td></tr>';
 		}
-		$html .= '<tr><td style="padding:20px 25px 30px 25px;"><p style="margin:0; font-size:12px; color:#888;">' . esc_html__( 'If you have any questions, simply reply to this email and our team will be happy to assist you.', 'adventure-treks' ) . '</p></td></tr>';
+		$html .= '<tr><td style="padding:20px 25px 30px 25px;"><p style="margin:0; font-size:12px; color:#888;">' . esc_html__( 'If you have any questions, simply reply to this email and our team will be happy to assist you.', 'trekpilot' ) . '</p></td></tr>';
 		$html .= '<tr><td style="background:' . esc_attr( $secondary ) . '; padding:15px 20px; text-align:center;"><span style="color:#ffffff; font-size:11px;">&copy; ' . esc_html( $year ) . ' ' . esc_html( $site_name ) . '</span></td></tr>';
 		$html .= '</table>';
 		$html .= '</div>';

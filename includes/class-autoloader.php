@@ -1,13 +1,13 @@
 <?php
 /**
- * Autoloader implementation for Adventure Treks
+ * Autoloader implementation for TrekPilot
  *
- * @package    AdventureTreks
- * @subpackage AdventureTreks/Includes
+ * @package    TrekPilot
+ * @subpackage TrekPilot/Includes
  * @author     Nilesh Vastarpara
  */
 
-namespace AdventureTreks\Includes;
+namespace TrekPilot\Includes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -35,7 +35,7 @@ class Autoloader {
 	 */
 	public static function autoload( $fully_qualified_class ) {
 		// Project-specific namespace prefix.
-		$prefix = 'AdventureTreks\\';
+		$prefix = 'TrekPilot\\';
 
 		// Base directory for the namespace prefix.
 		$base_dir = plugin_dir_path( __DIR__ );

@@ -6,9 +6,9 @@
 document.addEventListener('DOMContentLoaded', function () {
 
 	// Price formatting driven by Settings > Currency (symbol, position, separators, decimals).
-	const at_price_format = at_bookings_obj.price_format || { symbol: at_bookings_obj.currency_symbol || at_bookings_obj.currency || '', position: 'left', thousand: ',', decimal: '.', decimals: 2 };
+	const trekpilot_price_format = trekpilot_bookings_obj.price_format || { symbol: trekpilot_bookings_obj.currency_symbol || trekpilot_bookings_obj.currency || '', position: 'left', thousand: ',', decimal: '.', decimals: 2 };
 	function atFormatPrice(amount) {
-		const fmt = at_price_format;
+		const fmt = trekpilot_price_format;
 		const value = Math.abs(parseFloat(amount) || 0).toFixed(fmt.decimals);
 		const parts = value.split('.');
 		parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, fmt.thousand);
@@ -23,12 +23,12 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 	'use strict';
 
-	if (typeof at_bookings_obj === 'undefined') {
+	if (typeof trekpilot_bookings_obj === 'undefined') {
 		return;
 	}
 
 	function ajaxGet(action, nonce, params, callback) {
-		const url = new URL(at_bookings_obj.ajax_url, window.location.origin);
+		const url = new URL(trekpilot_bookings_obj.ajax_url, window.location.origin);
 		url.searchParams.set('action', action);
 		url.searchParams.set('nonce', nonce);
 		Object.keys(params || {}).forEach(function (key) {
@@ -44,20 +44,20 @@ document.addEventListener('DOMContentLoaded', function () {
 	// ==========================================
 	// Add/Edit Booking Form: cascading dropdowns
 	// ==========================================
-	const trekSelect        = document.getElementById('at_b_trek');
-	const citySelect        = document.getElementById('at_b_city');
-	const dateSelect        = document.getElementById('at_b_date');
-	const pickupRow         = document.getElementById('at_b_pickup_row');
-	const pickupSelect      = document.getElementById('at_b_pickup');
-	const transportRow      = document.getElementById('at_b_transport_row');
-	const transportSelect   = document.getElementById('at_b_transport');
-	const transportPriceInput = document.getElementById('at_b_transport_price');
-	const addonsRow         = document.getElementById('at_b_addons_row');
-	const addonsContainer   = document.getElementById('at_b_addons_container');
-	const adultsInput       = document.getElementById('at_b_adults');
-	const childrenInput     = document.getElementById('at_b_children');
-	const amountInput       = document.getElementById('at_b_amount');
-	const breakdownEl       = document.getElementById('at_b_price_breakdown');
+	const trekSelect        = document.getElementById('trekpilot_b_trek');
+	const citySelect        = document.getElementById('trekpilot_b_city');
+	const dateSelect        = document.getElementById('trekpilot_b_date');
+	const pickupRow         = document.getElementById('trekpilot_b_pickup_row');
+	const pickupSelect      = document.getElementById('trekpilot_b_pickup');
+	const transportRow      = document.getElementById('trekpilot_b_transport_row');
+	const transportSelect   = document.getElementById('trekpilot_b_transport');
+	const transportPriceInput = document.getElementById('trekpilot_b_transport_price');
+	const addonsRow         = document.getElementById('trekpilot_b_addons_row');
+	const addonsContainer   = document.getElementById('trekpilot_b_addons_container');
+	const adultsInput       = document.getElementById('trekpilot_b_adults');
+	const childrenInput     = document.getElementById('trekpilot_b_children');
+	const amountInput       = document.getElementById('trekpilot_b_amount');
+	const breakdownEl       = document.getElementById('trekpilot_b_price_breakdown');
 
 	if (trekSelect && citySelect && dateSelect) {
 		let currentPricing = null; // Holds the last fetched date/city pricing payload.
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				return;
 			}
 
-			ajaxGet('at_get_departure_cities', at_bookings_obj.cities_nonce, { trek_id: trekId }, function (cities) {
+			ajaxGet('trekpilot_get_departure_cities', trekpilot_bookings_obj.cities_nonce, { trek_id: trekId }, function (cities) {
 				citySelect.innerHTML = '<option value="">-- Select City --</option>';
 				(cities || []).forEach(function (city) {
 					const opt = document.createElement('option');
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				return;
 			}
 
-			ajaxGet('at_get_departure_dates', at_bookings_obj.dates_nonce, { city_id: cityId }, function (dates) {
+			ajaxGet('trekpilot_get_departure_dates', trekpilot_bookings_obj.dates_nonce, { city_id: cityId }, function (dates) {
 				dateSelect.innerHTML = '<option value="">-- Select Date --</option>';
 				(dates || []).forEach(function (date) {
 					const opt = document.createElement('option');
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 			if (pickupSelect) {
 				pickupSelect.innerHTML = '<option value="">-- Loading pickup points... --</option>';
-				ajaxGet('at_get_pickups', at_bookings_obj.cities_nonce, { city_id: cityId }, function (pickups) {
+				ajaxGet('trekpilot_get_pickups', trekpilot_bookings_obj.cities_nonce, { city_id: cityId }, function (pickups) {
 					pickups = pickups || [];
 
 					if (!pickups.length) {
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 			if (transportSelect) {
 				transportSelect.innerHTML = '<option value="">-- Loading transportation options... --</option>';
-				ajaxGet('at_get_transport_options', at_bookings_obj.public_pricing_nonce, { city_id: cityId }, function (payload) {
+				ajaxGet('trekpilot_get_transport_options', trekpilot_bookings_obj.public_pricing_nonce, { city_id: cityId }, function (payload) {
 					const options = (payload && Array.isArray(payload.options)) ? payload.options : [];
 
 					currentTransportPrice = 0;
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				breakdownEl.innerHTML = '<p class="description" style="margin:0;">Loading pricing...</p>';
 			}
 
-			ajaxGet('at_get_booking_details', at_bookings_obj.public_pricing_nonce, { city_id: cityId, date_id: dateId }, function (pricing) {
+			ajaxGet('trekpilot_get_booking_details', trekpilot_bookings_obj.public_pricing_nonce, { city_id: cityId, date_id: dateId }, function (pricing) {
 				currentPricing = pricing;
 
 				const addons = (pricing && pricing.optional_addons) ? pricing.optional_addons : [];
@@ -270,9 +270,9 @@ document.addEventListener('DOMContentLoaded', function () {
 					const checkbox = document.createElement('input');
 					checkbox.type = 'checkbox';
 					checkbox.name = 'addons[]';
-					checkbox.className = 'at-b-addon-check';
+					checkbox.className = 'trekpilot-b-addon-check';
 					checkbox.value = addon.name;
-					checkbox.id = 'at_b_addon_' + idx;
+					checkbox.id = 'trekpilot_b_addon_' + idx;
 					checkbox.setAttribute('data-price', addon.price);
 					checkbox.setAttribute('data-type', addon.type);
 					checkbox.checked = selectedAddons.indexOf(addon.name) !== -1;
@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 
 			// Optional add-ons the admin has checked.
-			const checkedAddons = addonsContainer ? addonsContainer.querySelectorAll('.at-b-addon-check:checked') : [];
+			const checkedAddons = addonsContainer ? addonsContainer.querySelectorAll('.trekpilot-b-addon-check:checked') : [];
 			checkedAddons.forEach(function (chk) {
 				const price = parseFloat(chk.getAttribute('data-price')) || 0;
 				const type = chk.getAttribute('data-type');
@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			});
 		}
 
-		const bookingForm = document.getElementById('at_booking_form');
+		const bookingForm = document.getElementById('trekpilot_booking_form');
 		if (bookingForm) {
 			bookingForm.addEventListener('submit', function () {
 				validateSeatCounts(adultsInput);
@@ -484,13 +484,13 @@ document.addEventListener('DOMContentLoaded', function () {
 	// ==========================================
 	// Bookings List: "View" details popup
 	// ==========================================
-	const viewModal   = document.getElementById('at_booking_view_modal');
-	const viewLoading = document.getElementById('at_booking_view_loading');
-	const viewTable   = document.getElementById('at_booking_view_table');
-	const viewTbody   = document.getElementById('at_booking_view_tbody');
-	const viewRefTag  = document.getElementById('at_booking_view_ref');
-	const viewCloseBtn1 = document.getElementById('at_booking_view_close_btn');
-	const viewCloseBtn2 = document.getElementById('at_booking_view_close_btn2');
+	const viewModal   = document.getElementById('trekpilot_booking_view_modal');
+	const viewLoading = document.getElementById('trekpilot_booking_view_loading');
+	const viewTable   = document.getElementById('trekpilot_booking_view_table');
+	const viewTbody   = document.getElementById('trekpilot_booking_view_tbody');
+	const viewRefTag  = document.getElementById('trekpilot_booking_view_ref');
+	const viewCloseBtn1 = document.getElementById('trekpilot_booking_view_close_btn');
+	const viewCloseBtn2 = document.getElementById('trekpilot_booking_view_close_btn2');
 
 	function closeViewModal() {
 		if (viewModal) {
@@ -499,7 +499,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	if (viewModal) {
-		document.querySelectorAll('.at-view-booking-btn').forEach(function (btn) {
+		document.querySelectorAll('.trekpilot-view-booking-btn').forEach(function (btn) {
 			btn.addEventListener('click', function () {
 				const bookingId = btn.getAttribute('data-booking-id');
 
@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				viewTbody.innerHTML = '';
 				viewRefTag.textContent = '';
 
-				ajaxGet('at_get_single_booking_details', at_bookings_obj.details_nonce, { booking_id: bookingId }, function (data) {
+				ajaxGet('trekpilot_get_single_booking_details', trekpilot_bookings_obj.details_nonce, { booking_id: bookingId }, function (data) {
 					viewLoading.style.display = 'none';
 
 					if (!data) {
@@ -584,7 +584,7 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
 	'use strict';
 
-	const range = document.getElementById('at_filter_date_range');
+	const range = document.getElementById('trekpilot_filter_date_range');
 	const from = document.querySelector('input[name="filter_date_from"]');
 	const to = document.querySelector('input[name="filter_date_to"]');
 	if (!range || !from || !to || typeof flatpickr === 'undefined') {

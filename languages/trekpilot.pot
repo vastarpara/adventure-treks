@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Adventure Treks 1.0.3\n"
-"Report-Msgid-Bugs-To: https://github.com/nileshvastarpara/adventure-treks\n"
+"Project-Id-Version: TrekPilot 1.0.3\n"
+"Report-Msgid-Bugs-To: https://github.com/nileshvastarpara/trekpilot\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -9,7 +9,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2026-08-03T11:49:23+00:00\n"
 "X-Generator: manual\n"
-"X-Domain: adventure-treks\n"
+"X-Domain: trekpilot\n"
 
 #: admin/controllers/class-admincontroller.php:230
 msgid "$ (US Dollar)"
@@ -48,7 +48,7 @@ msgstr ""
 msgid "AED (UAE Dirham)"
 msgstr ""
 
-#: public/views/single-adventure_trek.php:165
+#: public/views/single-trekpilot_trek.php:165
 msgid "About This Trek"
 msgstr ""
 
@@ -175,32 +175,32 @@ msgid "Adults"
 msgstr ""
 
 #: includes/elementor/widgets/class-trekbookingwidget.php:36
-msgid "Adventure Booking"
+msgid "Trek Booking"
 msgstr ""
 
 #: includes/elementor/widgets/class-trekdetailswidget.php:36
-msgid "Adventure Details"
+msgid "Trek Details"
 msgstr ""
 
 #: includes/elementor/widgets/class-trekarchivewidget.php:36
-msgid "Adventure List"
+msgid "Trek List"
 msgstr ""
 
 #: includes/class-posttypes.php:40
-msgid "Adventure Trek"
+msgid "Trek"
 msgstr ""
 
 #: includes/class-posttypes.php:68
-msgid "Adventure Trek CPT"
+msgid "TrekPilot trek post type"
 msgstr ""
 
 #: includes/class-elementor.php:53
 #: includes/class-posttypes.php:39
-msgid "Adventure Treks"
+msgid "TrekPilot"
 msgstr ""
 
 #: admin/controllers/class-admincontroller.php:82
-msgid "Adventure Treks Settings"
+msgid "TrekPilot Settings"
 msgstr ""
 
 #: public/views/booking-widget.php:95
@@ -275,11 +275,11 @@ msgid "Best Season"
 msgstr ""
 
 #: public/views/booking-widget.php:138
-msgid "Book Adventure Now"
+msgid "Book Trek Now"
 msgstr ""
 
 #: public/views/booking-widget.php:20
-msgid "Book Your Adventure"
+msgid "Book Your Trek"
 msgstr ""
 
 #: admin/controllers/class-bookings-list-table.php:51
@@ -771,7 +771,7 @@ msgid "Google Maps URL"
 msgstr ""
 
 #: admin/controllers/class-trekbookingscontroller.php:395
-msgid "Great news! Our team has reviewed and confirmed your booking. Get ready for your exciting adventure!"
+msgid "Great news! Our team has reviewed and confirmed your booking. Get ready for your exciting trek!"
 msgstr ""
 
 #: admin/views/departure-cities-meta-box.php:409
@@ -982,7 +982,7 @@ msgstr ""
 msgid "New Trek"
 msgstr ""
 
-#: public/views/archive-adventure_trek.php:44
+#: public/views/archive-trekpilot_trek.php:44
 #: public/views/trek-archive.php:37
 msgid "Next »"
 msgstr ""
@@ -1024,7 +1024,7 @@ msgstr ""
 msgid "No seats are available for the selected departure date. Please choose another date."
 msgstr ""
 
-#: public/views/archive-adventure_trek.php:50
+#: public/views/archive-trekpilot_trek.php:50
 #: public/views/trek-archive.php:46
 msgid "No treks found."
 msgstr ""
@@ -1474,7 +1474,7 @@ msgstr ""
 
 #: admin/controllers/class-trekbookingscontroller.php:394
 #: public/controllers/class-trekbookingcontroller.php:420
-msgid "Thank you for booking your adventure with us! Our team is currently reviewing your booking details, and we will confirm it shortly. Stay tuned!"
+msgid "Thank you for booking your trek with us! Our team is currently reviewing your booking details, and we will confirm it shortly. Stay tuned!"
 msgstr ""
 
 #: public/views/booking-widget.php:220
@@ -1574,7 +1574,7 @@ msgstr ""
 msgid "Trek Settings & Detailed Specifications"
 msgstr ""
 
-#: public/views/single-adventure_trek.php:22
+#: public/views/single-trekpilot_trek.php:22
 msgid "Trek not found."
 msgstr ""
 
@@ -1813,7 +1813,7 @@ msgstr ""
 msgid "¥ (Japanese Yen / Chinese Yuan)"
 msgstr ""
 
-#: public/views/archive-adventure_trek.php:43
+#: public/views/archive-trekpilot_trek.php:43
 #: public/views/trek-archive.php:36
 msgid "« Prev"
 msgstr ""

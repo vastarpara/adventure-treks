@@ -488,6 +488,8 @@ function AddFont($family, $style='', $file='', $uni=false)
 		$ttfstat = stat($ttffilename);
 		if (file_exists($unifilename.'.mtx.php')) {
 			include($unifilename.'.mtx.php');
+			// The cached path is machine-specific; always use the bundled font file.
+			$ttffile = $ttffilename;
 		}
 		if (!isset($type) ||  !isset($name) || $originalsize != $ttfstat['size']) {
 			$ttffile = $ttffilename;

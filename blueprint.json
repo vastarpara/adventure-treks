@@ -1,12 +1,12 @@
 {
 	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
 	"meta": {
-		"title": "Adventure Treks demo",
-		"description": "A WordPress site with Adventure Treks installed and one sample trek with a departure city, dates, pricing and a pickup point.",
+		"title": "TrekPilot demo",
+		"description": "A WordPress site with TrekPilot installed and one sample trek with a departure city, dates, pricing and a pickup point.",
 		"author": "vastarpara",
 		"categories": [ "Travel", "Booking" ]
 	},
-	"landingPage": "/wp-admin/edit.php?post_type=adventure_trek",
+	"landingPage": "/wp-admin/edit.php?post_type=trekpilot_trek",
 	"preferredVersions": {
 		"php": "8.2",
 		"wp": "latest"
@@ -19,7 +19,7 @@
 		{
 			"step": "setSiteOptions",
 			"options": {
-				"blogname": "Adventure Treks demo",
+				"blogname": "TrekPilot demo",
 				"permalink_structure": "/%postname%/"
 			}
 		},
@@ -27,7 +27,7 @@
 			"step": "installPlugin",
 			"pluginData": {
 				"resource": "git:directory",
-				"url": "https://github.com/vastarpara/adventure-treks",
+				"url": "https://github.com/vastarpara/trekpilot",
 				"ref": "main"
 			},
 			"options": {
@@ -36,7 +36,7 @@
 		},
 		{
 			"step": "runPHP",
-			"code": "<?php\nrequire_once '/wordpress/wp-load.php';\nglobal $wpdb;\n\\AdventureTreks\\Includes\\Database::create_tables();\nupdate_option( 'at_currency_symbol', '$' );\nupdate_option( 'at_payment_method', 'cash' );\n\n$trek_id = wp_insert_post( array(\n\t'post_type'    => 'adventure_trek',\n\t'post_status'  => 'publish',\n\t'post_title'   => 'Kedarkantha Winter Trek',\n\t'post_excerpt' => 'A memorable easy-grade winter trek in Uttarakhand with snow trails, camping and summit views.',\n\t'post_content' => 'Walk through pine forests and frozen meadows to the Kedarkantha summit at sunrise.',\n) );\n\n$p = $wpdb->prefix;\n$wpdb->insert( $p . 'at_treks', array(\n\t'post_id'       => $trek_id,\n\t'difficulty'    => 'Easy',\n\t'duration'      => '6 Days / 5 Nights',\n\t'altitude'      => '12500 ft',\n\t'region'        => 'Uttarakhand',\n\t'season'        => 'December - April',\n\t'distance'      => '20 km',\n\t'fitness_level' => 'Good',\n\t'age_limit'     => '12 to 60 Years',\n\t'group_size'    => '15 Trekkers',\n\t'highlights'    => \"Summit at sunrise\\nSnow camping\\nPine forest trails\",\n) );\n\n$wpdb->insert( $p . 'at_departure_cities', array(\n\t'trek_id'          => $trek_id,\n\t'city_name'        => 'Dehradun',\n\t'base_price'       => 7999,\n\t'offer_price'      => 6999,\n\t'transport_type'   => 'Shared Tempo Traveller',\n\t'reporting_time'   => '06:00 AM',\n\t'booking_deadline' => 2,\n\t'status'           => 'active',\n\t'menu_order'       => 1,\n) );\n$city_id = $wpdb->insert_id;\n\n$wpdb->insert( $p . 'at_pickup_points', array(\n\t'city_id'       => $city_id,\n\t'trek_id'       => $trek_id,\n\t'location_name' => 'Dehradun Railway Station',\n\t'pickup_time'   => '06:00 AM',\n\t'instructions'  => 'Meet the trek leader at the main gate.',\n\t'menu_order'    => 1,\n) );\n\n$wpdb->insert( $p . 'at_pricing', array(\n\t'city_id'           => $city_id,\n\t'date_id'           => 0,\n\t'trek_id'           => $trek_id,\n\t'adult_price'       => 7999,\n\t'child_price'       => 6499,\n\t'offer_price'       => 6999,\n\t'group_discount'    => wp_json_encode( array( array( 'min_seats' => 5, 'type' => 'percent', 'value' => 10 ) ) ),\n\t'extra_charges'     => wp_json_encode( array( array( 'name' => 'Forest permit', 'price' => 250, 'type' => 'person' ) ) ),\n\t'optional_addons'   => wp_json_encode( array( array( 'name' => 'Rental Trekking Pole', 'price' => 300, 'type' => 'person', 'desc' => 'For the whole trek' ) ) ),\n\t'transport_options' => wp_json_encode( array( array( 'name' => 'Shared Tempo Traveller', 'price' => 0 ), array( 'name' => 'Private SUV', 'price' => 2500 ) ) ),\n) );\n\nforeach ( array( 21, 35 ) as $days_ahead ) {\n\t$wpdb->insert( $p . 'at_departure_dates', array(\n\t\t'city_id'        => $city_id,\n\t\t'trek_id'        => $trek_id,\n\t\t'departure_date' => gmdate( 'Y-m-d', strtotime( '+' . $days_ahead . ' days' ) ),\n\t\t'status'         => 'open',\n\t) );\n\t$wpdb->insert( $p . 'at_availability', array(\n\t\t'date_id'         => $wpdb->insert_id,\n\t\t'total_seats'     => 15,\n\t\t'booked_seats'    => 0,\n\t\t'available_seats' => 15,\n\t) );\n}\n\nflush_rewrite_rules();\n"
+			"code": "<?php\nrequire_once '/wordpress/wp-load.php';\nglobal $wpdb;\n\\TrekPilot\\Includes\\Database::create_tables();\nupdate_option( 'trekpilot_currency_symbol', '$' );\nupdate_option( 'trekpilot_payment_method', 'cash' );\n\n$trek_id = wp_insert_post( array(\n\t'post_type'    => 'trekpilot_trek',\n\t'post_status'  => 'publish',\n\t'post_title'   => 'Kedarkantha Winter Trek',\n\t'post_excerpt' => 'A memorable easy-grade winter trek in Uttarakhand with snow trails, camping and summit views.',\n\t'post_content' => 'Walk through pine forests and frozen meadows to the Kedarkantha summit at sunrise.',\n) );\n\n$p = $wpdb->prefix;\n$wpdb->insert( $p . 'trekpilot_treks', array(\n\t'post_id'       => $trek_id,\n\t'difficulty'    => 'Easy',\n\t'duration'      => '6 Days / 5 Nights',\n\t'altitude'      => '12500 ft',\n\t'region'        => 'Uttarakhand',\n\t'season'        => 'December - April',\n\t'distance'      => '20 km',\n\t'fitness_level' => 'Good',\n\t'age_limit'     => '12 to 60 Years',\n\t'group_size'    => '15 Trekkers',\n\t'highlights'    => \"Summit at sunrise\\nSnow camping\\nPine forest trails\",\n) );\n\n$wpdb->insert( $p . 'trekpilot_departure_cities', array(\n\t'trek_id'          => $trek_id,\n\t'city_name'        => 'Dehradun',\n\t'base_price'       => 7999,\n\t'offer_price'      => 6999,\n\t'transport_type'   => 'Shared Tempo Traveller',\n\t'reporting_time'   => '06:00 AM',\n\t'booking_deadline' => 2,\n\t'status'           => 'active',\n\t'menu_order'       => 1,\n) );\n$city_id = $wpdb->insert_id;\n\n$wpdb->insert( $p . 'trekpilot_pickup_points', array(\n\t'city_id'       => $city_id,\n\t'trek_id'       => $trek_id,\n\t'location_name' => 'Dehradun Railway Station',\n\t'pickup_time'   => '06:00 AM',\n\t'instructions'  => 'Meet the trek leader at the main gate.',\n\t'menu_order'    => 1,\n) );\n\n$wpdb->insert( $p . 'trekpilot_pricing', array(\n\t'city_id'           => $city_id,\n\t'date_id'           => 0,\n\t'trek_id'           => $trek_id,\n\t'adult_price'       => 7999,\n\t'child_price'       => 6499,\n\t'offer_price'       => 6999,\n\t'group_discount'    => wp_json_encode( array( array( 'min_seats' => 5, 'type' => 'percent', 'value' => 10 ) ) ),\n\t'extra_charges'     => wp_json_encode( array( array( 'name' => 'Forest permit', 'price' => 250, 'type' => 'person' ) ) ),\n\t'optional_addons'   => wp_json_encode( array( array( 'name' => 'Rental Trekking Pole', 'price' => 300, 'type' => 'person', 'desc' => 'For the whole trek' ) ) ),\n\t'transport_options' => wp_json_encode( array( array( 'name' => 'Shared Tempo Traveller', 'price' => 0 ), array( 'name' => 'Private SUV', 'price' => 2500 ) ) ),\n) );\n\nforeach ( array( 21, 35 ) as $days_ahead ) {\n\t$wpdb->insert( $p . 'trekpilot_departure_dates', array(\n\t\t'city_id'        => $city_id,\n\t\t'trek_id'        => $trek_id,\n\t\t'departure_date' => gmdate( 'Y-m-d', strtotime( '+' . $days_ahead . ' days' ) ),\n\t\t'status'         => 'open',\n\t) );\n\t$wpdb->insert( $p . 'trekpilot_availability', array(\n\t\t'date_id'         => $wpdb->insert_id,\n\t\t'total_seats'     => 15,\n\t\t'booked_seats'    => 0,\n\t\t'available_seats' => 15,\n\t) );\n}\n\nflush_rewrite_rules();\n"
 		}
 	]
 }

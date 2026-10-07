@@ -13,7 +13,7 @@ $desc=array (
 );
 $up=-63;
 $ut=44;
-$ttffile='D:\wamp64\www\wp712\wp-content\plugins\adventure-treks\includes\vendor\tfpdf/font/unifont/DejaVuSansCondensed.ttf';
+$ttffile=dirname(__FILE__).'/DejaVuSansCondensed.ttf';
 $originalsize=680264;
 $fontkey='dejavu';
 ?>

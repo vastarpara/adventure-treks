@@ -22,7 +22,7 @@ jobs:
 
       - name: Check the tag matches the plugin version
         run: |
-          VERSION=$(grep -m1 -E '^\s*\*\s*Version:' adventure-treks.php | sed -E 's/.*Version:\s*//' | tr -d '[:space:]')
+          VERSION=$(grep -m1 -E '^\s*\*\s*Version:' trekpilot.php | sed -E 's/.*Version:\s*//' | tr -d '[:space:]')
           if [ "$VERSION" != "${GITHUB_REF_NAME}" ]; then
             echo "Tag ${GITHUB_REF_NAME} does not match plugin version $VERSION"
             exit 1
@@ -35,18 +35,18 @@ jobs:
 
       - name: Build zip
         run: |
-          mkdir -p dist/adventure-treks
-          rsync -a --exclude-from=.distignore --exclude='.git' ./ dist/adventure-treks/
-          cd dist && zip -qr adventure-treks.zip adventure-treks
+          mkdir -p dist/trekpilot
+          rsync -a --exclude-from=.distignore --exclude='.git' ./ dist/trekpilot/
+          cd dist && zip -qr trekpilot.zip trekpilot
 
       - name: GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/adventure-treks.zip
+          files: dist/trekpilot.zip
           generate_release_notes: true
 
       - name: Deploy to WordPress.org
         if: ${{ env.SVN_USERNAME != '' }}
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
-          SLUG: adventure-treks
+          SLUG: trekpilot

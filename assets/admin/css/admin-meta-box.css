@@ -1,8 +1,8 @@
 /**
- * Stylesheet for Adventure Treks Meta Box Admin UI
+ * Stylesheet for TrekPilot Meta Box Admin UI
  */
 
-.at-meta-tabs-wrapper {
+.trekpilot-meta-tabs-wrapper {
 	display: flex;
 	flex-direction: column;
 	background: #fcfcfc;
@@ -16,52 +16,52 @@
 }
 
 /* Tab Navigation: default WP .nav-tab styling, only spacing tweaks. */
-.at-meta-tabs-nav {
+.trekpilot-meta-tabs-nav {
 	padding: 9px 10px 0;
 	background: #f0f0f1;
 }
 
 /* No transition and no focus ring, so clicking a tab does not flash a line under it. */
-.at-meta-tabs-nav .nav-tab {
+.trekpilot-meta-tabs-nav .nav-tab {
 	transition: none;
 }
 
-.at-meta-tabs-nav .nav-tab:focus,
-.at-meta-tabs-nav .nav-tab:focus-visible,
-.at-meta-tabs-nav .nav-tab:active {
+.trekpilot-meta-tabs-nav .nav-tab:focus,
+.trekpilot-meta-tabs-nav .nav-tab:focus-visible,
+.trekpilot-meta-tabs-nav .nav-tab:active {
 	text-decoration: none;
 	box-shadow: none;
 	outline: none;
 }
 
 /* Tab Panels */
-.at-meta-tabs-content {
+.trekpilot-meta-tabs-content {
 	padding: 25px;
 	background: #ffffff;
 }
 
-.at-meta-tab-panel {
+.trekpilot-meta-tab-panel {
 	display: none;
 }
 
-.at-meta-tab-panel.active {
+.trekpilot-meta-tab-panel.active {
 	display: block;
 }
 
 /* Form Styles inside Panels */
-.at-meta-tab-panel table.form-table th {
+.trekpilot-meta-tab-panel table.form-table th {
 	width: 220px;
 	font-weight: 600;
 	color: #3c434a;
 	padding: 15px 10px 15px 0;
 }
 
-.at-meta-tab-panel table.form-table td {
+.trekpilot-meta-tab-panel table.form-table td {
 	padding: 15px 10px;
 }
 
 /* Gallery Styles */
-.at-gallery-thumbs {
+.trekpilot-gallery-thumbs {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 12px;
@@ -74,7 +74,7 @@
 	align-items: center;
 }
 
-.at-gallery-thumb-item {
+.trekpilot-gallery-thumb-item {
 	position: relative;
 	width: 100px;
 	height: 100px;
@@ -85,13 +85,13 @@
 	box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.at-gallery-thumb-item img {
+.trekpilot-gallery-thumb-item img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 }
 
-.at-gallery-remove-btn {
+.trekpilot-gallery-remove-btn {
 	position: absolute;
 	top: 4px;
 	right: 4px;
@@ -108,13 +108,13 @@
 	transition: background 0.2s;
 }
 
-.at-gallery-remove-btn:hover {
+.trekpilot-gallery-remove-btn:hover {
 	background: rgb(220, 53, 69);
 	color: #fff;
 }
 
 /* FAQ Repeater Styles */
-.at-faq-repeater-row {
+.trekpilot-faq-repeater-row {
 	display: flex;
 	align-items: flex-start;
 	background: #fafafa;
@@ -126,32 +126,32 @@
 	box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 
-.at-drag-handle {
+.trekpilot-drag-handle {
 	font-size: 20px;
 	color: #a7aaad;
 	padding: 5px 15px 5px 0;
 	user-select: none;
 }
 
-.at-faq-row-fields {
+.trekpilot-faq-row-fields {
 	flex-grow: 1;
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
 }
 
-.at-faq-row-fields input,
-.at-faq-row-fields textarea {
+.trekpilot-faq-row-fields input,
+.trekpilot-faq-row-fields textarea {
 	width: 100%;
 }
 
-.at-remove-faq-row-btn {
+.trekpilot-remove-faq-row-btn {
 	margin-left: 15px !important;
 	color: #b32d2e !important;
 	border-color: #b32d2e !important;
 }
 
-.at-remove-faq-row-btn:hover {
+.trekpilot-remove-faq-row-btn:hover {
 	background: #b32d2e !important;
 	color: #fff !important;
 }
@@ -163,7 +163,7 @@
 }
 
 
-#at_admin_toast {
+#trekpilot_admin_toast {
 	visibility: hidden;
 	min-width: 250px;
 	background-color: #d63638;
@@ -179,45 +179,45 @@
 	font-size: 15px;
 	box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
-#at_admin_toast.show {
+#trekpilot_admin_toast.show {
 	visibility: visible;
-	-webkit-animation: at_fadein 0.5s, at_fadeout 0.5s 3s;
-	animation: at_fadein 0.5s, at_fadeout 0.5s 3s;
+	-webkit-animation: trekpilot_fadein 0.5s, trekpilot_fadeout 0.5s 3s;
+	animation: trekpilot_fadein 0.5s, trekpilot_fadeout 0.5s 3s;
 }
-#at_admin_toast .dashicons {
+#trekpilot_admin_toast .dashicons {
 	vertical-align: text-bottom;
 }
-@-webkit-keyframes at_fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-@keyframes at_fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-@-webkit-keyframes at_fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-@keyframes at_fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+@-webkit-keyframes trekpilot_fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+@keyframes trekpilot_fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+@-webkit-keyframes trekpilot_fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+@keyframes trekpilot_fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-#at_admin_confirm_overlay {
+#trekpilot_admin_confirm_overlay {
 	position: fixed; top: 0; left: 0; width: 100%; height: 100%;
 	background: rgba(0,0,0,0.5); z-index: 999999;
 	display: none; align-items: center; justify-content: center;
 }
-#at_admin_confirm_overlay.show { display: flex; }
-.at-admin-confirm-box {
+#trekpilot_admin_confirm_overlay.show { display: flex; }
+.trekpilot-admin-confirm-box {
 	background: #fff; padding: 20px 30px; border-radius: 6px;
 	box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 	max-width: 400px; text-align: center;
 }
-.at-admin-confirm-icon {
+.trekpilot-admin-confirm-icon {
 	color: #d63638; font-size: 40px; margin-bottom: 15px;
 }
-.at-admin-confirm-icon .dashicons {
+.trekpilot-admin-confirm-icon .dashicons {
 	font-size: 40px; width: 40px; height: 40px;
 }
-.at-admin-confirm-msg {
+.trekpilot-admin-confirm-msg {
 	font-size: 16px; margin-bottom: 20px; color: #3c434a;
 }
-.at-admin-confirm-actions {
+.trekpilot-admin-confirm-actions {
 	display: flex; justify-content: center; gap: 10px;
 }
 
 /* Fix for Flatpickr readonly styling in WP Admin */
-input.at-timepicker[readonly] {
+input.trekpilot-timepicker[readonly] {
 	background-color: #fff !important;
 	cursor: pointer !important;
 }
@@ -228,30 +228,30 @@ input.at-timepicker[readonly] {
 }
 
 /* Policies: keep every editor tall enough to use. */
-.at-meta-tab-panel .wp-editor-wrap .wp-editor-area {
+.trekpilot-meta-tab-panel .wp-editor-wrap .wp-editor-area {
 	min-height: 160px;
 }
-.at-meta-tab-panel .wp-editor-wrap {
+.trekpilot-meta-tab-panel .wp-editor-wrap {
 	min-width: 320px;
 	max-width: 800px;
 }
 
 /* Textareas never collapse: the FAQ answer sits in a flex column and was being squashed to one line. */
-.at-faq-row-fields textarea {
+.trekpilot-faq-row-fields textarea {
 	flex: 0 0 auto;
 	min-height: 90px;
 }
-.at-meta-tab-panel textarea {
+.trekpilot-meta-tab-panel textarea {
 	min-height: 90px;
 }
 
 /* FAQ rows with only a question or only an answer. */
-.at-faq-repeater-row.at-faq-incomplete input[type="text"],
-.at-faq-repeater-row.at-faq-incomplete textarea {
+.trekpilot-faq-repeater-row.trekpilot-faq-incomplete input[type="text"],
+.trekpilot-faq-repeater-row.trekpilot-faq-incomplete textarea {
 	border-color: #b32d2e;
 }
 
-.at-faq-row-error {
+.trekpilot-faq-row-error {
 	margin: 4px 0 0;
 	color: #b32d2e;
 	font-size: 12px;

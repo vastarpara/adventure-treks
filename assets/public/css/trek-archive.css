@@ -2,30 +2,30 @@
  * Frontend Trek Archive Grid styles.
  */
 
-.at-trek-archive-wrapper {
+.trekpilot-trek-archive-wrapper {
 	width: 100%;
 }
 
-.at-trek-archive-grid {
-	--at-archive-cols: 3;
+.trekpilot-trek-archive-grid {
+	--trekpilot-archive-cols: 3;
 	display: grid;
-	grid-template-columns: repeat(var(--at-archive-cols), 1fr);
+	grid-template-columns: repeat(var(--trekpilot-archive-cols), 1fr);
 	gap: 24px;
 }
 
 @media (max-width: 900px) {
-	.at-trek-archive-grid {
-		grid-template-columns: repeat(min(var(--at-archive-cols), 2), 1fr);
+	.trekpilot-trek-archive-grid {
+		grid-template-columns: repeat(min(var(--trekpilot-archive-cols), 2), 1fr);
 	}
 }
 
 @media (max-width: 600px) {
-	.at-trek-archive-grid {
+	.trekpilot-trek-archive-grid {
 		grid-template-columns: 1fr;
 	}
 }
 
-.at-trek-archive-card {
+.trekpilot-trek-archive-card {
 	background: #fff;
 	border: 1px solid #e5e5e5;
 	border-radius: 10px;
@@ -35,12 +35,12 @@
 	transition: box-shadow 0.2s, transform 0.2s;
 }
 
-.at-trek-archive-card:hover {
+.trekpilot-trek-archive-card:hover {
 	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 	transform: translateY(-2px);
 }
 
-.at-trek-archive-thumb {
+.trekpilot-trek-archive-thumb {
 	position: relative;
 	display: block;
 	width: 100%;
@@ -49,14 +49,14 @@
 	overflow: hidden;
 }
 
-.at-trek-archive-thumb img {
+.trekpilot-trek-archive-thumb img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 	display: block;
 }
 
-.at-trek-archive-thumb-placeholder {
+.trekpilot-trek-archive-thumb-placeholder {
 	width: 100%;
 	height: 100%;
 	display: flex;
@@ -65,17 +65,17 @@
 	color: #bbb;
 }
 
-.at-trek-archive-thumb-placeholder .dashicons {
+.trekpilot-trek-archive-thumb-placeholder .dashicons {
 	font-size: 48px;
 	width: 48px;
 	height: 48px;
 }
 
-.at-trek-archive-price-badge {
+.trekpilot-trek-archive-price-badge {
 	position: absolute;
 	bottom: 10px;
 	right: 10px;
-	background: var(--at-primary-color, #137a7f);
+	background: var(--trekpilot-primary-color, #137a7f);
 	color: #fff;
 	font-size: 12px;
 	font-weight: 700;
@@ -83,30 +83,30 @@
 	border-radius: 4px;
 }
 
-.at-trek-archive-body {
+.trekpilot-trek-archive-body {
 	padding: 16px;
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
 }
 
-.at-trek-archive-title {
+.trekpilot-trek-archive-title {
 	margin: 0 0 8px 0;
 	font-size: 17px;
 	font-weight: 700;
 	line-height: 1.3;
 }
 
-.at-trek-archive-title a {
+.trekpilot-trek-archive-title a {
 	color: #222;
 	text-decoration: none;
 }
 
-.at-trek-archive-title a:hover {
-	color: var(--at-secondary-color, #0f6165);
+.trekpilot-trek-archive-title a:hover {
+	color: var(--trekpilot-secondary-color, #0f6165);
 }
 
-.at-trek-archive-meta {
+.trekpilot-trek-archive-meta {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 10px;
@@ -115,20 +115,20 @@
 	color: #666;
 }
 
-.at-trek-archive-meta span {
+.trekpilot-trek-archive-meta span {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
 }
 
-.at-trek-archive-meta .dashicons {
+.trekpilot-trek-archive-meta .dashicons {
 	font-size: 14px;
 	width: 14px;
 	height: 14px;
-	color: var(--at-primary-color, #137a7f);
+	color: var(--trekpilot-primary-color, #137a7f);
 }
 
-.at-trek-archive-excerpt {
+.trekpilot-trek-archive-excerpt {
 	font-size: 13px;
 	color: #555;
 	line-height: 1.5;
@@ -136,10 +136,10 @@
 	flex-grow: 1;
 }
 
-.at-trek-archive-btn {
+.trekpilot-trek-archive-btn {
 	display: block;
 	text-align: center;
-	background: var(--at-primary-color, #137a7f);
+	background: var(--trekpilot-primary-color, #137a7f);
 	color: #fff;
 	text-decoration: none;
 	font-weight: 700;
@@ -149,19 +149,19 @@
 	transition: background 0.2s;
 }
 
-.at-trek-archive-btn:hover {
-	background: var(--at-secondary-color, #0f6165);
+.trekpilot-trek-archive-btn:hover {
+	background: var(--trekpilot-secondary-color, #0f6165);
 	color: #fff;
 }
 
-.at-trek-archive-empty {
+.trekpilot-trek-archive-empty {
 	text-align: center;
 	color: #666;
 	font-style: italic;
 	padding: 30px 0;
 }
 
-.at-trek-archive-pagination {
+.trekpilot-trek-archive-pagination {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
@@ -169,7 +169,7 @@
 	margin-top: 30px;
 }
 
-.at-trek-archive-pagination .page-numbers {
+.trekpilot-trek-archive-pagination .page-numbers {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -184,17 +184,17 @@
 	font-weight: 600;
 }
 
-.at-trek-archive-pagination a.page-numbers:hover {
-	border-color: var(--at-secondary-color, #0f6165);
-	color: var(--at-secondary-color, #0f6165);
+.trekpilot-trek-archive-pagination a.page-numbers:hover {
+	border-color: var(--trekpilot-secondary-color, #0f6165);
+	color: var(--trekpilot-secondary-color, #0f6165);
 }
 
-.at-trek-archive-pagination .page-numbers.current {
-	background: var(--at-primary-color, #137a7f);
-	border-color: var(--at-primary-color, #137a7f);
+.trekpilot-trek-archive-pagination .page-numbers.current {
+	background: var(--trekpilot-primary-color, #137a7f);
+	border-color: var(--trekpilot-primary-color, #137a7f);
 	color: #fff;
 }
 
-.at-trek-archive-pagination .page-numbers.dots {
+.trekpilot-trek-archive-pagination .page-numbers.dots {
 	border: none;
 }

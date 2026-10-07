@@ -1,5 +1,5 @@
 /**
- * Editor UI for the Adventure Treks blocks (no build step: plain ES5 against the wp.* globals).
+ * Editor UI for the TrekPilot blocks (no build step: plain ES5 against the wp.* globals).
  * Each block is server-rendered, so the editor shows the real output via ServerSideRender.
  */
 ( function ( wp ) {
@@ -26,7 +26,7 @@
 		return useSelect( function ( select ) {
 			var store = select( 'core' );
 			var query = { per_page: -1, orderby: 'title', order: 'asc', status: 'publish,draft,private' };
-			var records = store.getEntityRecords( 'postType', 'adventure_trek', query );
+			var records = store.getEntityRecords( 'postType', 'trekpilot_trek', query );
 			return {
 				loading: records === null || records === undefined,
 				treks: ( records || [] ).map( function ( post ) {
@@ -46,7 +46,7 @@
 
 	/** Preview wrapper: the output is live markup, so make it inert in the editor. */
 	function Preview( props ) {
-		return el( 'div', { className: 'at-block-preview' },
+		return el( 'div', { className: 'trekpilot-block-preview' },
 			el( ServerSideRender, {
 				block: props.block,
 				attributes: props.attributes,
@@ -64,13 +64,13 @@
 			var data = useTreks();
 			var postId = useCurrentPostId();
 			var blockProps = useBlockProps();
-			var options = [ { value: 0, label: __( 'Current Post / Trek Page', 'adventure-treks' ) } ].concat( data.treks );
+			var options = [ { value: 0, label: __( 'Current Post / Trek Page', 'trekpilot' ) } ].concat( data.treks );
 
 			return el( Fragment, {},
 				el( InspectorControls, {},
-					el( PanelBody, { title: __( 'Configuration', 'adventure-treks' ), initialOpen: true },
+					el( PanelBody, { title: __( 'Configuration', 'trekpilot' ), initialOpen: true },
 						el( SelectControl, {
-							label: __( 'Select Trek', 'adventure-treks' ),
+							label: __( 'Select Trek', 'trekpilot' ),
 							value: props.attributes.trekId,
 							options: options,
 							onChange: function ( value ) {
@@ -86,17 +86,17 @@
 		};
 	}
 
-	registerBlockType( 'adventure-treks/trek-details', {
-		edit: singleTrekEdit( 'adventure-treks/trek-details' ),
+	registerBlockType( 'trekpilot/trek-details', {
+		edit: singleTrekEdit( 'trekpilot/trek-details' ),
 		save: function () { return null; }
 	} );
 
-	registerBlockType( 'adventure-treks/trek-booking', {
-		edit: singleTrekEdit( 'adventure-treks/trek-booking' ),
+	registerBlockType( 'trekpilot/trek-booking', {
+		edit: singleTrekEdit( 'trekpilot/trek-booking' ),
 		save: function () { return null; }
 	} );
 
-	registerBlockType( 'adventure-treks/trek-archive', {
+	registerBlockType( 'trekpilot/trek-archive', {
 		edit: function ( props ) {
 			var a = props.attributes;
 			var set = props.setAttributes;
@@ -118,13 +118,13 @@
 
 			return el( Fragment, {},
 				el( InspectorControls, {},
-					el( PanelBody, { title: __( 'Query', 'adventure-treks' ), initialOpen: true },
+					el( PanelBody, { title: __( 'Query', 'trekpilot' ), initialOpen: true },
 						el( SelectControl, {
-							label: __( 'Source', 'adventure-treks' ),
+							label: __( 'Source', 'trekpilot' ),
 							value: a.source,
 							options: [
-								{ value: 'all', label: __( 'All', 'adventure-treks' ) },
-								{ value: 'manual', label: __( 'Manual Selection', 'adventure-treks' ) }
+								{ value: 'all', label: __( 'All', 'trekpilot' ) },
+								{ value: 'manual', label: __( 'Manual Selection', 'trekpilot' ) }
 							],
 							onChange: function ( value ) { set( { source: value } ); }
 						} ),
@@ -139,62 +139,62 @@
 								} );
 							} ) ),
 						! manual && el( SelectControl, {
-							label: __( 'Order By', 'adventure-treks' ),
+							label: __( 'Order By', 'trekpilot' ),
 							value: a.orderby,
 							options: [
-								{ value: 'date', label: __( 'Publish Date', 'adventure-treks' ) },
-								{ value: 'title', label: __( 'Title', 'adventure-treks' ) },
-								{ value: 'menu_order', label: __( 'Menu Order', 'adventure-treks' ) },
-								{ value: 'rand', label: __( 'Random', 'adventure-treks' ) }
+								{ value: 'date', label: __( 'Publish Date', 'trekpilot' ) },
+								{ value: 'title', label: __( 'Title', 'trekpilot' ) },
+								{ value: 'menu_order', label: __( 'Menu Order', 'trekpilot' ) },
+								{ value: 'rand', label: __( 'Random', 'trekpilot' ) }
 							],
 							onChange: function ( value ) { set( { orderby: value } ); }
 						} ),
 						! manual && el( SelectControl, {
-							label: __( 'Order', 'adventure-treks' ),
+							label: __( 'Order', 'trekpilot' ),
 							value: a.order,
 							options: [
-								{ value: 'DESC', label: __( 'Descending', 'adventure-treks' ) },
-								{ value: 'ASC', label: __( 'Ascending', 'adventure-treks' ) }
+								{ value: 'DESC', label: __( 'Descending', 'trekpilot' ) },
+								{ value: 'ASC', label: __( 'Ascending', 'trekpilot' ) }
 							],
 							onChange: function ( value ) { set( { order: value } ); }
 						} )
 					),
-					el( PanelBody, { title: __( 'Layout', 'adventure-treks' ), initialOpen: true },
+					el( PanelBody, { title: __( 'Layout', 'trekpilot' ), initialOpen: true },
 						! manual && el( RangeControl, {
-							label: __( 'Treks Per Page', 'adventure-treks' ),
+							label: __( 'Treks Per Page', 'trekpilot' ),
 							value: a.postsPerPage,
 							min: 1,
 							max: 100,
 							onChange: function ( value ) { set( { postsPerPage: value || 9 } ); }
 						} ),
 						el( RangeControl, {
-							label: __( 'Columns', 'adventure-treks' ),
+							label: __( 'Columns', 'trekpilot' ),
 							value: a.columns,
 							min: 1,
 							max: 6,
 							onChange: function ( value ) { set( { columns: value || 3 } ); }
 						} ),
 						el( ToggleControl, {
-							label: __( 'Show Excerpt', 'adventure-treks' ),
+							label: __( 'Show Excerpt', 'trekpilot' ),
 							checked: !! a.showExcerpt,
 							onChange: function ( value ) { set( { showExcerpt: value } ); }
 						} ),
 						el( ToggleControl, {
-							label: __( 'Show Price', 'adventure-treks' ),
+							label: __( 'Show Price', 'trekpilot' ),
 							checked: !! a.showPrice,
 							onChange: function ( value ) { set( { showPrice: value } ); }
 						} )
 					),
-					! manual && el( PanelBody, { title: __( 'Pagination', 'adventure-treks' ), initialOpen: false },
+					! manual && el( PanelBody, { title: __( 'Pagination', 'trekpilot' ), initialOpen: false },
 						el( ToggleControl, {
-							label: __( 'Show Pagination', 'adventure-treks' ),
+							label: __( 'Show Pagination', 'trekpilot' ),
 							checked: !! a.showPagination,
 							onChange: function ( value ) { set( { showPagination: value } ); }
 						} )
 					)
 				),
 				el( 'div', blockProps,
-					el( Preview, { block: 'adventure-treks/trek-archive', attributes: a, postId: postId } )
+					el( Preview, { block: 'trekpilot/trek-archive', attributes: a, postId: postId } )
 				)
 			);
 		},

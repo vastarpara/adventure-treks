@@ -1,5 +1,5 @@
 /**
- * JavaScript for Adventure Treks Meta Box Admin Interface
+ * JavaScript for TrekPilot Meta Box Admin Interface
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -7,14 +7,14 @@ document.addEventListener('DOMContentLoaded', function() {
 	// ==========================================
 	// 0. Global Toast & Confirm Notifications
 	// ==========================================
-	window.at_admin_toast = function(message, type = 'error') {
-		let toast = document.getElementById('at_admin_toast');
+	window.trekpilot_admin_toast = function(message, type = 'error') {
+		let toast = document.getElementById('trekpilot_admin_toast');
 		if (!toast) {
 			toast = document.createElement('div');
-			toast.id = 'at_admin_toast';
+			toast.id = 'trekpilot_admin_toast';
 			document.body.appendChild(toast);
 		}
-		toast.className = 'at-toast show ' + type;
+		toast.className = 'trekpilot-toast show ' + type;
 		toast.textContent = '';
 		const toastIcon = document.createElement('span');
 		toastIcon.className = 'dashicons dashicons-warning';
@@ -26,32 +26,32 @@ document.addEventListener('DOMContentLoaded', function() {
 		}, 3500);
 	};
 
-	window.at_admin_confirm = function(message, callback) {
-		let overlay = document.getElementById('at_admin_confirm_overlay');
+	window.trekpilot_admin_confirm = function(message, callback) {
+		let overlay = document.getElementById('trekpilot_admin_confirm_overlay');
 		if (!overlay) {
 			overlay = document.createElement('div');
-			overlay.id = 'at_admin_confirm_overlay';
+			overlay.id = 'trekpilot_admin_confirm_overlay';
 			overlay.innerHTML = `
-				<div class="at-admin-confirm-box">
-					<div class="at-admin-confirm-icon"><span class="dashicons dashicons-warning"></span></div>
-					<div class="at-admin-confirm-msg"></div>
-					<div class="at-admin-confirm-actions">
-						<button type="button" class="button at-admin-confirm-cancel">Cancel</button>
-						<button type="button" class="button button-primary at-admin-confirm-ok">OK</button>
+				<div class="trekpilot-admin-confirm-box">
+					<div class="trekpilot-admin-confirm-icon"><span class="dashicons dashicons-warning"></span></div>
+					<div class="trekpilot-admin-confirm-msg"></div>
+					<div class="trekpilot-admin-confirm-actions">
+						<button type="button" class="button trekpilot-admin-confirm-cancel">Cancel</button>
+						<button type="button" class="button button-primary trekpilot-admin-confirm-ok">OK</button>
 					</div>
 				</div>
 			`;
 			document.body.appendChild(overlay);
 
-			overlay.querySelector('.at-admin-confirm-cancel').addEventListener('click', function() {
+			overlay.querySelector('.trekpilot-admin-confirm-cancel').addEventListener('click', function() {
 				overlay.classList.remove('show');
 			});
 		}
 
-		overlay.querySelector('.at-admin-confirm-msg').innerText = message;
+		overlay.querySelector('.trekpilot-admin-confirm-msg').innerText = message;
 		
 		// Remove old event listener from OK button by cloning it
-		let oldOk = overlay.querySelector('.at-admin-confirm-ok');
+		let oldOk = overlay.querySelector('.trekpilot-admin-confirm-ok');
 		let newOk = oldOk.cloneNode(true);
 		oldOk.parentNode.replaceChild(newOk, oldOk);
 
@@ -66,8 +66,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	// ==========================================
 	// 1. Tab switching logic
 	// ==========================================
-	const tabLinks = document.querySelectorAll('.at-meta-tabs-nav a');
-	const tabPanels = document.querySelectorAll('.at-meta-tab-panel');
+	const tabLinks = document.querySelectorAll('.trekpilot-meta-tabs-nav a');
+	const tabPanels = document.querySelectorAll('.trekpilot-meta-tab-panel');
 
 	if (tabLinks.length > 0) {
 		tabLinks.forEach(function(link) {
@@ -92,28 +92,28 @@ document.addEventListener('DOMContentLoaded', function() {
 	// ==========================================
 	// 2. FAQ Repeater Logic
 	// ==========================================
-	const faqList = document.getElementById('at_faq_repeater_list');
-	const addFaqBtn = document.getElementById('at_add_faq_row_btn');
+	const faqList = document.getElementById('trekpilot_faq_repeater_list');
+	const addFaqBtn = document.getElementById('trekpilot_add_faq_row_btn');
 
 	// An FAQ needs both a question and an answer. Flag half-filled rows and, in the block
 	// editor, lock saving until they are completed (the server drops incomplete rows anyway).
 	function validateFaqRows() {
 		if (!faqList) { return; }
 		let incomplete = 0;
-		faqList.querySelectorAll('.at-faq-repeater-row').forEach(function(row) {
+		faqList.querySelectorAll('.trekpilot-faq-repeater-row').forEach(function(row) {
 			const q = row.querySelector('input[type="text"]');
 			const a = row.querySelector('textarea');
 			const qFilled = !!(q && q.value.trim());
 			const aFilled = !!(a && a.value.trim());
 			const bad = (qFilled !== aFilled);
-			row.classList.toggle('at-faq-incomplete', bad);
-			let msg = row.querySelector('.at-faq-row-error');
+			row.classList.toggle('trekpilot-faq-incomplete', bad);
+			let msg = row.querySelector('.trekpilot-faq-row-error');
 			if (bad) {
 				incomplete++;
 				if (!msg) {
 					msg = document.createElement('p');
-					msg.className = 'at-faq-row-error';
-					row.querySelector('.at-faq-row-fields').appendChild(msg);
+					msg.className = 'trekpilot-faq-row-error';
+					row.querySelector('.trekpilot-faq-row-fields').appendChild(msg);
 				}
 				msg.textContent = qFilled ? 'Please add an answer for this question.' : 'Please add a question for this answer.';
 			} else if (msg) {
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (window.wp && wp.data && wp.data.dispatch) {
 			const editor = wp.data.dispatch('core/editor');
 			if (editor && editor.lockPostSaving) {
-				if (incomplete > 0) { editor.lockPostSaving('at-faq-incomplete'); } else { editor.unlockPostSaving('at-faq-incomplete'); }
+				if (incomplete > 0) { editor.lockPostSaving('trekpilot-faq-incomplete'); } else { editor.unlockPostSaving('trekpilot-faq-incomplete'); }
 			}
 		}
 	}
@@ -142,13 +142,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 			// Construct row HTML
 			const rowHTML = `
-				<div class="at-faq-repeater-row" data-index="${index}">
-					<span class="at-drag-handle">☰</span>
-					<div class="at-faq-row-fields">
-						<input type="text" name="at_faq[${index}][q]" placeholder="Question" aria-label="FAQ question" class="large-text" />
-						<textarea name="at_faq[${index}][a]" rows="3" placeholder="Answer" aria-label="FAQ answer" class="large-text"></textarea>
+				<div class="trekpilot-faq-repeater-row" data-index="${index}">
+					<span class="trekpilot-drag-handle">☰</span>
+					<div class="trekpilot-faq-row-fields">
+						<input type="text" name="trekpilot_faq[${index}][q]" placeholder="Question" aria-label="FAQ question" class="large-text" />
+						<textarea name="trekpilot_faq[${index}][a]" rows="3" placeholder="Answer" aria-label="FAQ answer" class="large-text"></textarea>
 					</div>
-					<button type="button" class="button at-remove-faq-row-btn">Remove</button>
+					<button type="button" class="button trekpilot-remove-faq-row-btn">Remove</button>
 				</div>
 			`;
 
@@ -159,9 +159,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		// Delegate delete event for dynamically created rows
 		faqList.addEventListener('click', function(e) {
-			if (e.target && e.target.classList.contains('at-remove-faq-row-btn')) {
+			if (e.target && e.target.classList.contains('trekpilot-remove-faq-row-btn')) {
 				e.preventDefault();
-				const row = e.target.closest('.at-faq-repeater-row');
+				const row = e.target.closest('.trekpilot-faq-repeater-row');
 				if (row) {
 					row.remove();
 					validateFaqRows();
@@ -173,9 +173,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	// ==========================================
 	// 3. WordPress Media Library Gallery Selector
 	// ==========================================
-	const selectGalleryBtn = document.getElementById('at_select_gallery_btn');
-	const galleryIdsInput = document.getElementById('at_gallery_ids');
-	const galleryThumbsWrapper = document.getElementById('at_gallery_thumbs_wrapper');
+	const selectGalleryBtn = document.getElementById('trekpilot_select_gallery_btn');
+	const galleryIdsInput = document.getElementById('trekpilot_gallery_ids');
+	const galleryThumbsWrapper = document.getElementById('trekpilot_gallery_thumbs_wrapper');
 
 	if (selectGalleryBtn && galleryIdsInput && galleryThumbsWrapper) {
 		let galleryFrame;
@@ -223,9 +223,9 @@ document.addEventListener('DOMContentLoaded', function() {
 					// Render thumbnail
 					const thumbnail = (attachment.sizes && attachment.sizes.thumbnail) ? attachment.sizes.thumbnail.url : attachment.url;
 					const thumbHTML = `
-						<div class="at-gallery-thumb-item" data-id="${attachment.id}">
+						<div class="trekpilot-gallery-thumb-item" data-id="${attachment.id}">
 							<img src="${thumbnail}" alt="" />
-							<a href="#" class="at-gallery-remove-btn" title="Remove">&times;</a>
+							<a href="#" class="trekpilot-gallery-remove-btn" title="Remove">&times;</a>
 						</div>
 					`;
 					galleryThumbsWrapper.insertAdjacentHTML('beforeend', thumbHTML);
@@ -241,9 +241,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		// Remove image from gallery preview and update the hidden IDs field
 		galleryThumbsWrapper.addEventListener('click', function(e) {
-			if (e.target && e.target.classList.contains('at-gallery-remove-btn')) {
+			if (e.target && e.target.classList.contains('trekpilot-gallery-remove-btn')) {
 				e.preventDefault();
-				const thumbItem = e.target.closest('.at-gallery-thumb-item');
+				const thumbItem = e.target.closest('.trekpilot-gallery-thumb-item');
 				if (thumbItem) {
 					const idToRemove = thumbItem.getAttribute('data-id');
 					thumbItem.remove();
@@ -265,8 +265,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // The server applies the same rule on save.
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
-	document.querySelectorAll('input[data-at-plain-text]').forEach(function(input) {
-		const allowPlus = input.getAttribute('data-at-plain-text') === 'plus';
+	document.querySelectorAll('input[data-trekpilot-plain-text]').forEach(function(input) {
+		const allowPlus = input.getAttribute('data-trekpilot-plain-text') === 'plus';
 		const disallowed = allowPlus ? /[^\p{L}\p{N}\s\/\-,.+]/gu : /[^\p{L}\p{N}\s\/\-,.]/gu;
 		input.addEventListener('input', function() {
 			const cleaned = input.value.replace(disallowed, '');
@@ -286,9 +286,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // Mirrors TrekMetaBoxController::validate_ages() (the server re-checks on save).
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
-	const limitInput = document.getElementById('at_age_limit');
-	const adultInput = document.getElementById('at_adult_age');
-	const childInput = document.getElementById('at_child_age');
+	const limitInput = document.getElementById('trekpilot_age_limit');
+	const adultInput = document.getElementById('trekpilot_adult_age');
+	const childInput = document.getElementById('trekpilot_child_age');
 	if (!limitInput || !adultInput || !childInput) {
 		return;
 	}
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	function showError(input, message) {
-		let el = input.parentNode.querySelector('.at-age-error');
+		let el = input.parentNode.querySelector('.trekpilot-age-error');
 		if (!message) {
 			if (el) { el.remove(); }
 			input.style.borderColor = '';
@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 		if (!el) {
 			el = document.createElement('p');
-			el.className = 'at-age-error';
+			el.className = 'trekpilot-age-error';
 			el.style.cssText = 'color:#b32d2e; margin:4px 0 0; font-size:12px;';
 			input.parentNode.appendChild(el);
 		}
@@ -374,11 +374,11 @@ document.addEventListener('DOMContentLoaded', function() {
 		postForm.addEventListener('submit', function(e) {
 			if (!render()) {
 				e.preventDefault();
-				const tabLink = document.querySelector('.at-meta-tabs-nav a[href="#at-tab-general"]');
+				const tabLink = document.querySelector('.trekpilot-meta-tabs-nav a[href="#trekpilot-tab-general"]');
 				if (tabLink) { tabLink.click(); }
 				adultInput.scrollIntoView({ block: 'center' });
-				if (typeof window.at_admin_toast === 'function') {
-					window.at_admin_toast('Please fix the age settings before saving.');
+				if (typeof window.trekpilot_admin_toast === 'function') {
+					window.trekpilot_admin_toast('Please fix the age settings before saving.');
 				}
 				// WordPress disables the submit button while saving; undo that so the editor can retry.
 				setTimeout(function() {
