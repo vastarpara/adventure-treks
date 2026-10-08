@@ -182,17 +182,6 @@ class Plugin {
 	}
 
 	/**
-	 * Built-in brand colors, used only when neither the Settings > Color options
-	 * nor the active theme provide one.
-	 *
-	 * @var array<string,string>
-	 */
-	const DEFAULT_COLORS = array(
-		'primary'   => '#137a7f',
-		'secondary' => '#0f6165',
-	);
-
-	/**
 	 * Palette slugs / Elementor global color ids that stand in for each brand role in a theme.
 	 *
 	 * @return array<string,array<string,string[]>>
@@ -251,7 +240,7 @@ class Plugin {
 			}
 		}
 
-		if ( class_exists( '\\Elementor\\Plugin' ) && isset( \Elementor\Plugin::$instance->kits_manager ) ) {
+		if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->kits_manager ) ) {
 			$kit = \Elementor\Plugin::$instance->kits_manager->get_active_kit_for_frontend();
 			if ( $kit ) {
 				foreach ( (array) $kit->get_settings( 'system_colors' ) as $entry ) {
@@ -286,11 +275,10 @@ class Plugin {
 
 	/**
 	 * The brand color for a role: the value saved in Settings > Color, otherwise the theme's
-	 * color, otherwise the built-in default. Always a hex value (used where CSS variables
-	 * are unavailable, such as emails).
+	 * color. Returns an empty string when neither exists (the plugin sets no color of its own).
 	 *
 	 * @param string $role 'primary' or 'secondary'.
-	 * @return string
+	 * @return string Hex value or ''.
 	 */
 	public static function get_brand_color( $role ) {
 		$saved = sanitize_hex_color( (string) get_option( 'trekpilot_' . $role . '_color', '' ) );
@@ -298,17 +286,15 @@ class Plugin {
 			return $saved;
 		}
 
-		$theme = self::get_theme_color_hex( $role );
-
-		return $theme ? $theme : self::DEFAULT_COLORS[ $role ];
+		return self::get_theme_color_hex( $role );
 	}
 
 	/**
-	 * Build the `:root` CSS custom properties block for the Primary/Secondary brand colors.
+	 * Build the :root CSS custom properties block for the Primary/Secondary brand colors.
 	 *
 	 * A color saved in Settings > Color always wins. When it is left empty, the public site
 	 * follows the active theme (its CSS color variables, live) and the admin screens use the
-	 * theme's hex value; both finish on the built-in default.
+	 * theme's hex value. If the theme has none either, no variable is output.
 	 *
 	 * @return string
 	 */
@@ -317,23 +303,22 @@ class Plugin {
 		$rules = '';
 
 		foreach ( array( 'primary', 'secondary' ) as $role ) {
-			$saved = sanitize_hex_color( (string) get_option( 'trekpilot_' . $role . '_color', '' ) );
+			$value = self::get_brand_color( $role );
 
-			if ( $saved ) {
-				$value = $saved;
-			} elseif ( is_admin() ) {
-				$value = self::get_brand_color( $role );
-			} else {
-				$value = self::get_brand_color( $role );
+			if ( ! sanitize_hex_color( (string) get_option( 'trekpilot_' . $role . '_color', '' ) ) && ! is_admin() ) {
+				$inner = $value;
 				foreach ( array_reverse( $map[ $role ]['css'] ) as $variable ) {
-					$value = 'var(' . $variable . ', ' . $value . ')';
+					$inner = 'var(' . $variable . ( '' !== $inner ? ', ' . $inner : '' ) . ')';
 				}
+				$value = $inner;
 			}
 
-			$rules .= '--at-' . $role . '-color:' . $value . ';';
+			if ( '' !== $value ) {
+				$rules .= '--trekpilot-' . $role . '-color:' . $value . ';';
+			}
 		}
 
-		return ':root{' . $rules . '}';
+		return '' !== $rules ? ':root{' . $rules . '}' : '';
 	}
 
 	/**
@@ -349,8 +334,9 @@ class Plugin {
 	 * @return string
 	 */
 	public static function render_email_html( $heading, $intro, $details_rows, $cta_label = '', $cta_url = '' ) {
-		$primary   = self::get_brand_color( 'primary' );
-		$secondary = self::get_brand_color( 'secondary' );
+		// Emails can't use CSS variables, so they need a hex; neutral dark when no color is configured.
+		$primary   = self::get_brand_color( 'primary' ) ?: '#333333';
+		$secondary = self::get_brand_color( 'secondary' ) ?: '#333333';
 
 		$site_name = get_bloginfo( 'name' );
 		$logo_url  = self::get_site_logo_url();

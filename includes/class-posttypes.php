@@ -25,6 +25,7 @@ class PostTypes {
 	 */
 	public static function register() {
 		add_action( 'init', array( __CLASS__, 'register_trek_post_type' ) );
+		add_action( 'add_meta_boxes', array( __CLASS__, 'remove_extra_meta_boxes' ), 99 );
 	}
 
 	/**
@@ -85,5 +86,16 @@ class PostTypes {
 		);
 
 		register_post_type( 'trekpilot_trek', $args );
+	}
+
+	/**
+	 * Remove generic meta boxes that other plugins/themes add to the trek editor
+	 * (the Custom Fields box); a trek's data is managed through TrekPilot's own boxes.
+	 *
+	 * @return void
+	 */
+	public static function remove_extra_meta_boxes() {
+		remove_meta_box( 'postcustom', 'trekpilot_trek', 'normal' );
+		remove_meta_box( 'postcustom', 'trekpilot_trek', 'advanced' );
 	}
 }

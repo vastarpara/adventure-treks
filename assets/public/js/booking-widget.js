@@ -93,8 +93,17 @@ document.addEventListener('DOMContentLoaded', function() {
 	const successClose = document.getElementById('trekpilot_success_close_btn');
 	const successReceiptBody = document.getElementById('trekpilot_success_receipt_body');
 
+	// Move modals to <body>: inside the (sticky/transformed) sidebar they're trapped in its
+	// stacking context, so page elements like the gallery's "View All Images" button
+	// would render above the overlay.
+	[checkoutModal, paymentModal, successModal].forEach(function (m) {
+		if (m && m.parentNode !== document.body) {
+			document.body.appendChild(m);
+		}
+	});
+
 	// Sticky Bottom Booking Bar
-	const stickyBar = document.getElementById('trekpilot_sticky_booking_bar');
+	const stickyBar =document.getElementById('trekpilot_sticky_booking_bar');
 	const stickyBarAmount = document.getElementById('trekpilot_sticky_bar_amount');
 	const stickyBarUnit = document.getElementById('trekpilot_sticky_bar_unit');
 	const stickyBarCta = document.getElementById('trekpilot_sticky_bar_cta');
@@ -1016,11 +1025,19 @@ document.addEventListener('DOMContentLoaded', function() {
 		selectedCityId = null;
 		selectedDateId = null;
 		dateDetails = null;
+		selectedTransport = null;
 
 		cityPills.querySelectorAll('.trekpilot-city-pill-btn').forEach(btn => btn.classList.remove('active'));
+		if (transportSection) transportSection.style.display = 'none';
 		dateSection.style.display = 'none';
 		detailsSection.style.display = 'none';
 		if (detailsLoading) detailsLoading.style.display = 'none';
+
+		// Same as on page load: re-select the first city so the widget isn't left half-empty.
+		const firstCityBtn = cityPills.querySelector('.trekpilot-city-pill-btn');
+		if (firstCityBtn) {
+			firstCityBtn.click();
+		}
 	});
 
 });

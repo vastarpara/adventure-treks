@@ -624,9 +624,7 @@ class TrekBookingsController {
 			/* translators: %s: customer name. */
 			sprintf( __( 'Hello, %s!', 'trekpilot' ), $cust_name ),
 			$intro,
-			$details_rows,
-			__( 'View Trek Details', 'trekpilot' ),
-			get_permalink( $trek_id )
+			$details_rows
 		);
 
 		$from_name  = get_option( 'trekpilot_from_name', get_bloginfo( 'name' ) );

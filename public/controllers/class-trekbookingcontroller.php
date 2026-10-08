@@ -624,15 +624,11 @@ class TrekBookingController {
 			),
 		);
 
-		$trek_url = get_permalink( $trek_id );
-
 		$customer_message = \TrekPilot\Includes\Plugin::render_email_html(
 			/* translators: %s: customer name. */
 			sprintf( __( 'Thank You, %s!', 'trekpilot' ), $cust_name ),
 			__( 'Thank you for booking your trek with us! Our team is currently reviewing your booking details, and we will confirm it shortly. Stay tuned!', 'trekpilot' ),
-			$details_rows,
-			__( 'View Trek Details', 'trekpilot' ),
-			$trek_url
+			$details_rows
 		);
 
 		$admin_message = \TrekPilot\Includes\Plugin::render_email_html(

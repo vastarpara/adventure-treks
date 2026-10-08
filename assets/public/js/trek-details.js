@@ -41,6 +41,21 @@ document.addEventListener('DOMContentLoaded', function() {
 	const tabPanels = document.querySelectorAll('.trekpilot-details-tab-panel');
 
 	if (tabLinks.length > 0 && tabPanels.length > 0) {
+		// Show an arrow/fade on the right while more tabs are hidden beyond the visible edge.
+		const tabsNav = tabLinks[0].closest('.trekpilot-details-tabs-nav');
+		const tabsWrapper = tabLinks[0].closest('.trekpilot-details-tabs-wrapper');
+		function updateTabsHint() {
+			if (!tabsNav || !tabsWrapper) { return; }
+			const more = tabsNav.scrollWidth - tabsNav.clientWidth - tabsNav.scrollLeft > 4;
+			tabsWrapper.classList.toggle('has-more-tabs', more);
+			tabsWrapper.classList.toggle('has-more-tabs-left', tabsNav.scrollLeft > 4);
+		}
+		if (tabsNav) {
+			tabsNav.addEventListener('scroll', updateTabsHint, { passive: true });
+			window.addEventListener('resize', updateTabsHint);
+			updateTabsHint();
+		}
+
 		tabLinks.forEach(function(link) {
 			link.addEventListener('click', function(e) {
 				e.preventDefault();
@@ -60,6 +75,11 @@ document.addEventListener('DOMContentLoaded', function() {
 				tabPanels.forEach(function(p) { p.classList.remove('active'); });
 
 				this.parentElement.classList.add('active');
+				if (tabsNav) {
+					// Centre the chosen tab so its neighbours (and any further tabs) peek in.
+					const left = this.parentElement.offsetLeft - (tabsNav.clientWidth - this.parentElement.offsetWidth) / 2;
+					tabsNav.scrollTo({ left: left, behavior: 'smooth' });
+				}
 				const targetPanel = document.querySelector(this.getAttribute('href'));
 				if (targetPanel) {
 					targetPanel.classList.add('active');
@@ -89,6 +109,11 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 
 		document.querySelectorAll('.trekpilot-policy-modal').forEach(function(modal) {
+			// Fixed-position popups inside a transformed/filtered ancestor are positioned against
+			// that ancestor, not the screen (they showed at the bottom on mobile). Hoist to <body>.
+			if (modal.parentNode !== document.body) {
+				document.body.appendChild(modal);
+			}
 			modal.querySelectorAll('[data-popup-close]').forEach(function(closer) {
 				closer.addEventListener('click', function() { closePolicyModal(modal); });
 			});

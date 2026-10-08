@@ -40,6 +40,19 @@ document.addEventListener('DOMContentLoaded', function () {
 	});
 	activateTab(validTabs.indexOf(initialTab) !== -1 ? initialTab : 'general');
 
+	// options.php redirects back to the referer, and browsers never send the #hash, so the
+	// user would land on the General tab after saving. Put the active tab into the referer.
+	const settingsFormEl = document.querySelector('form.trekpilot-settings-form-card');
+	if (settingsFormEl) {
+		settingsFormEl.addEventListener('submit', function () {
+			const active = document.querySelector('.nav-tab-wrapper .nav-tab-active');
+			const referer = settingsFormEl.querySelector('input[name="_wp_http_referer"]');
+			if (active && referer) {
+				referer.value = referer.value.split('#')[0] + '#' + active.getAttribute('data-trekpilot-tab');
+			}
+		});
+	}
+
 	// ==========================================
 	// Payment tab: Cash / UPI toggle.
 	// ==========================================
@@ -58,6 +71,57 @@ document.addEventListener('DOMContentLoaded', function () {
 		radio.addEventListener('change', toggleUpiFields);
 	});
 	toggleUpiFields();
+
+	// UPI needs a UPI ID and a QR code image: block the save and point at the empty field.
+	const upiIdInput = document.getElementById('trekpilot_upi_id');
+	const upiQrInput = document.getElementById('trekpilot_upi_qr_code');
+	const upiQrBtn = document.getElementById('trekpilot_upi_qr_code_select_btn');
+	const settingsFormForUpi = document.querySelector('form.trekpilot-settings-form-card');
+
+	function setUpiError(anchor, id, text) {
+		const old = document.getElementById(id);
+		if (old) {
+			old.remove();
+		}
+		if (!text || !anchor) {
+			return;
+		}
+		const msg = document.createElement('p');
+		msg.id = id;
+		msg.className = 'description';
+		msg.style.color = '#b32d2e';
+		msg.textContent = text;
+		anchor.insertAdjacentElement('afterend', msg);
+	}
+
+	if (upiIdInput && upiQrInput && upiQrBtn && settingsFormForUpi) {
+		settingsFormForUpi.addEventListener('submit', function (e) {
+			const checked = document.querySelector('input[name="trekpilot_payment_method"]:checked');
+			setUpiError(upiIdInput, 'trekpilot_upi_id_error', '');
+			setUpiError(upiQrBtn.parentNode, 'trekpilot_upi_qr_error', '');
+			if (!checked || checked.value !== 'upi') {
+				return;
+			}
+			if (!upiIdInput.value.trim()) {
+				e.preventDefault();
+				setUpiError(upiIdInput, 'trekpilot_upi_id_error', 'Please enter a UPI ID to use UPI as the payment method.');
+				upiIdInput.focus();
+			}
+			if (!upiQrInput.value.trim()) {
+				e.preventDefault();
+				setUpiError(upiQrBtn.parentNode, 'trekpilot_upi_qr_error', 'Please select a QR code image to use UPI as the payment method.');
+				if (upiIdInput.value.trim()) {
+					upiQrBtn.focus();
+				}
+			}
+		});
+		upiIdInput.addEventListener('input', function () {
+			setUpiError(upiIdInput, 'trekpilot_upi_id_error', '');
+		});
+		upiQrBtn.addEventListener('click', function () {
+			setUpiError(upiQrBtn.parentNode, 'trekpilot_upi_qr_error', '');
+		});
+	}
 });
 
 /**

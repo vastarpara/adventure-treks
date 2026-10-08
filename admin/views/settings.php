@@ -14,6 +14,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="wrap">
 	<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 
+	<?php
+	$trekpilot_ie_notice = get_transient( 'trekpilot_import_export_notice_' . get_current_user_id() );
+	if ( $trekpilot_ie_notice ) {
+		delete_transient( 'trekpilot_import_export_notice_' . get_current_user_id() );
+		printf(
+			'<div class="notice notice-%1$s inline is-dismissible"><p>%2$s</p></div>',
+			esc_attr( 'success' === $trekpilot_ie_notice[0] ? 'success' : 'error' ),
+			esc_html( $trekpilot_ie_notice[1] )
+		);
+	}
+	?>
+
 	<h2 class="nav-tab-wrapper">
 		<a href="#" class="nav-tab nav-tab-active" data-trekpilot-tab="general"><?php esc_html_e( 'General', 'trekpilot' ); ?></a>
 		<a href="#" class="nav-tab" data-trekpilot-tab="currency"><?php esc_html_e( 'Currency', 'trekpilot' ); ?></a>
@@ -21,18 +33,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<a href="#" class="nav-tab" data-trekpilot-tab="email"><?php esc_html_e( 'Email', 'trekpilot' ); ?></a>
 		<a href="#" class="nav-tab" data-trekpilot-tab="import-export"><?php esc_html_e( 'Import / Export', 'trekpilot' ); ?></a>
 	</h2>
-
-	<?php
-	$trekpilot_ie_notice = get_transient( 'trekpilot_import_export_notice_' . get_current_user_id() );
-	if ( $trekpilot_ie_notice ) {
-		delete_transient( 'trekpilot_import_export_notice_' . get_current_user_id() );
-		printf(
-			'<div class="notice notice-%1$s is-dismissible"><p>%2$s</p></div>',
-			esc_attr( 'success' === $trekpilot_ie_notice[0] ? 'success' : 'error' ),
-			esc_html( $trekpilot_ie_notice[1] )
-		);
-	}
-	?>
 
 	<form method="post" action="options.php" class="trekpilot-settings-form-card">
 		<?php

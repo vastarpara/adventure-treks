@@ -210,9 +210,11 @@
 	text-transform: uppercase;
 	margin-bottom: 4px;
 	font-weight: 600;
+	line-height: 1.3;
 }
 
 .trekpilot-detail-value {
+	line-height: 1.3;
 	font-size: 11px;
 	font-weight: 700;
 	color: #222;
@@ -971,21 +973,26 @@
 		grid-template-columns: repeat(2, 1fr);
 	}
 
+	/* Two columns (the third card spans the full row) so the text can be larger. */
 	.trekpilot-widget-details-grid {
-		grid-template-columns: repeat(3, 1fr);
-		gap: 6px;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 8px;
+	}
+
+	.trekpilot-widget-details-grid .trekpilot-detail-card:last-child:nth-child(odd) {
+		grid-column: 1 / -1;
 	}
 
 	.trekpilot-detail-card {
-		padding: 8px 5px;
+		padding: 10px 8px;
 	}
 
 	.trekpilot-detail-label {
-		font-size: 9px;
+		font-size: 11px;
 	}
 
 	.trekpilot-detail-value {
-		font-size: 10px;
+		font-size: 12px;
 	}
 
 	.trekpilot-transport-option-name {
@@ -1032,9 +1039,6 @@
 		grid-template-columns: repeat(2, 1fr);
 	}
 
-	.trekpilot-widget-details-grid {
-		grid-template-columns: 1fr;
-	}
 }
 
 /* Inline checkout validation */

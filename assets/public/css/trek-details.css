@@ -125,6 +125,51 @@
 	border-radius: 3px;
 }
 
+/* Right-edge fade + arrow while more tabs are hidden off-screen (toggled from JS). */
+.trekpilot-details-tabs-wrapper {
+	position: relative;
+}
+.trekpilot-details-tabs-wrapper.has-more-tabs-left::before {
+	content: '\2039';
+	position: absolute;
+	top: 1px;
+	left: 1px;
+	height: 51px;
+	width: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	padding-left: 10px;
+	box-sizing: border-box;
+	font-size: 28px;
+	line-height: 1;
+	color: var(--trekpilot-primary-color, #137a7f);
+	background: linear-gradient(to left, rgba(251, 251, 251, 0), #fbfbfb 70%);
+	border-radius: 8px 0 0 0;
+	pointer-events: none;
+	z-index: 6;
+}
+.trekpilot-details-tabs-wrapper.has-more-tabs::after {
+	content: '\203A';
+	position: absolute;
+	top: 1px;
+	right: 1px;
+	height: 51px;
+	width: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	padding-right: 10px;
+	box-sizing: border-box;
+	font-size: 28px;
+	line-height: 1;
+	color: var(--trekpilot-primary-color, #137a7f);
+	background: linear-gradient(to right, rgba(251, 251, 251, 0), #fbfbfb 70%);
+	border-radius: 0 8px 0 0;
+	pointer-events: none;
+	z-index: 6;
+}
+
 .trekpilot-details-tabs-nav li {
 	margin: 0;
 }
@@ -251,7 +296,7 @@
 }
 
 .trekpilot-accordion-item {
-	border: 1px solid #eaeaea;
+	border: none;
 	border-radius: 6px;
 	overflow: hidden;
 }

@@ -243,6 +243,17 @@ class AdminController {
 	public function sanitize_payment_method( $input ) {
 		$input = sanitize_text_field( $input );
 
+		if ( 'upi' === $input ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- options.php has already verified the settings nonce.
+			$upi_id = isset( $_POST['trekpilot_upi_id'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['trekpilot_upi_id'] ) ) ) : '';
+			$upi_qr = isset( $_POST['trekpilot_upi_qr_code'] ) ? trim( esc_url_raw( wp_unslash( $_POST['trekpilot_upi_qr_code'] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			if ( '' === $upi_id || '' === $upi_qr ) {
+				add_settings_error( 'trekpilot_payment_method', 'trekpilot_upi_required', __( 'Please enter a UPI ID and select a QR code image to use UPI as the payment method.', 'trekpilot' ) );
+
+				return 'cash' === get_option( 'trekpilot_payment_method', 'cash' ) ? 'cash' : 'upi';
+			}
+		}
+
 		return in_array( $input, array( 'cash', 'upi' ), true ) ? $input : 'cash';
 	}
 

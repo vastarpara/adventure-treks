@@ -188,8 +188,8 @@ $trekpilot_child_age    = '' !== $trekpilot_child_age ? $trekpilot_child_age : $
 					</div>
 				</form>
 				<div class="trekpilot-checkout-terms" id="trekpilot_checkout_terms_wrap">
-					<label style="display:flex; align-items:flex-start; gap:6px; font-size:11px; color:#666; margin:0; cursor:pointer;">
-						<input type="checkbox" id="trekpilot_checkout_terms_agree" style="margin-top:2px;" />
+					<label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; line-height:1.5; color:#666; margin:0; cursor:pointer;">
+						<input type="checkbox" id="trekpilot_checkout_terms_agree" style="margin:2px 0 0; flex-shrink:0;" />
 						<span><?php esc_html_e( 'By booking, you agree to the cancellation, refund policies, and terms and conditions configured for this trek.', 'trekpilot' ); ?></span>
 					</label>
 				</div>
