@@ -129,7 +129,15 @@ document.addEventListener('DOMContentLoaded', function () {
  */
 if (typeof jQuery !== 'undefined') {
 	jQuery(function ($) {
-		$('.trekpilot-color-picker').wpColorPicker();
+		// A color picked by hand cancels a pending 'Use theme color'.
+		$('.trekpilot-color-picker').wpColorPicker({
+			change: function (event) {
+				if (!$(event.target).data('trekpilotThemeClear')) {
+					return;
+				}
+				$(event.target).data('trekpilotThemeClear', false);
+			}
+		});
 
 		// An empty color means "follow the theme": give each picker a one-click way to get there
 		// (the stock "Default" button only returns to a fixed colour, which we no longer set).
@@ -137,13 +145,29 @@ if (typeof jQuery !== 'undefined') {
 			const $input = $(this);
 			const $btn = $('<button type="button" class="button button-small trekpilot-color-theme-btn"></button>')
 				.text('Use theme color')
-				.css('margin-left', '6px');
+				.css({ display: 'block', clear: 'both', margin: '8px 0 0' });
 			$input.closest('.wp-picker-container').append($btn);
 
 			$btn.on('click', function () {
-				$input.wpColorPicker('close');
-				$input.val('').trigger('change');
-				$input.closest('.wp-picker-container').find('.wp-color-result').css('background-color', '');
+				const $wrap = $input.closest('.wp-picker-container');
+				const $result = $wrap.find('.wp-color-result');
+				// Close through WordPress's own toggle so its open/closed state stays in sync.
+				if ($result.hasClass('wp-picker-open')) {
+					$result.trigger('click');
+				}
+				$input.data('trekpilotThemeClear', true).val('');
+				$result.css('background-color', '');
+				$btn.text('Theme color selected ✓');
+			});
+			// Reopening the picker means a color is being chosen again.
+			$input.closest('.wp-picker-container').on('click', '.wp-color-result', function () {
+				$btn.text('Use theme color');
+			});
+			// The picker can write its last color back into the field; make sure an empty value is what gets saved.
+			$input.closest('form').on('submit', function () {
+				if ($input.data('trekpilotThemeClear')) {
+					$input.val('');
+				}
 			});
 		});
 	});

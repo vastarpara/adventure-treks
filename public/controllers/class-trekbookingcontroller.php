@@ -637,7 +637,9 @@ class TrekBookingController {
 			sprintf( __( 'You have received a new booking request from %s! Please review the booking details and confirm or reject it as soon as possible.', 'trekpilot' ), $cust_name ),
 			$details_rows,
 			__( 'Manage Booking', 'trekpilot' ),
-			admin_url( 'edit.php?post_type=trekpilot_trek&page=trekpilot-bookings&action=edit&booking=' . $booking_id )
+			// Via the login page: logged-out admins sign in first and are then sent on to the booking;
+			// already logged-in admins are forwarded straight to it.
+			wp_login_url( admin_url( 'edit.php?post_type=trekpilot_trek&page=trekpilot-bookings&action=edit&booking=' . $booking_id ) )
 		);
 
 		$subject = sprintf( 'Booking Pending' );
