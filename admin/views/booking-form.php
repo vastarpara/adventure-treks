@@ -162,20 +162,18 @@ $trekpilot_currency = get_option( 'trekpilot_currency_symbol', '$' );
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><label for="trekpilot_b_payment_status"><?php esc_html_e( 'Payment Status', 'trekpilot' ); ?> <span class="trekpilot-required">*</span></label></th>
+					<th scope="row"><label for="trekpilot_b_amount_paid"><?php esc_html_e( 'Amount Received', 'trekpilot' ); ?></label></th>
 					<td>
-						<select name="payment_status" id="trekpilot_b_payment_status" required>
-							<?php
-							$trekpilot_payment_status_options = array(
-								'pending' => __( 'Pending', 'trekpilot' ),
-								'paid'    => __( 'Paid', 'trekpilot' ),
-							);
-							$trekpilot_current_payment_status = $trekpilot_is_edit ? $booking->payment_status : 'pending';
-							foreach ( $trekpilot_payment_status_options as $trekpilot_payment_status_val => $trekpilot_payment_status_label ) :
-								?>
-								<option value="<?php echo esc_attr( $trekpilot_payment_status_val ); ?>" <?php selected( $trekpilot_current_payment_status, $trekpilot_payment_status_val ); ?>><?php echo esc_html( $trekpilot_payment_status_label ); ?></option>
-							<?php endforeach; ?>
-						</select>
+						<input type="number" name="amount_paid" id="trekpilot_b_amount_paid" min="0" step="0.01" value="<?php echo esc_attr( $trekpilot_is_edit ? $booking->amount_paid : '0.00' ); ?>" />
+						<button type="button" class="button" id="trekpilot_b_mark_paid"><?php esc_html_e( 'Mark fully paid', 'trekpilot' ); ?></button>
+						<p class="description"><?php esc_html_e( 'Enter the advance / token amount received so far. Payment status and balance update automatically.', 'trekpilot' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Payment Status', 'trekpilot' ); ?></th>
+					<td>
+						<strong id="trekpilot_b_pay_status">-</strong>
+						<span id="trekpilot_b_pay_balance" style="margin-left:12px;"></span>
 					</td>
 				</tr>
 			</tbody>

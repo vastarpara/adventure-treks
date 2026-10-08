@@ -382,7 +382,53 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (amountInput) {
 				amountInput.value = subtotal.toFixed(2);
 			}
+			updatePaymentSummary();
 		}
+
+		// Advance / token payments: status and balance follow the amount received.
+		function updatePaymentSummary() {
+			const paidInput = document.getElementById('trekpilot_b_amount_paid');
+			const statusEl = document.getElementById('trekpilot_b_pay_status');
+			const balanceEl = document.getElementById('trekpilot_b_pay_balance');
+			if (!paidInput || !statusEl || !amountInput) {
+				return;
+			}
+			const total = parseFloat(amountInput.value) || 0;
+			let paid = Math.max(0, parseFloat(paidInput.value) || 0);
+			if (total > 0 && paid > total) {
+				paid = total;
+				paidInput.value = paid.toFixed(2);
+			}
+			let label = 'Pending';
+			let color = '#b32d2e';
+			if (paid > 0 && total > 0 && paid >= total) {
+				label = 'Paid';
+				color = '#1a7f37';
+			} else if (paid > 0) {
+				label = 'Partially Paid';
+				color = '#b26200';
+			}
+			statusEl.textContent = label;
+			statusEl.style.color = color;
+			if (balanceEl) {
+				balanceEl.textContent = 'Balance due: ' + atFormatPrice(Math.max(0, total - paid));
+			}
+		}
+
+		(function () {
+			const paidInput = document.getElementById('trekpilot_b_amount_paid');
+			const markPaid = document.getElementById('trekpilot_b_mark_paid');
+			if (paidInput) {
+				paidInput.addEventListener('input', updatePaymentSummary);
+			}
+			if (markPaid && paidInput) {
+				markPaid.addEventListener('click', function () {
+					paidInput.value = (parseFloat(amountInput.value) || 0).toFixed(2);
+					updatePaymentSummary();
+				});
+			}
+			updatePaymentSummary();
+		})();
 
 		function validateSeatCounts(changedInput) {
 			let adults = parseInt(adultsInput.value, 10);
@@ -537,7 +583,9 @@ document.addEventListener('DOMContentLoaded', function () {
 						['Add-ons', addonsText],
 						['Total Amount', atFormatPrice(data.total_amount)],
 						['Status', data.status],
-						['Payment Status', data.payment_status],
+						['Amount Received', atFormatPrice(data.amount_paid)],
+						['Balance Due', atFormatPrice(data.balance_due)],
+						['Payment Status', data.payment_status_label || data.payment_status],
 						['Booked On', data.created_at],
 					];
 

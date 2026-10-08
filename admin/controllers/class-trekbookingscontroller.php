@@ -211,8 +211,8 @@ class TrekBookingsController {
 		foreach ( $bookings as $booking ) {
 			++$n;
 			$cancelled = 'cancelled' === $booking->status;
-			// Only "pending" / "paid" are tracked, so an unpaid booking owes its full amount. Cancelled bookings owe nothing.
-			$balance = ( 'paid' === $booking->payment_status || $cancelled ) ? 0.0 : (float) $booking->total_amount;
+			// Balance = total minus the amount received so far. Cancelled bookings owe nothing.
+			$balance = $cancelled ? 0.0 : max( 0.0, (float) $booking->total_amount - (float) $booking->amount_paid );
 			if ( ! $cancelled ) {
 				$total_seats += (int) $booking->seats;
 			}
@@ -227,7 +227,7 @@ class TrekBookingsController {
 					isset( $cities[ $booking->city_id ] ) ? $cities[ $booking->city_id ]->city_name : '-',
 					'' !== $booking->pickup_point ? $booking->pickup_point : '-',
 					(string) (int) $booking->seats,
-					$cancelled ? __( 'Cancelled', 'trekpilot' ) : ucfirst( $booking->payment_status ),
+					$cancelled ? __( 'Cancelled', 'trekpilot' ) : self::payment_status_label( $booking->payment_status ),
 					AdminController::format_price( $balance ),
 				),
 				0 === $n % 2
@@ -407,7 +407,7 @@ class TrekBookingsController {
 		$transport_price = isset( $_POST['transport_price'] ) ? floatval( wp_unslash( $_POST['transport_price'] ) ) : 0.00;
 		$total_amount    = isset( $_POST['total_amount'] ) ? floatval( wp_unslash( $_POST['total_amount'] ) ) : 0.00;
 		$status          = isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : 'pending';
-		$payment_status  = isset( $_POST['payment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_status'] ) ) : 'pending';
+		$amount_paid     = isset( $_POST['amount_paid'] ) ? max( 0.0, floatval( wp_unslash( $_POST['amount_paid'] ) ) ) : 0.00;
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$addons_input = isset( $_POST['addons'] ) ? wp_unslash( $_POST['addons'] ) : array();
@@ -427,10 +427,9 @@ class TrekBookingsController {
 			$status = 'pending';
 		}
 
-		$valid_payment_statuses = array( 'pending', 'paid' );
-		if ( ! in_array( $payment_status, $valid_payment_statuses, true ) ) {
-			$payment_status = 'pending';
-		}
+		// Payment status follows the amount received: nothing = pending, some = partial, all = paid.
+		$amount_paid    = min( $amount_paid, $total_amount );
+		$payment_status = self::payment_status_for( $amount_paid, $total_amount );
 
 		$seats = $num_adults + $num_children;
 
@@ -491,10 +490,11 @@ class TrekBookingsController {
 			'transport_type'  => $transport_type,
 			'transport_price' => $transport_price,
 			'total_amount'    => $total_amount,
+			'amount_paid'     => $amount_paid,
 			'status'          => $status,
 			'payment_status'  => $payment_status,
 		);
-		$format = array( '%d', '%d', '%d', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%f', '%f', '%s', '%s' );
+		$format = array( '%d', '%d', '%d', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%f', '%f', '%f', '%s', '%s' );
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery
 		if ( $booking_id ) {
@@ -620,6 +620,20 @@ class TrekBookingsController {
 			),
 		);
 
+		// Advance / partial payments: show what was received and what is still due.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$amount_paid = (float) $wpdb->get_var( $wpdb->prepare( "SELECT amount_paid FROM {$wpdb->prefix}trekpilot_bookings WHERE id = %d", $booking_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		if ( $amount_paid > 0 ) {
+			$details_rows[] = array(
+				'label' => __( 'Amount Paid', 'trekpilot' ),
+				'value' => \TrekPilot\Admin\Controllers\AdminController::format_price( $amount_paid ),
+			);
+			$details_rows[] = array(
+				'label' => __( 'Balance Due', 'trekpilot' ),
+				'value' => \TrekPilot\Admin\Controllers\AdminController::format_price( max( 0.0, (float) $total_amount - $amount_paid ) ),
+			);
+		}
+
 		$message = \TrekPilot\Includes\Plugin::render_email_html(
 			/* translators: %s: customer name. */
 			sprintf( __( 'Hello, %s!', 'trekpilot' ), $cust_name ),
@@ -636,6 +650,37 @@ class TrekBookingsController {
 		);
 
 		wp_mail( $cust_email, $subject, $message, $headers );
+	}
+
+	/**
+	 * Payment status that matches an amount received.
+	 *
+	 * @param float $amount_paid Amount received so far.
+	 * @param float $total       Booking total.
+	 * @return string pending|partial|paid
+	 */
+	public static function payment_status_for( $amount_paid, $total ) {
+		if ( $amount_paid <= 0 ) {
+			return 'pending';
+		}
+
+		return ( $total > 0 && $amount_paid >= $total ) ? 'paid' : 'partial';
+	}
+
+	/**
+	 * Human label for a stored payment status.
+	 *
+	 * @param string $status pending|partial|paid.
+	 * @return string
+	 */
+	public static function payment_status_label( $status ) {
+		$labels = array(
+			'pending' => __( 'Pending', 'trekpilot' ),
+			'partial' => __( 'Partially Paid', 'trekpilot' ),
+			'paid'    => __( 'Paid', 'trekpilot' ),
+		);
+
+		return isset( $labels[ $status ] ) ? $labels[ $status ] : ucfirst( (string) $status );
 	}
 
 	/**
@@ -672,6 +717,9 @@ class TrekBookingsController {
 		$addons              = ! empty( $booking['addons'] ) ? json_decode( $booking['addons'], true ) : array();
 		$booking['addons']   = is_array( $addons ) ? $addons : array();
 		$booking['currency'] = get_option( 'trekpilot_currency_symbol', '$' );
+
+		$booking['payment_status_label'] = self::payment_status_label( $booking['payment_status'] );
+		$booking['balance_due']          = max( 0.0, (float) $booking['total_amount'] - (float) $booking['amount_paid'] );
 
 		wp_send_json_success( $booking );
 	}

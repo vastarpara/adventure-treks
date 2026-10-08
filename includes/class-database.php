@@ -193,6 +193,7 @@ class Database {
 			transport_type varchar(150) DEFAULT '' NOT NULL,
 			transport_price decimal(10,2) DEFAULT '0.00' NOT NULL,
 			total_amount decimal(10,2) DEFAULT '0.00' NOT NULL,
+			amount_paid decimal(10,2) DEFAULT '0.00' NOT NULL,
 			status varchar(50) DEFAULT 'confirmed' NOT NULL,
 			payment_status varchar(20) DEFAULT 'pending' NOT NULL,
 			created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
@@ -233,6 +234,26 @@ class Database {
 		}
 
 		return $grouped;
+	}
+
+	/**
+	 * One-off schema upgrades that dbDelta alone can't finish.
+	 *
+	 * v2: bookings.amount_paid (advance / partial payments). Bookings already marked Paid
+	 * are treated as fully paid.
+	 *
+	 * @return void
+	 */
+	public static function upgrade_schema() {
+		global $wpdb;
+
+		if ( (int) get_option( 'trekpilot_db_schema', 1 ) < 2 ) {
+			self::create_tables();
+			$table = $wpdb->prefix . 'trekpilot_bookings';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			$wpdb->query( "UPDATE $table SET amount_paid = total_amount WHERE payment_status = 'paid' AND amount_paid = 0" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			update_option( 'trekpilot_db_schema', 2 );
+		}
 	}
 
 	/**

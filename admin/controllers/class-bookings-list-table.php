@@ -108,8 +108,23 @@ class Bookings_List_Table extends \WP_List_Table {
 				$color = 'confirmed' === $item->status ? 'green' : 'red';
 				return '<span style="color:' . esc_attr( $color ) . ';font-weight:bold;">' . esc_html( ucfirst( $item->$column_name ) ) . '</span>';
 			case 'payment_status':
-				$color = 'paid' === $item->payment_status ? 'green' : 'red';
-				return '<span style="color:' . esc_attr( $color ) . ';font-weight:bold;">' . esc_html( ucfirst( $item->$column_name ) ) . '</span>';
+				$colors  = array(
+					'paid'    => 'green',
+					'partial' => '#b26200',
+				);
+				$color   = isset( $colors[ $item->payment_status ] ) ? $colors[ $item->payment_status ] : 'red';
+				$html    = '<span style="color:' . esc_attr( $color ) . ';font-weight:bold;">' . esc_html( \TrekPilot\Admin\Controllers\TrekBookingsController::payment_status_label( $item->payment_status ) ) . '</span>';
+				if ( 'partial' === $item->payment_status ) {
+					$html .= '<br /><small>' . esc_html(
+						sprintf(
+							/* translators: 1: amount received, 2: balance still due. */
+							__( 'Paid %1$s, due %2$s', 'trekpilot' ),
+							\TrekPilot\Admin\Controllers\AdminController::format_price( (float) $item->amount_paid ),
+							\TrekPilot\Admin\Controllers\AdminController::format_price( max( 0.0, (float) $item->total_amount - (float) $item->amount_paid ) )
+						)
+					) . '</small>';
+				}
+				return $html;
 			case 'created_at':
 				return esc_html( gmdate( 'd M Y, h:i A', strtotime( $item->created_at ) ) );
 			case 'view':

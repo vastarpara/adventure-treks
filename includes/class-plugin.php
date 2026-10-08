@@ -107,6 +107,9 @@ class Plugin {
 			Database::create_tables();
 			update_option( 'trekpilot_db_version', $this->version );
 		}
+		if ( is_admin() ) {
+			Database::upgrade_schema();
+		}
 
 		// Handle Admin hooks.
 		if ( is_admin() ) {
